@@ -4,4 +4,37 @@
  * Copy it to logmon.conf.php and adapt it according to your needs.
  */
 
+/*
+ * The database to use.
+ * Database access is PDO based. See http://www.php.net/manual/en/pdo.drivers.php
+ * for how to define the driver specific DSN. See also the INSTALL file for further
+ * information regarding database setup.
+ */
+define('DBDSN', 'mysql:host=localhost;dbname=logmon');
+define('DBUSER', 'logmon');
+define('DBPASS', 'secret');
+
+define('EVENT_DISCARD_THRESHOLD', 7*24*60*60);
+
+/*
+ * The log files to monitor.
+ * Define a separate monitor for each set of log files to monitor.
+ */
+define('MONITOR_SYSLOG_SOURCE', '/var/log/messages*');
+define('MONITOR_SYSLOG_BUFLEN', 4096);
+define('MONITOR_SYSLOG_TSPATTERN', '/^(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d) .*: .*$/U');
+define('MONITOR_SYSLOG_TSFORMAT', 'Y-m-d\TH:i:sP');
+
+define('MONITOR_APACHELOG_SOURCE', '/var/log/apache2/*access_log*');
+define('MONITOR_APACHELOG_BUFLEN', 4096);
+define('MONITOR_APACHELOG_TSPATTERN', '/^.* - .* \[(\d\d\/\D\D\D\/\d\d\d\d:\d\d:\d\d:\d\d .\d\d\d\d)\] \".*\" \d\d\d .*$/U');
+define('MONITOR_APACHELOG_TSFORMAT', 'd/M/Y:H:i:s O');
+
+define('FILTER_DHCP_MONITOR', 'SYSLOG');
+define('FILTER_SHOREWALL_MONITOR', 'SYSLOG');
+define('FILTER_OPENSSH_MONITOR', 'SYSLOG');
+define('FILTER_POSTFIX_MONITOR', 'SYSLOG');
+
+define('FILTER_APACHE_MONITOR', 'APACHELOG');
+
 ?>
