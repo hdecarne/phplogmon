@@ -36,6 +36,8 @@ abstract class Filter {
 		return "Filter:{$this->_name}";
 	}
 
+	public abstract function process($dbh, $ts, $line);
+
 	protected function getFilterConfigParam($param) {
 		$key = "FILTER_{$this->_name}_{$param}";
 		if(!defined($key)) {
@@ -44,43 +46,51 @@ abstract class Filter {
 		return constant($key);
 	}
 
+	protected function normalizeAndValidateIP($ip) {
+		return inet_ntop(inet_pton($ip));
+	}
+
 	protected function recordIPEvent($dbh, $status, $service, $ip, $user, $ts, $line) {
-		DBHIPEvent::insertOrUpdate($dbh, $status, $service, $ip, $user, $ts, $line);
-		if(!array_key_exists($ip, self::$_ipinfoUpdated)) {
-			$host = gethostbyaddr($ip);
-			if($host === false) {
-				$host = $ip;
+		$normalizedIP = $this->normalizeAndValidateIP($ip);
+		if($normalizedIP !== false) {
+			DBHIPEvent::insertOrUpdate($dbh, $status, $service, $normalizedIP, $user, $ts, $line);
+			if(!array_key_exists($normalizedIP, self::$_ipinfoUpdated)) {
+				$host = gethostbyaddr($normalizedIP);
+				if($host === false) {
+					$host = $normalizedIP;
+				}
+				$record = (extension_loaded("geoip") ?  @geoip_record_by_name($normalizedIP) : false);
+				if($record !== false) {
+					$continentcode = $record["continent_code"];
+					$countrycode = $record["country_code"];
+					$countryname = $record["country_name"];
+					$region = $record["region"];
+					$city = $record["city"];
+					$postalcode = $record["postal_code"];
+					$latitude = $record["latitude"];
+					$longitude = $record["longitude"];
+				} else {
+					$continentcode = null;
+					$countrycode = null;
+					$countryname = null;
+					$region = null;
+					$city = null;
+					$postalcode = null;
+					$latitude = null;
+					$longitude = null;
+				}
+				DBHIPInfo::insertOrUpdate($dbh, $normalizedIP, $host, $continentcode, $countrycode,
+					$countryname, $region, $city, $postalcode, $latitude, $longitude);
+				self::$_ipinfoUpdated[$normalizedIP] = $normalizedIP;
 			}
-			$record = (extension_loaded("geoip") ?  @geoip_record_by_name($ip) : false);
-			if($record !== false) {
-				$continentcode = $record["continent_code"];
-				$countrycode = $record["country_code"];
-				$countryname = $record["country_name"];
-				$region = $record["region"];
-				$city = $record["city"];
-				$postalcode = $record["postal_code"];
-				$latitude = $record["latitude"];
-				$longitude = $record["longitude"];
-			} else {
-				$continentcode = null;
-				$countrycode = null;
-				$countryname = null;
-				$region = null;
-				$city = null;
-				$postalcode = null;
-				$latitude = null;
-				$longitude = null;
-			}
-			DBHIPInfo::insertOrUpdate($dbh, $ip, $host, $continentcode, $countrycode, $countryname, $region, $city, $postalcode, $latitude, $longitude);
-			self::$_ipinfoUpdated[$ip] = $ip;
+		} else {
+			Log::warning("Cannot create event for line '{$line}' due to invalid ip '{$ip}'.");
 		}
 	}
 
 	protected function recordMacEvent($dbh, $status, $service, $mac, $ip, $ts, $line) {
 		DBHMacEvent::insertOrUpdate($dbh, $status, $service, $mac, $ip, $ts, $line);
 	}
-
-	public abstract function process($dbh, $ts, $line);
 
 }
 
