@@ -1,0 +1,7 @@
+<?php
+/**
+ * Template for the phplogmon configuration file.
+ * Copy it to logmon.conf.php and adapt it according to your needs.
+ */
+
+?>
