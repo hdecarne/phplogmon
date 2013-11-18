@@ -20,28 +20,32 @@
 
 class Log {
 
-	private static $_syslog = false;
-	private static $_console = false;
-	private static $_debug = false;
+	private static $sSyslog = false;
+	private static $sConsole = false;
+	private static $sDebug = false;
 
 	public static function open($name, $syslog, $console, $debug) {
-		self::$_syslog = ($syslog ? openlog($name, LOG_CONS|LOG_PID, LOG_USER) : false);
-		self::$_console = $console;
-		self::$_debug = $debug;
+		self::$sSyslog = ($syslog ? openlog($name, LOG_CONS|LOG_PID, LOG_USER) : false);
+		self::$sConsole = $console;
+		self::$sDebug = $debug;
 	}
 
 	public static function close() {
-		self::$_debug = false;
-		self::$_console = false;
-		if(self::$_syslog) {
+		self::$sDebug = false;
+		self::$sConsole = true;
+		if(self::$sSyslog) {
 			closelog();
-			self::$_syslog = false;
+			self::$sSyslog = false;
 		}
 	}
 
 	public static function debug($message) {
-		if(self::$_debug) {
-			if(self::$_console) {
+		if(is_array($message)) {
+			foreach($message as $message0) {
+				self::debug($message0);
+			}
+		} else {
+			if(self::$sDebug && self::$sConsole) {
 				print "DEBUG:   {$message}\n";
 			}
 		}
@@ -49,31 +53,55 @@ class Log {
 	}
 
 	public static function notice($message) {
-		if(self::$_console) {
-			print "NOTICE:  {$message}\n";
-		}
-		if(self::$_syslog) {
-			syslog(LOG_NOTICE, $message);
+		if(is_array($message)) {
+			foreach($message as $message0) {
+				self::debug($message0);
+			}
+		} else {
+			if(self::$sConsole) {
+				print "NOTICE:  {$message}\n";
+			}
+			if(self::$sSyslog) {
+				syslog(LOG_NOTICE, $message);
+			}
 		}
 		return $message;
 	}
 
 	public static function warning($message) {
-		if(self::$_console) {
-			print "WARNING: {$message}\n";
-		}
-		if(self::$_syslog) {
-			syslog(LOG_WARNING, $message);
+		if(is_array($message)) {
+			foreach($message as $message0) {
+				self::debug($message0);
+			}
+		} else {
+			if(self::$sConsole) {
+				print "WARNING: {$message}\n";
+			}
+			if(self::$sSyslog) {
+				syslog(LOG_WARNING, $message);
+			}
+			if(!self::$sConsole && !self::$sSyslog) {
+				error_log("WARNING: {$message}");
+			}
 		}
 		return $message;
 	}
 
 	public static function err($message) {
-		if(self::$_console) {
-			print "ERR:     {$message}\n";
-		}
-		if(self::$_syslog) {
-			syslog(LOG_ERR, $message);
+		if(is_array($message)) {
+			foreach($message as $message0) {
+				self::debug($message0);
+			}
+		} else {
+			if(self::$sConsole) {
+				print "ERR:     {$message}\n";
+			}
+			if(self::$sSyslog) {
+				syslog(LOG_ERR, $message);
+			}
+			if(!self::$sConsole && !self::$sSyslog) {
+				error_log("ERR:     {$message}");
+			}
 		}
 		return $message;
 	}

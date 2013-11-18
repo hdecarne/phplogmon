@@ -18,28 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class OPENSSHFilter extends Filter {
+class Files {
 
-	const SERVICE_SSH = "ssh";
-
-	const SSH_GRANTED1 = "/^.* sshd.*: Accepted publickey for (.*) from (.*) port .* ssh2$/U";
-	const SSH_DENIED1 = "/^.* sshd.*: Invalid user (.*) from (.*)$/U";
-
-	public function __construct() {
-		parent::__construct("OPENSSH");
+	public static function path($path, $name) {
+		return $path."/".$name;
 	}
 
-	public function process($dbh, $ts, $line) {
-		if(preg_match(self::SSH_GRANTED1, $line, $match) === 1) {
-			$this->recordIPEvent($dbh, Filter::STATUS_GRANTED, self::SERVICE_SSH, $match[2], $match[1], $ts, $line);
-			$processed = true;
-		} elseif(preg_match(self::SSH_DENIED1, $line, $match) === 1) {
-			$this->recordIPEvent($dbh, Filter::STATUS_DENIED, self::SERVICE_SSH, $match[2], $match[1], $ts, $line);
-			$processed = true;
-		} else {
-			$processed = false;
+	public static function safeOpendir($path) {
+		$dir = opendir($path);
+		if($dir === false) {
+			throw new Exception(Log::err("Cannot open directory '{$dir}'"));
 		}
-		return $processed;
+		return $dir;
+	}
+
+	public static function readdirMatch($dir, $pattern) {
+		$file = readdir($dir);
+		while($file !== false && !fnmatch($pattern, $file)) {
+			$file = readdir($dir);
+		}
+		return $file;
+	}
+
+	public static function safeFilemtime($file) {
+		$mtime = filemtime($file);
+		if($mtime === false) {
+			throw new Exception(Log::err("Cannot get mtime of file '{$file}'"));
+		}
+		return $mtime;
 	}
 
 }

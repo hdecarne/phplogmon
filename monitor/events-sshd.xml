@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="syslog" service="ssh">
+		<event type="denied">
+			<pattern>/^.* sshd.*: Invalid user (.*) from (.*)$/U</pattern>
+			<user>0</user>
+			<hostip>1</hostip>
+		</event>
+		<event type="granted">
+			<pattern>/^.* sshd.*: Accepted publickey for (.*) from (.*) port .* ssh2$/U</pattern>
+			<user>0</user>
+			<hostip>1</hostip>
+		</event>
+	</events>
+</logmon>

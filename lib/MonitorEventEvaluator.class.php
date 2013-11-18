@@ -18,24 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class SHOREWALLFilter extends Filter {
+class MonitorEventEvaluator {
 
-	const SERVICE_ICMPV6 = "icmpv6";
+	const DEFAULT_DECODER = "match";
 
-	const DENIED1 = "/^.* Shorewall:.*:DROP:.* SRC=(.*) DST=.* PROTO=ICMPv6 TYPE=128 .*$/U";
+	private $tEvaluator;
+	private $tDecoder;
 
-	public function __construct() {
-		parent::__construct("SHOREWALL");
+	public function __construct($evaluator, $decoder) {
+		$this->tEvaluator = $evaluator;
+		$this->tDecoder = $decoder;
 	}
 
-	public function process($dbh, $ts, $line) {
-		if(preg_match(self::DENIED1, $line, $match) === 1) {
-			$this->recordIPEvent($dbh, Filter::STATUS_INFO, self::SERVICE_ICMPV6, $match[1], "", $ts, $line);
-			$processed = true;
-		} else {
-			$processed = false;
-		}
-		return $processed;
+	public function __toString() {
+		return "{$this->tDecoder}:{$this->tEvaluator}";
+	}
+
+	public function getEvaluaotr() {
+		return $this->tEvaluator;
+	}
+
+	public function getDecoder() {
+		return $this->tDecoder;
 	}
 
 }

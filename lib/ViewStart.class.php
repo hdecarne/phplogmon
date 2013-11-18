@@ -18,24 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class DHCPFilter extends Filter {
+class ViewStart extends View {
 
-	const SERVICE_DHCP = "dhcp";
-
-	const DHCP_GRANTED1 = "/^.* dhcpd: DHCPACK on (.*) to (.*) .*$/U";
-
-	public function __construct() {
-		parent::__construct("DHCP");
+	public function __construct($dbh) {
+		parent::__construct($dbh);
 	}
 
-	public function process($dbh, $ts, $line) {
-		if(preg_match(self::DHCP_GRANTED1, $line, $match) === 1) {
-			$this->recordMacEvent($dbh, Filter::STATUS_GRANTED, self::SERVICE_DHCP, $match[2], $match[1], $ts, $line);
-			$processed = true;
-		} else {
-			$processed = false;
-		}
-		return $processed;
+	public function renderTitle() {
+		print "TEST";
+	}
+
+	public function renderBody() {
+		print $_SERVER["HTTP_USER_AGENT"];
 	}
 
 }

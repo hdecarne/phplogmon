@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<source id="syslog" loghost="localhost">
+		<tspattern>/^(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d) .*: .*/U</tspattern>
+		<tsformat>Y-m-d\TH:i:sP</tsformat>
+		<file decoder="auto">/var/log/messages*</file>
+	</source>
+</logmon>

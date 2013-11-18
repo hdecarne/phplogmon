@@ -18,24 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-abstract class LineReader {
+class FileDecoderAuto extends FileDecoder {
 
-	public static function open($file, $buflen) {
-		$extension = pathinfo($file, PATHINFO_EXTENSION);
-		switch( $extension) {
-		default:
-			$reader = new GZLineReader($file, $buflen);
+	private static $sDecoders = array(
+		"*.gz" => "FileDecoderGzip",
+		"*.bz2" => "FileDecoderBzip2",
+		"*" => "FileDecoderDirect"
+	);
+
+	private $tDecoder;
+
+	public function __construct($file) {
+		parent::__construct($file, FileDecoder::DECODER_AUTO);
+		foreach(self::$sDecoders as $pattern => $decoderClass) {
+			if(fnmatch($pattern, $file)) {
+				$this->tDecoder = new $decoderClass($file);
+				break;
+			}
 		}
-		return $reader;
 	}
 
-	public abstract function nextLine();
+	public function peekLine() {
+		return $this->tDecoder->peekLine();
+	}
 
-	public abstract function peekLine();
-
-	public abstract function skipLine();
-
-	public abstract function close();
+	public function skipLine() {
+		return $this->tDecoder->skipLine();
+	}
 
 }
 

@@ -20,53 +20,57 @@
 
 class DBH {
 
-	private $_dbh = null;
-	private $_stmts = array();
+	private $tDbh = null;
+	private $tStmts = array();
 
 	public function __construct($dsn, $user, $pass) {
 		Log::debug("Establishing database connection '{$dsn}' with user '{$user}'...");
-		$this->_dbh = new PDO($dsn, $user, $pass);
-		$this->_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->tDbh = new PDO($dsn, $user, $pass);
+		$this->tDbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
 	public function close() {
 		Log::debug("Closing database connection...");
-		if($this->_dbh !== null) {
-			if($this->_dbh->inTransaction()) {
-				Log::warning("Pending transaction detected, performing rollback.");
+		if($this->tDbh !== null) {
+			try {
+				if($this->tDbh->inTransaction()) {
+					Log::warning("Pending transaction detected, performing rollback.");
+				}
+				foreach($this->tStmts as $stmt) {
+					$stmt->closeCursor();
+				}
+			} catch(Exception $e) {
+				Log::warning(sprintf("An exception occured while closing database: %s\nDetails: $s", $e->getMessage(), $e));
 			}
-			foreach($this->_stmts as $stmt) {
-				$stmt->closeCursor();
-			}
-			$this->_stmts = array();
-			$this->_dbh = null;
+			$this->tStmts = array();
+			$this->tDbh = null;
 		}
 	}
 
 	public function beginTransaction() {
-		$this->_dbh->beginTransaction();
+		$this->tDbh->beginTransaction();
 	}
 
 	public function commit() {
-		$this->_dbh->commit();
+		$this->tDbh->commit();
 	}
 
 	public function rollback() {
-		$this->_dbh->rollback();
+		$this->tDbh->rollback();
 	}
 
 	public function prepare($sql) {
-		if(array_key_exists($sql, $this->_stmts)) {
-			$stmt = $this->_stmts[$sql];
+		if(array_key_exists($sql, $this->tStmts)) {
+			$stmt = $this->tStmts[$sql];
 		} else {
-			$stmt = $this->_dbh->prepare($sql);
-			$this->_stmts[$sql] = $stmt;
+			$stmt = $this->tDbh->prepare($sql);
+			$this->tStmts[$sql] = $stmt;
 		}
 		return $stmt;
 	}
 
 	public function lastInsertId() {
-		return $this->_dbh->lastInsertId();
+		return $this->tDbh->lastInsertId();
 	}
 
 }

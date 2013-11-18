@@ -18,9 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-abstract class MacEventFilter extends Filter {
+class L12n {
 
-	public function recordMacEvent($dbh, $service, $mac, $user, $line) {
+	private static $sLanguages = array(
+			"de" => "Lang-de-DE",
+			"en" => "Lang-en-US"
+		);
+
+	private $tLang;
+
+	private function __construct($lang) {
+		$this->tLang = $lang;
+	}
+
+	public static function match()  {
+		return new self("en");
+	}
+
+	public function lang() {
+		return $this->tLang;
+	}
+
+	public function t($text) {
 	}
 
 }

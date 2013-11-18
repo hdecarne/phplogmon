@@ -1,0 +1,126 @@
+body {
+	font-family: verdana,arial,helvetica,sans-serif;
+	font-size: 14px;
+	padding:0;
+}
+.msg_error, .msg_warning, .msg_info, .msg_success {
+	border: 1px solid;
+	margin: 10px 0px;
+	padding:15px 10px 15px 50px;
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	border-radius:.5em;
+}
+.msg_error {
+	color: #D8000C;
+	background-color: #FFBABA;
+	background-image: url('../img/msg_error.png');
+}
+.msg_warning {
+	color: #9F6000;
+	background-color: #FEEFB3;
+	background-image: url('../img/msg_warning.png');
+}
+.msg_info {
+	color: #00529B;
+	background-color: #BDE5F8;
+	background-image: url('../img/msg_info.png');
+}
+.msg_success {
+	color: #4F8A10;
+	background-color: #DFF2BF;
+	background-image: url('../img/msg_success.png');
+}
+
+h1 {
+	font-size: 18px;
+	margin: 0;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+h2 {
+	font-size: 14px;
+	margin: 0;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+pre {
+	font-family: monospace;
+}
+a {
+	text-decoration: none;
+}
+img {
+	border: 0;
+	vertical-align: middle;
+}
+img.small {
+	width: 16px;
+	height: 16px;
+}
+img.medium {
+	width: 32px;
+	height: 32px;
+}
+img.large {
+	width: 64px;
+	height: 64px;
+}
+table {
+	border-collapse: collapse;
+	border: 1px solid #909090;
+	box-shadow: 3px 3px 10px #d0d0d0;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+tr.odd {
+	background-color: white;
+}
+tr.even {
+}
+th.left {
+	text-align: left;
+}
+th.right {
+	text-align: right;
+}
+td {
+	padding: 4px;
+}
+td.left {
+	text-align: left;
+}
+td.right {
+	text-align: right;
+}
+ul {
+	margin: 0em;
+	padding: 0em;
+	list-style-type: none;
+}
+li {
+	padding-top: 0.5em;
+}
+div.nav {
+	margin: 1em;
+	margin-left: 0.5em;
+	padding: 0.5em;
+	background: #eee8cd;
+	border: 1px solid #909090;
+	box-shadow: 3px 3px 10px #d0d0d0;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+div.content {
+	margin: 1em;
+	margin-left: 0.5em;
+	padding: 1em;
+	background: #f3f3f3;
+	border: 1px solid #909090;
+	box-shadow: 3px 3px 10px #d0d0d0;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="apachelog">
+		<event type="denied">
+			<pattern>/^(.*) - (.*) \[.*\] \".*\" 2\d\d .*$/U</pattern>
+			<user>0</user>
+			<hostip>1</hostip>
+		</event>
+	</events>
+</logmon>

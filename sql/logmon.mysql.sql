@@ -1,87 +1,122 @@
 --
+-- Drop existing tables (in reverse order)
+--
+
+DROP TABLE IF EXISTS log;
+DROP TABLE IF EXISTS event;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS hostmac;
+DROP TABLE IF EXISTS hostip;
+DROP TABLE IF EXISTS service;
+DROP TABLE IF EXISTS sourcestate;
+
+--
 -- Table 'sourcestate'
 --
 
-DROP TABLE IF EXISTS sourcestate;
 CREATE TABLE sourcestate (
-	id INT NOT NULL AUTO_INCREMENT,
-	monitor CHAR(32) NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	sourceid CHAR(32) NOT NULL,
+	loghost CHAR(32) NOT NULL,
 	file VARCHAR(1024) NOT NULL,
 	mtime INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
-	INDEX ( monitor )
-) ENGINE=InnoDB;
+	INDEX ( sourceid )
+) ENGINE=InnoDB CHARSET=utf8;
 
 --
--- Table 'ipevent'
+-- Table 'service'
 --
 
-DROP TABLE IF EXISTS ipevent;
-CREATE TABLE ipevent (
-	status INT NOT NULL,
-	service CHAR(8) NOT NULL,
-	ip CHAR(40) NOT NULL,
-	user CHAR(32) NOT NULL,
-	count INT NOT NULL,
-	first INT NOT NULL,
-	last INT NOT NULL,
-	line VARCHAR(4096) NOT NULL,
-	PRIMARY KEY ( status, service, ip, user ),
-	INDEX ( status ),
-	INDEX ( service ),
-	INDEX ( ip )
-) ENGINE=InnoDB;
+CREATE TABLE service (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	service CHAR(32) NOT NULL,
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( service )
+) ENGINE=InnoDB CHARSET=utf8;
 
 --
--- Table 'ipinfo'
+-- Table 'hostip'
 --
 
-DROP TABLE IF EXISTS ipinfo;
-CREATE TABLE ipinfo (
-	ip CHAR(40) NOT NULL,
-	host VARCHAR(256) NOT NULL,
+CREATE TABLE hostip (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	hostip CHAR(40) NOT NULL,
+	host VARCHAR(128) NOT NULL,
 	continentcode CHAR(2),
 	countrycode CHAR(2),
-	countryname VARCHAR(256),
+	countryname VARCHAR(128),
 	region CHAR(2),
 	city VARCHAR(256),
-	postalcode VARCHAR(256),
+	postalcode VARCHAR(128),
 	latitude DOUBLE,
 	longitude DOUBLE,
-	PRIMARY KEY ( ip )
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( hostip, host )
+) ENGINE=InnoDB CHARSET=utf8;
+
+--
+-- Table 'hostmac'
+--
+
+CREATE TABLE hostmac (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	hostmac CHAR(17) NOT NULL,
+	vendor VARCHAR(128) NOT NULL,
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( hostmac, vendor )
 ) ENGINE=InnoDB;
 
 --
--- Table 'macevent'
+-- Table 'user'
 --
 
-DROP TABLE IF EXISTS macevent;
-CREATE TABLE macevent (
-	status INT NOT NULL,
-	service CHAR(8) NOT NULL,
-	mac CHAR(17) NOT NULL,
-	ip CHAR(40) NOT NULL,
+CREATE TABLE user (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	user CHAR(32) NOT NULL,
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( user )
+) ENGINE=InnoDB CHARSET=utf8;
+
+--
+-- Table 'event'
+--
+
+CREATE TABLE event (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	typeid INT UNSIGNED NOT NULL,
+	serviceid INT UNSIGNED NOT NULL,
+	hostipid INT UNSIGNED NOT NULL,
+	hostmacid INT UNSIGNED NOT NULL,
+	networkid INT UNSIGNED NOT NULL,
+	userid INT UNSIGNED NOT NULL,
 	count INT NOT NULL,
 	first INT NOT NULL,
 	last INT NOT NULL,
-	line VARCHAR(4096) NOT NULL,
-	PRIMARY KEY ( status, service, mac, ip ),
-	INDEX ( status ),
-	INDEX ( service ),
-	INDEX ( mac )
-) ENGINE=InnoDB;
+	PRIMARY KEY ( id ),
+	FOREIGN KEY ( serviceid ) REFERENCES service ( id ),
+	FOREIGN KEY ( hostipid ) REFERENCES hostip ( id ),
+	FOREIGN KEY ( hostmacid ) REFERENCES hostmac ( id ),
+	FOREIGN KEY ( userid ) REFERENCES user ( id ),
+	UNIQUE KEY ( typeid, serviceid, hostipid, hostmacid, userid ),
+	INDEX ( typeid ),
+	INDEX ( serviceid ),
+	INDEX ( hostipid ),
+	INDEX ( hostmacid ),
+	INDEX ( networkid )
+) ENGINE=InnoDB CHARSET=utf8;
 
 --
--- Table 'macvendorid'
+-- Table 'log'
 --
 
-DROP TABLE IF EXISTS macvendorid;
-CREATE TABLE macvendorid (
-	mac CHAR(8) NOT NULL,
-	vendorid VARCHAR(256) NOT NULL,
-	INDEX ( mac )
-) ENGINE=InnoDB;
+CREATE TABLE log (
+	eventid INT UNSIGNED NOT NULL,
+	line VARCHAR(1024) NOT NULL,
+	FOREIGN KEY ( eventid ) REFERENCES event ( id ),
+	INDEX ( eventid )
+) ENGINE=InnoDB CHARSET=utf8;
 
 --
 -- EOF
