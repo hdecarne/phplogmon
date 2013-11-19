@@ -40,14 +40,13 @@ class Processor {
 						$sourcestate = $sourcestates[$logfile];
 					} else {
 						$sourcestate = ProcessorSourcestate::addSourcestate($sourcestates, $this->tDbh, $source, $logfile);
-						$sourcestates[$logfile] = $sourcestate;
 					}
 					if($sourcestate->touch()) {
 						Log::notice("Processing changed file '{$logfile}'");
 						$decoder = FileDecoder::create($logfile, $file->getDecoder());
 						while(($line = $this->fetchLine($decoder, $source)) !== false) {
 							$lineTimestamp = $this->parseLineTimestamp($line, $source);
-							if($lineTimestamp !== false && $sourcestate->isNew($lineTimestamp)) {
+							if($lineTimestamp !== false && $sourcestate->updateLast($lineTimestamp)) {
 								$processedLineCount++;
 							}
 						}

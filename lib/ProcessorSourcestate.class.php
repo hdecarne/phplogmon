@@ -58,7 +58,7 @@ class ProcessorSourcestate {
 		return $sourcestates;
 	}
 
-	public static function addSourcestate($sourcestates, $dbh, $source, $file) {
+	public static function addSourcestate(&$sourcestates, $dbh, $source, $file) {
 		$sourcestate = new self($dbh);
 		$sourcestate->tId = null;
 		$sourcestate->tSourceid = $source->getId();
@@ -67,8 +67,11 @@ class ProcessorSourcestate {
 		$sourcestate->tMtime = 0;
 		$sourcestate->tLast = 0;
 		foreach($sourcestates as $sourcestate2) {
-			$sourcestate->tLast = max($sourcestate->tLast, $sourcestate2->tLast);
+			if(!is_null($sourcestate2->tId) && $sourcestate2->tLast > $sourcestate->tLast) {
+				$sourcestate->tLast = $sourcestate2->tLast;
+			}
 		}
+		$sourcestates[$sourcestate->tFile] = $sourcestate;
 		return $sourcestate;
 	}
 
@@ -86,14 +89,14 @@ class ProcessorSourcestate {
 		return $modified;
 	}
 
-	public function isNew($timestamp) {
+	public function updateLast($timestamp) {
 		if($timestamp > $this->tLast) {
 			$this->tLast = $timestamp;
-			$isNew = true;
+			$updated = true;
 		} else {
-			$isNew = false;
+			$updated = false;
 		}
-		return $isNew;
+		return $updated;
 	}
 
 	private function update() {
@@ -109,14 +112,14 @@ class ProcessorSourcestate {
 				$insert->execute();
 				$this->tId = $this->tDbh->lastInsertId();
 			} else {
-				$update = $this->tDbh->prepare("UPDATE sourcestate a SET a.mtime = ?, a.last = ? WHERE a.sourceid = ? ");
+				$update = $this->tDbh->prepare("UPDATE sourcestate a SET a.mtime = ?, a.last = ? WHERE a.id = ? ");
 				$update->bindValue(1, $this->tMtime, PDO::PARAM_INT);
 				$update->bindValue(2, $this->tLast, PDO::PARAM_INT);
 				$update->bindValue(3, $this->tId, PDO::PARAM_STR);
 				$update->execute();
 			}
 		} elseif(!is_null($this->tId)) {
-			$delete = $this->tDbh->prepare("DELETE FROM sourcestate a WHERE a.sourceid = ? ");
+			$delete = $this->tDbh->prepare("DELETE FROM sourcestate a WHERE a.id = ? ");
 			$delete->bindValue(1, $this->tId, PDO::PARAM_STR);
 			$delete->execute();
 		}
