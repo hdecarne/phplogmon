@@ -22,6 +22,7 @@ class DBH {
 
 	private $tDbh = null;
 	private $tStmts = array();
+	private $tCaches = array();
 
 	public function __construct($dsn, $user, $pass) {
 		Log::debug("Establishing database connection '{$dsn}' with user '{$user}'...");
@@ -42,6 +43,7 @@ class DBH {
 			} catch(Exception $e) {
 				Log::warning(sprintf("An exception occured while closing database: %s\nDetails: $s", $e->getMessage(), $e));
 			}
+			$this->tCaches = array();
 			$this->tStmts = array();
 			$this->tDbh = null;
 		}
@@ -71,6 +73,14 @@ class DBH {
 
 	public function lastInsertId() {
 		return $this->tDbh->lastInsertId();
+	}
+
+	public function getCache($name) {
+		return (isset($this->tCaches[$name]) ? $this->tCaches[$name] : $this->tCaches[$name] = array());
+	}
+
+	public function clearCache($name) {
+		$this->tCaches[$name] = array();
 	}
 
 }

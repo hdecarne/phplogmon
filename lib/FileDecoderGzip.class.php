@@ -26,11 +26,11 @@ class FileDecoderGzip extends FileDecoder {
 	public function __construct($file) {
 		parent::__construct($file, FileDecoder::DECODER_GZIP);
 		if(!extension_loaded("zlib")) {
-			throw new Exception("Missing extension 'zlib' for gzip decoding");
+			throw new Exception(Log::err("Missing extension 'zlib' for gzip decoding"));
 		}
 		$this->tResource = gzopen($file, "r");
 		if($this->tResource === false) {
-			throw new Exception("Cannot open file '{$file}' for reading");
+			throw new Exception(Log::err("Cannot open file '{$file}' for reading"));
 		}
 	}
 
@@ -38,7 +38,7 @@ class FileDecoderGzip extends FileDecoder {
 		$line = false;
 		if($this->tResource !== false) {
 			if($this->tLine === false) {
-				$this->tLine = gzgets($this->tResource, FileDecoder::BUFLEN);
+				$this->tLine = self::safeTrim(gzgets($this->tResource, FileDecoder::BUFLEN));
 			}
 			if($this->tLine !== false){
 				$line = $this->tLine;

@@ -30,6 +30,7 @@ class MonitorXmlReader {
 	private $tParsedSources;
 	private $tParsedEvents;
 	private $tCurrentSource;
+	private $tCurrentSourceService;
 	private $tCurrentEventsSourceid;
 	private $tCurrentEventsService;
 	private $tCurrentEvent;
@@ -57,6 +58,7 @@ class MonitorXmlReader {
 		$this->tParsedSources = array();
 		$this->tParsedEvents = array();
 		$this->tCurrentSource = null;
+		$this->tCurrentSourceService = null;
 		$this->tCurrentEventsSourceid = null;
 		$this->tCurrentEventsService = null;
 		$this->tCurrentEvent = null;
@@ -264,7 +266,8 @@ class MonitorXmlReader {
 			$serviceValid = true;
 		}
 		if($idValid && $loghostValid && $serviceValid) {
-			$this->tCurrentSource = new MonitorSource($id, $loghost, $service);
+			$this->tCurrentSource = new MonitorSource($id, $loghost);
+			$this->tCurrentSourceService;
 		}
 	}
 
@@ -276,6 +279,7 @@ class MonitorXmlReader {
 			$this->tParsedSources[] = $this->tCurrentSource;
 		}
 		$this->tCurrentSource = null;
+		$this->tCurrentSourceService = null;
 	}
 
 	private function dataSourceTspattern($data) {
@@ -291,17 +295,24 @@ class MonitorXmlReader {
 	}
 
 	private function dataSourceFile($data) {
+		if(isset($data["service"])) {
+			$service = trim($data["service"]);
+			$serviceValid = $this->validateAttributeValue("service", $service);
+		} else {
+			$service = $this->tCurrentSourceService;
+			$serviceValid = true;
+		}
 		if(isset($data["decoder"])) {
 			$decoder = trim($data["decoder"]);
-			$decoderValid = $this->validateAttributeValue("decoder", $decoder);
+			$decoderValid = $this->validateAttributeValue("decoder", $decoder, FileDecoder::validDecoders());
 		} else {
 			$decoder = MonitorSourceFile::DECODER_DEFAULT;
 			$decoderValid = true;
 		}
 		$file = $data["value"];
 		$fileValid = $this->validateElementValue("file", $file);
-		if($decoderValid && $fileValid) {
-			$this->tCurrentSource->addFile($file, $decoder);
+		if($serviceValid && $decoderValid && $fileValid) {
+			$this->tCurrentSource->addFile($file, $service, $decoder);
 		}
 	}
 
@@ -353,8 +364,7 @@ class MonitorXmlReader {
 
 	private function endEvent($data) {
 		$patternsValid = $this->validateElementExists("pattern", count($this->tCurrentEvent->getPatterns()) > 0);
-		$userEvaluatorValid = $this->validateElementExists("user", $this->tCurrentEvent->getUserEvaluator() != null);
-		if($patternsValid && $userEvaluatorValid) {
+		if($patternsValid) {
 			$this->tParsedEvents[] = $this->tCurrentEvent;
 		}
 		$this->tCurrentEvent = null;
@@ -387,15 +397,15 @@ class MonitorXmlReader {
 	private function dataEventEvaluator($name, $setter, $data) {
 		if(isset($data["decoder"])) {
 			$decoder = trim($data["decoder"]);
-			$decoderValid = $this->validateAttributeValue("decoder", $decoder);
+			$decoderValid = $this->validateAttributeValue("decoder", $decoder, MatchesDecoder::validDecoders());
 		} else {
 			$decoder = MonitorEventEvaluator::DEFAULT_DECODER;
 			$decoderValid = true;
 		}
-		$evaluator = trim($data["value"]);
-		$evaluatorValid = $this->validateElementValue($name, $evaluator);
-		if($decoderValid && $evaluatorValid) {
-			call_user_func(array($this->tCurrentEvent, $setter), $evaluator, $decoder);
+		$term = trim($data["value"]);
+		$termValid = $this->validateElementValue($name, $term);
+		if($decoderValid && $termValid) {
+			call_user_func(array($this->tCurrentEvent, $setter), $term, $decoder);
 		}
 	}
 

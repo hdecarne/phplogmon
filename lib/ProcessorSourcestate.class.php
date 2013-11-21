@@ -28,13 +28,14 @@ class ProcessorSourcestate {
 	private $tFile;
 	private $tMtime;
 	private $tLast;
+	private $tUpdatedLast;
 
 	private function __construct($dbh) {
 		$this->tDbh = $dbh;
 		$this->tTouched = false;
 	}
 
-	public static function querySourcestates($dbh, $source) {
+	public static function query($dbh, $source) {
 		$sourcestates = array();
 		$select = $dbh->prepare("SELECT a.id, a.sourceid, a.loghost, a.file, a.mtime, a.last FROM sourcestate a WHERE a.sourceid = ?");
 		$select->bindValue(1, $source->getId(), PDO::PARAM_STR);
@@ -53,12 +54,13 @@ class ProcessorSourcestate {
 			$sourcestate->tFile = $file;
 			$sourcestate->tMtime = $mtime;
 			$sourcestate->tLast = $last;
+			$sourcestate->tUpdatedLast = $last;
 			$sourcestates[$sourcestate->tFile] = $sourcestate;
 		}
 		return $sourcestates;
 	}
 
-	public static function addSourcestate(&$sourcestates, $dbh, $source, $file) {
+	public static function add(&$sourcestates, $dbh, $source, $file) {
 		$sourcestate = new self($dbh);
 		$sourcestate->tId = null;
 		$sourcestate->tSourceid = $source->getId();
@@ -67,15 +69,16 @@ class ProcessorSourcestate {
 		$sourcestate->tMtime = 0;
 		$sourcestate->tLast = 0;
 		foreach($sourcestates as $sourcestate2) {
-			if(!is_null($sourcestate2->tId) && $sourcestate2->tLast > $sourcestate->tLast) {
+			if($sourcestate2->tLast > $sourcestate->tLast) {
 				$sourcestate->tLast = $sourcestate2->tLast;
 			}
 		}
+		$sourcestate->tUpdatedLast = $sourcestate->tLast;
 		$sourcestates[$sourcestate->tFile] = $sourcestate;
 		return $sourcestate;
 	}
 
-	public static function updateSourcestates($sourcestates) {
+	public static function updateAll($sourcestates) {
 		clearstatcache();
 		foreach($sourcestates as $sourcestate) {
 			$sourcestate->update();
@@ -91,7 +94,7 @@ class ProcessorSourcestate {
 
 	public function updateLast($timestamp) {
 		if($timestamp > $this->tLast) {
-			$this->tLast = $timestamp;
+			$this->tUpdatedLast = $timestamp;
 			$updated = true;
 		} else {
 			$updated = false;
@@ -100,28 +103,31 @@ class ProcessorSourcestate {
 	}
 
 	private function update() {
-		if($this->tTouched) {
-			$this->tMtime = Files::safeFilemtime($this->tFile);
-			if(is_null($this->tId)) {
-				$insert = $this->tDbh->prepare("INSERT INTO sourcestate (sourceid, loghost, file, mtime, last) VALUES(?, ?, ?, ?, ?)");
-				$insert->bindValue(1, $this->tSourceid, PDO::PARAM_STR);
-				$insert->bindValue(2, $this->tLoghost, PDO::PARAM_STR);
-				$insert->bindValue(3, $this->tFile, PDO::PARAM_STR);
-				$insert->bindValue(4, $this->tMtime, PDO::PARAM_INT);
-				$insert->bindValue(5, $this->tLast, PDO::PARAM_INT);
-				$insert->execute();
-				$this->tId = $this->tDbh->lastInsertId();
-			} else {
-				$update = $this->tDbh->prepare("UPDATE sourcestate a SET a.mtime = ?, a.last = ? WHERE a.id = ? ");
-				$update->bindValue(1, $this->tMtime, PDO::PARAM_INT);
-				$update->bindValue(2, $this->tLast, PDO::PARAM_INT);
-				$update->bindValue(3, $this->tId, PDO::PARAM_STR);
-				$update->execute();
+		$this->tLast = $this->tUpdatedLast;
+		if(!Options::pretend()) {
+			if($this->tTouched) {
+				$this->tMtime = Files::safeFilemtime($this->tFile);
+				if(is_null($this->tId)) {
+					$insert = $this->tDbh->prepare("INSERT INTO sourcestate (sourceid, loghost, file, mtime, last) VALUES(?, ?, ?, ?, ?)");
+					$insert->bindValue(1, $this->tSourceid, PDO::PARAM_STR);
+					$insert->bindValue(2, $this->tLoghost, PDO::PARAM_STR);
+					$insert->bindValue(3, $this->tFile, PDO::PARAM_STR);
+					$insert->bindValue(4, $this->tMtime, PDO::PARAM_INT);
+					$insert->bindValue(5, $this->tLast, PDO::PARAM_INT);
+					$insert->execute();
+					$this->tId = $this->tDbh->lastInsertId();
+				} else {
+					$update = $this->tDbh->prepare("UPDATE sourcestate a SET a.mtime = ?, a.last = ? WHERE a.id = ? ");
+					$update->bindValue(1, $this->tMtime, PDO::PARAM_INT);
+					$update->bindValue(2, $this->tLast, PDO::PARAM_INT);
+					$update->bindValue(3, $this->tId, PDO::PARAM_STR);
+					$update->execute();
+				}
+			} elseif(!is_null($this->tId)) {
+				$delete = $this->tDbh->prepare("DELETE FROM sourcestate WHERE id = ?");
+				$delete->bindValue(1, $this->tId, PDO::PARAM_STR);
+				$delete->execute();
 			}
-		} elseif(!is_null($this->tId)) {
-			$delete = $this->tDbh->prepare("DELETE FROM sourcestate a WHERE a.id = ? ");
-			$delete->bindValue(1, $this->tId, PDO::PARAM_STR);
-			$delete->execute();
 		}
 	}
 

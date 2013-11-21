@@ -52,6 +52,19 @@ class Log {
 		return $message;
 	}
 
+	public static function info($message) {
+		if(is_array($message)) {
+			foreach($message as $message0) {
+				self::info($message0);
+			}
+		} else {
+			if(self::$sConsole) {
+				print "INFO:    {$message}\n";
+			}
+		}
+		return $message;
+	}
+
 	public static function notice($message) {
 		if(is_array($message)) {
 			foreach($message as $message0) {

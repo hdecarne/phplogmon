@@ -20,22 +20,22 @@
 
 class MonitorEventEvaluator {
 
-	const DEFAULT_DECODER = "match";
+	const DEFAULT_DECODER = MatchesDecoder::DECODER_MATCH;
 
-	private $tEvaluator;
+	private $tTerm;
 	private $tDecoder;
 
-	public function __construct($evaluator, $decoder) {
-		$this->tEvaluator = $evaluator;
+	public function __construct($term, $decoder) {
+		$this->tTerm = $term;
 		$this->tDecoder = $decoder;
 	}
 
 	public function __toString() {
-		return "{$this->tDecoder}:{$this->tEvaluator}";
+		return "{$this->tDecoder}:{$this->tTerm}";
 	}
 
-	public function getEvaluaotr() {
-		return $this->tEvaluator;
+	public function getTerm() {
+		return $this->tTerm;
 	}
 
 	public function getDecoder() {

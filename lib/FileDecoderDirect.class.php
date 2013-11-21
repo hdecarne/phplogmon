@@ -27,7 +27,7 @@ class FileDecoderDirect extends FileDecoder {
 		parent::__construct($file, FileDecoder::DECODER_DIRECT);
 		$this->tResource = fopen($file, "r");
 		if($this->tResource === false) {
-			throw new Exception("Cannot open file '{$file}' for reading");
+			throw new Exception(Log::err("Cannot open file '{$file}' for reading"));
 		}
 	}
 
@@ -35,7 +35,7 @@ class FileDecoderDirect extends FileDecoder {
 		$line = false;
 		if($this->tResource !== false) {
 			if($this->tLine === false) {
-				$this->tLine = fgets($this->tResource, FileDecoder::BUFLEN);
+				$this->tLine = self::safeTrim(fgets($this->tResource, FileDecoder::BUFLEN));
 			}
 			if($this->tLine !== false){
 				$line = $this->tLine;

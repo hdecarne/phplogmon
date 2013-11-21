@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="syslog">
+		<event type="denied">
+			<pattern>/^.* Shorewall\:net2fw\:DROP\:IN=.* OUT=.* MAC=.* SRC=(.*) DST=.* LEN=.* TC=.* HOPLIMIT=.* FLOWLBL=.* PROTO=(.*) SPT=.* DPT=(.*) WINDOW=.* RES=.* URGP=.*$/U</pattern>
+			<hostip>0</hostip>
+			<service decoder="srvbyport">2|1</service>
+		</event>
+	</events>
+</logmon>

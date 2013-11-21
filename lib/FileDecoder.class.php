@@ -38,12 +38,20 @@ abstract class FileDecoder {
 		Log::debug("Opening '{$decoder}:{$file}'...");
 	}
 
+	public static function validDecoders() {
+		return array_keys(self::$sDecoders);
+	}
+
 	public static function create($file, $decoder) {
 		if(!isset(self::$sDecoders[$decoder])) {
-			throw new Exception("Unknown decoder '{$decoder}' for file '{$file}'");
+			throw new Exception(Log::err("Unknown decoder '{$decoder}' for file '{$file}'"));
 		}
 		$decoderClass = self::$sDecoders[$decoder];
 		return new $decoderClass($file);
+	}
+
+	protected static function safeTrim($string) {
+		return ($string !== false ? trim($string) : $string);
 	}
 
 	abstract public function peekLine();

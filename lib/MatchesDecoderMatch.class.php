@@ -18,34 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class MonitorSourceFile {
+class MatchesDecoderMatch extends MatchesDecoder {
 
-	const DECODER_DEFAULT = FileDecoder::DECODER_DIRECT;
-
-	private $tFile;
-	private $tDefaultService;
-	private $tDecoder;
-
-	public function __construct($file, $defaultService, $decoder) {
-		$this->tFile = $file;
-		$this->tDefaultService = $defaultService;
-		$this->tDecoder = $decoder;
-	}
-
-	public function __toString() {
-		return "{$this->tDecoder}:{$this->tFile}";
-	}
-
-	public function getFile() {
-		return $this->tFile;
-	}
-
-	public function getDefaultService() {
-		return $this->tDefaultService;
-	}
-
-	public function getDecoder() {
-		return $this->tDecoder;
+	public function apply($matches, $term) {
+		return $this->bindParam($matches, $term);
 	}
 
 }

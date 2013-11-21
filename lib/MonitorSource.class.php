@@ -22,15 +22,13 @@ class MonitorSource {
 
 	private $tId;
 	private $tLoghost;
-	private $tService;
 	private $tTspattern;
 	private $tTsformat;
 	private $tFiles = array();
 
-	public function __construct($id, $loghost, $service) {
+	public function __construct($id, $loghost) {
 		$this->tId = $id;
 		$this->tLoghost = $loghost;
-		$this->tService = $service;
 	}
 
 	public function __toString() {
@@ -52,10 +50,6 @@ class MonitorSource {
 		return $this->tLoghost;
 	}
 
-	public function getService() {
-		return $this->tService;
-	}
-
 	public function setTspattern($tspattern) {
 		$this->tTspattern = $tspattern;
 	}
@@ -72,8 +66,8 @@ class MonitorSource {
 		return $this->tTsformat;
 	}
 
-	public function addFile($file, $decoder) {
-		$this->tFiles[] = new MonitorSourceFile($file, $decoder);
+	public function addFile($file, $defaultSource, $decoder) {
+		$this->tFiles[] = new MonitorSourceFile($file, $defaultSource, $decoder);
 	}
 
 	public function getFiles() {

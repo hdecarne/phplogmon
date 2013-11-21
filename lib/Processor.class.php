@@ -31,15 +31,16 @@ class Processor {
 		$processedLineCount = 0;
 		$recordedEventCount = 0;
 		$this->tDbh->beginTransaction();
-		$sourcestates = ProcessorSourcestate::querySourcestates($this->tDbh, $source);
+		$sourcestates = ProcessorSourcestate::query($this->tDbh, $source);
 		foreach($source->getFiles() as $file) {
 			$logfiles = self::scanLogFiles($file->getFile());
 			if(count($logfiles) > 0) {
+				$matchstates = ProcessorEventMatchstate::create($this->tDbh, $source, $file, $events);
 				foreach($logfiles as $logfile) {
 					if(isset($sourcestates[$logfile])) {
 						$sourcestate = $sourcestates[$logfile];
 					} else {
-						$sourcestate = ProcessorSourcestate::addSourcestate($sourcestates, $this->tDbh, $source, $logfile);
+						$sourcestate = ProcessorSourcestate::add($sourcestates, $this->tDbh, $source, $logfile);
 					}
 					if($sourcestate->touch()) {
 						Log::notice("Processing changed file '{$logfile}'");
@@ -47,6 +48,7 @@ class Processor {
 						while(($line = $this->fetchLine($decoder, $source)) !== false) {
 							$lineTimestamp = $this->parseLineTimestamp($line, $source);
 							if($lineTimestamp !== false && $sourcestate->updateLast($lineTimestamp)) {
+								$recordedEventCount += ProcessorEventMatchstate::matchAndUpdateAll($matchstates, $lineTimestamp, $line);
 								$processedLineCount++;
 							}
 						}
@@ -58,7 +60,7 @@ class Processor {
 				Log::warning("No log files found for source {$source}");
 			}
 		}
-		ProcessorSourcestate::updateSourcestates($sourcestates);
+		ProcessorSourcestate::updateAll($sourcestates);
 		$this->tDbh->commit();
 		Log::notice("{$processedLineCount} line(s) processed {$recordedEventCount} event(s) recorded");
 	}

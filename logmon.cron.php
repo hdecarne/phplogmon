@@ -22,6 +22,7 @@
 require_once("lib/autoload.php");
 
 $status = -1;
+$elapsed = microtime(true);
 try {
 	$config = dirname(__FILE__)."/logmon.conf.php";
 	$requiredConfigs = array($config);
@@ -33,9 +34,10 @@ try {
 
 	mb_internal_encoding("UTF-8");
 
-	$logDebug = DEBUG || array_search("--debug", $argv);
-	$logConsole = $logDebug || array_search("--verbose", $argv);
-	Log::open(__FILE__, true, $logConsole, $logDebug);
+	Options::setDebug(DEBUG || array_search("--debug", $argv));
+	Options::setPretend(array_search("--pretend", $argv));
+	Options::setVerbose(Options::debug() || Options::pretend() || array_search("--verbose", $argv));
+	Log::open(__FILE__, true, Options::verbose(), Options::debug());
 
 	Log::notice(sprintf("Running '%s'...", implode(" ", $argv)));
 	$monitor = Monitor::create(dirname(__FILE__)."/monitor");
@@ -58,7 +60,8 @@ try {
 if(isset($dbh)) {
 	$dbh->close();
 }
-Log::notice("Log file processing finished with status '{$status}'.");
+$elapsed = round(microtime(true) - $elapsed, 3);
+Log::notice("Log file processing finished with status '{$status}' (Total processing time: {$elapsed} s)");
 Log::close();
 exit($status);
 

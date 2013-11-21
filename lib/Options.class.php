@@ -18,34 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class MonitorSourceFile {
+class Options {
 
-	const DECODER_DEFAULT = FileDecoder::DECODER_DIRECT;
+	private static $sOptionDebug = false;
+	private static $sOptionVerbose = false;
+	private static $sOptionPretend = false;
 
-	private $tFile;
-	private $tDefaultService;
-	private $tDecoder;
-
-	public function __construct($file, $defaultService, $decoder) {
-		$this->tFile = $file;
-		$this->tDefaultService = $defaultService;
-		$this->tDecoder = $decoder;
+	private function __construct() {
 	}
 
-	public function __toString() {
-		return "{$this->tDecoder}:{$this->tFile}";
+	public static function setDebug($optionDebug) {
+		return self::$sOptionDebug = $optionDebug;
 	}
 
-	public function getFile() {
-		return $this->tFile;
+	public static function debug() {
+		return self::$sOptionDebug;
 	}
 
-	public function getDefaultService() {
-		return $this->tDefaultService;
+	public static function setVerbose($optionVerbose) {
+		self::$sOptionVerbose = $optionVerbose;
 	}
 
-	public function getDecoder() {
-		return $this->tDecoder;
+	public static function verbose() {
+		return self::$sOptionVerbose;
+	}
+
+	public static function setPretend($optionPretend) {
+		self::$sOptionPretend = $optionPretend;
+	}
+
+	public static function pretend() {
+		return self::$sOptionPretend;
 	}
 
 }

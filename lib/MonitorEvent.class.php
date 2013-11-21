@@ -26,6 +26,16 @@ class MonitorEvent {
 	const TYPE_DENIED = "denied";
 	const TYPE_ERROR = "error";
 
+	const TYPEID_GRANTED = 1;
+	const TYPEID_DENIED = 2;
+	const TYPEID_ERROR = 3;
+
+	private static $sTypeMap = array(
+		self::TYPE_GRANTED => self::TYPEID_GRANTED,
+		self::TYPE_DENIED => self::TYPEID_DENIED,
+		self::TYPE_ERROR => self::TYPEID_ERROR
+	);
+
 	private $tType;
 	private $tSourceid;
 	private $tDefaultService;
@@ -55,11 +65,15 @@ class MonitorEvent {
 	}
 
 	public static function validTypes() {
-		return array(self::TYPE_GRANTED, self::TYPE_DENIED, self::TYPE_ERROR);
+		return array_keys(self::$sTypeMap);
 	}
 
 	public function getType() {
 		return $this->tType;
+	}
+
+	public function getTypeid() {
+		return self::$sTypeMap[$this->tType];
 	}
 
 	public function getSourceid() {

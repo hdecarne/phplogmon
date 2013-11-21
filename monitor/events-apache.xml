@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
 	<events sourceid="apachelog">
-		<event type="denied">
+		<event type="granted">
 			<pattern>/^(.*) - (.*) \[.*\] \".*\" 2\d\d .*$/U</pattern>
-			<user>0</user>
-			<hostip>1</hostip>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+		<event type="denied">
+			<pattern>/^(.*) - ([^-]*.*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+		<event type="error">
+			<pattern>/^(.*) - (.*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
 		</event>
 	</events>
 </logmon>

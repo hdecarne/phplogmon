@@ -25,17 +25,17 @@ class Files {
 	}
 
 	public static function safeOpendir($path) {
-		$dir = opendir($path);
-		if($dir === false) {
-			throw new Exception(Log::err("Cannot open directory '{$dir}'"));
+		$dh = opendir($path);
+		if($dh === false) {
+			throw new Exception(Log::err("Cannot open directory '{$path}'"));
 		}
-		return $dir;
+		return $dh;
 	}
 
-	public static function readdirMatch($dir, $pattern) {
-		$file = readdir($dir);
+	public static function readdirMatch($dh, $pattern) {
+		$file = readdir($dh);
 		while($file !== false && !fnmatch($pattern, $file)) {
-			$file = readdir($dir);
+			$file = readdir($dh);
 		}
 		return $file;
 	}
@@ -46,6 +46,14 @@ class Files {
 			throw new Exception(Log::err("Cannot get mtime of file '{$file}'"));
 		}
 		return $mtime;
+	}
+
+	public static function safeFopen($file, $mode) {
+		$fh = fopen($file, $mode);
+		if($fh === false) {
+			throw new Exception(Log::err("Cannot open file '{$file}'"));
+		}
+		return $fh;
 	}
 
 }

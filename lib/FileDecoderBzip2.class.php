@@ -26,11 +26,11 @@ class FileDecoderBzip2 extends FileDecoder {
 	public function __construct($file) {
 		parent::__construct($file, FileDecoder::DECODER_BZIP2);
 		if(!extension_loaded("bz2")) {
-			throw new Exception("Missing extension 'bz2' for bzip2 decoding");
+			throw new Exception(Log::err("Missing extension 'bz2' for bzip2 decoding"));
 		}
 		$this->tResource = bzopen($file, "r");
 		if($this->tResource === false) {
-			throw new Exception("Cannot open file '{$file}' for reading");
+			throw new Exception(Log::err("Cannot open file '{$file}' for reading"));
 		}
 	}
 

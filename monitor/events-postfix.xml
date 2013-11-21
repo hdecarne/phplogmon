@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="syslog" service="smtp">
+		<event type="granted">
+			<pattern>/.* postfix\/smtpd\[.*\]: .*: client=.*\[(.*)\], sasl_method=.*, sasl_username=(.*)$/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+		<event type="denied">
+			<pattern>/.* postfix\/smtpd\[.*\]: NOQUEUE: reject: RCPT from .*\[(.*)\]: .* Relay access denied; from=\x3C(.*)\x3E to/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+	</events>
+</logmon>

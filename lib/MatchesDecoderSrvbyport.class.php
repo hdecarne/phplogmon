@@ -18,34 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class MonitorSourceFile {
+class MatchesDecoderSrvbyport extends MatchesDecoder {
 
-	const DECODER_DEFAULT = FileDecoder::DECODER_DIRECT;
-
-	private $tFile;
-	private $tDefaultService;
-	private $tDecoder;
-
-	public function __construct($file, $defaultService, $decoder) {
-		$this->tFile = $file;
-		$this->tDefaultService = $defaultService;
-		$this->tDecoder = $decoder;
-	}
-
-	public function __toString() {
-		return "{$this->tDecoder}:{$this->tFile}";
-	}
-
-	public function getFile() {
-		return $this->tFile;
-	}
-
-	public function getDefaultService() {
-		return $this->tDefaultService;
-	}
-
-	public function getDecoder() {
-		return $this->tDecoder;
+	public function apply($matches, $term) {
+		$result = false;
+		$params = $this->bindParams($matches, $term, 2);
+		if($params !== false) {
+			$port = $params[0];
+			$proto = strtolower($params[1]);
+			$service = getservbyport($port, $proto);
+			$result = ($service != false ? $service : "{$port}/{$proto}");
+		}
+		return $result;
 	}
 
 }
