@@ -163,6 +163,7 @@ class ProcessorEventMatchstate {
 	}
 
 	private function update() {
+		$loghostId = QueryLoghost::getLoghostId($this->tDbh, $this->tSource->getLoghost());
 		$userId = QueryUser::getUserId($this->tDbh, $this->tMatchedUser);
 		$hostipId = QueryHostip::getHostipId($this->tDbh, $this->tMatchedHostip);
 		$hostmacId = QueryHostmac::getHostmacId($this->tDbh, $this->tMatchedHostmac);
@@ -190,15 +191,16 @@ class ProcessorEventMatchstate {
 				$update->bindValue(4, $id,  PDO::PARAM_STR);
 				$update->execute();
 			} else {
-				$insert = $this->tDbh->prepare("INSERT INTO event (typeid, userid, hostipid, hostmacid, serviceid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-				$insert->bindValue(1, $this->tEvent->getTypeid(),  PDO::PARAM_STR);
-				$insert->bindValue(2, $userId, PDO::PARAM_STR);
-				$insert->bindValue(3, $hostipId, PDO::PARAM_STR);
-				$insert->bindValue(4, $hostmacId, PDO::PARAM_STR);
-				$insert->bindValue(5, $serviceId, PDO::PARAM_STR);
-				$insert->bindValue(6, 1, PDO::PARAM_INT);
-				$insert->bindValue(7, $this->tMatchedTimestamp, PDO::PARAM_INT);
+				$insert = $this->tDbh->prepare("INSERT INTO event (loghostid, typeid, userid, hostipid, hostmacid, serviceid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				$insert->bindValue(1, $loghostId,  PDO::PARAM_STR);
+				$insert->bindValue(2, $this->tEvent->getTypeid(),  PDO::PARAM_STR);
+				$insert->bindValue(3, $userId, PDO::PARAM_STR);
+				$insert->bindValue(4, $hostipId, PDO::PARAM_STR);
+				$insert->bindValue(5, $hostmacId, PDO::PARAM_STR);
+				$insert->bindValue(6, $serviceId, PDO::PARAM_STR);
+				$insert->bindValue(7, 1, PDO::PARAM_INT);
 				$insert->bindValue(8, $this->tMatchedTimestamp, PDO::PARAM_INT);
+				$insert->bindValue(9, $this->tMatchedTimestamp, PDO::PARAM_INT);
 				$insert->execute();
 				$id = $this->tDbh->lastInsertId();
 			}

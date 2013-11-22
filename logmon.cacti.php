@@ -35,33 +35,45 @@ try {
 	mb_internal_encoding("UTF-8");
 
 	Options::setDebug(DEBUG || array_search("--debug", $argv));
-	Options::setPretend(array_search("--pretend", $argv));
-	Options::setVerbose(Options::debug() || Options::pretend() || array_search("--verbose", $argv));
+	Options::setVerbose(Options::debug() || array_search("--verbose", $argv));
 	Log::open(__FILE__, true, Options::verbose(), Options::debug());
 
 	Log::notice(sprintf("Running '%s'...", implode(" ", $argv)));
-	$monitor = Monitor::create(dirname(__FILE__)."/monitor");
-	if($monitor !== false) {
-		$sources = $monitor->getEnabledSources();
-		$dbh = new DBH(DBDSN, DBUSER, DBPASS);
-		$processor = new Processor($dbh);
-		foreach($sources as $source) {
-			$sourceEvents = $monitor->getSourceEvents($source);
-			$processor->process($source, $sourceEvents);
+	$grantedCount = 0;
+	$deniedCount = 0;
+	$errorCount = 0;
+	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
+	$select = $dbh->prepare("SELECT typeid, count(typeid) FROM event WHERE last >= ? GROUP BY typeid");
+	$select->bindValue(1, time() - 3600, PDO::PARAM_INT);
+	$select->execute();
+	$select->bindColumn(1, $typeid, PDO::PARAM_STR);
+	$select->bindColumn(2, $count, PDO::PARAM_INT);
+	while($select->fetch(PDO::FETCH_BOUND) !== false) {
+		switch($typeid) {
+			case MonitorEvent::TYPEID_GRANTED:
+				$grantedCount = $count;
+				break;
+			case MonitorEvent::TYPEID_DENIED:
+				$deniedCount = $count;
+				break;
+			case MonitorEvent::TYPEID_ERROR:
+				$errorCount = $count;
+				break;
+			default:
+				Log::warning("Unknown typeid {$typeid} encountered");
 		}
-		$status = 0;
-	} else {
-		$status = 1;
 	}
+	print "GRANTED:{$grantedCount} DENIED:{$deniedCount} ERROR:{$errorCount}";
+	$status = 0;
 } catch(Exception $e) {
-	Log::err(sprintf("Log file processing failed with exception: %s\nDetails: %s", $e->getMessage(), $e));
+	Log::err(sprintf("Cacti data generation failed with exception: %s\nDetails: %s", $e->getMessage(), $e));
 	$status = 1;
 }
 if(isset($dbh)) {
 	$dbh->close();
 }
 $elapsed = round(microtime(true) - $elapsed, 3);
-Log::notice("Log file processing finished with status '{$status}' (Total processing time: {$elapsed} s)");
+Log::notice("Cacti data generation finished with status '{$status}' (Total processing time: {$elapsed} s)");
 Log::close();
 exit($status);
 

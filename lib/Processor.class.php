@@ -75,7 +75,7 @@ class Processor {
 			$logfiles[] = Files::path($path, $logfile);
 		}
 		closedir($dir);
-		arsort($logfiles);
+		asort($logfiles);
 		return $logfiles;
 	}
 

@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS service;
 DROP TABLE IF EXISTS hostmac;
 DROP TABLE IF EXISTS hostip;
 DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS loghost;
 DROP TABLE IF EXISTS sourcestate;
 
 --
@@ -16,13 +17,23 @@ DROP TABLE IF EXISTS sourcestate;
 
 CREATE TABLE sourcestate (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	sourceid CHAR(32) NOT NULL,
-	loghost CHAR(32) NOT NULL,
+	sourceid VARCHAR(64) NOT NULL,
 	file VARCHAR(1024) NOT NULL,
 	mtime INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
 	INDEX ( sourceid )
+) ENGINE=InnoDB CHARSET=utf8;
+
+--
+-- Table 'loghost'
+--
+
+CREATE TABLE loghost (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	loghost VARCHAR(64) NOT NULL,
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( loghost )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -86,6 +97,7 @@ CREATE TABLE service (
 
 CREATE TABLE event (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	loghostid INT UNSIGNED NOT NULL,
 	typeid INT UNSIGNED NOT NULL,
 	userid INT UNSIGNED NOT NULL,
 	hostipid INT UNSIGNED NOT NULL,
@@ -95,11 +107,12 @@ CREATE TABLE event (
 	first INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
+	UNIQUE KEY ( typeid, userid , hostipid, hostmacid, serviceid ),
+	FOREIGN KEY ( loghostid ) REFERENCES loghost ( id ),
 	FOREIGN KEY ( userid ) REFERENCES user ( id ),
 	FOREIGN KEY ( hostipid ) REFERENCES hostip ( id ),
 	FOREIGN KEY ( hostmacid ) REFERENCES hostmac ( id ),
 	FOREIGN KEY ( serviceid ) REFERENCES service ( id ),
-	UNIQUE KEY ( typeid, userid , hostipid, hostmacid, serviceid ),
 	INDEX ( typeid ),
 	INDEX ( userid ),
 	INDEX ( hostipid ),

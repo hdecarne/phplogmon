@@ -24,25 +24,29 @@ class QueryHostip {
 	}
 
 	private static function getDbHostipId($dbh, $hostip) {
-		$select = $dbh->prepare("SELECT a.id FROM hostip a WHERE hostip = ?");
+		$networkid = 1;
+		$host = self::safeGethostbyaddr($hostip);
+		$select = $dbh->prepare("SELECT a.id FROM hostip a WHERE hostip = ? AND networkid = ? AND host = ?");
 		$select->bindValue(1, $hostip, PDO::PARAM_STR);
+		$select->bindValue(2, $networkid, PDO::PARAM_STR);
+		$select->bindValue(3, $host, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $id, PDO::PARAM_STR);
 		if($select->fetch(PDO::FETCH_BOUND) === false) {
-			$host = self::safeGethostbyaddr($hostip);
 			$geoipRecord = self::safeGeoiprecordbyname($hostip);
 			if(!Options::pretend()) {
-				$insert = $dbh->prepare("INSERT INTO hostip (hostip, host, continentcode, countrycode, countryname, region, city, postalcode, latitude, longitude) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				$insert = $dbh->prepare("INSERT INTO hostip (hostip, networkid, host, continentcode, countrycode, countryname, region, city, postalcode, latitude, longitude) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 				$insert->bindValue(1, $hostip, PDO::PARAM_STR);
-				$insert->bindValue(2, $host, PDO::PARAM_STR);
-				$insert->bindValue(3, $geoipRecord["continent_code"], PDO::PARAM_STR);
-				$insert->bindValue(4, $geoipRecord["country_code"], PDO::PARAM_STR);
-				$insert->bindValue(5, $geoipRecord["country_name"], PDO::PARAM_STR);
-				$insert->bindValue(6, $geoipRecord["region"], PDO::PARAM_STR);
-				$insert->bindValue(7, $geoipRecord["city"], PDO::PARAM_STR);
-				$insert->bindValue(8, $geoipRecord["postal_code"], PDO::PARAM_STR);
-				$insert->bindValue(9, $geoipRecord["latitude"], PDO::PARAM_STR);
-				$insert->bindValue(10, $geoipRecord["longitude"], PDO::PARAM_STR);
+				$insert->bindValue(2, $networkid, PDO::PARAM_STR);
+				$insert->bindValue(3, $host, PDO::PARAM_STR);
+				$insert->bindValue(4, $geoipRecord["continent_code"], PDO::PARAM_STR);
+				$insert->bindValue(5, $geoipRecord["country_code"], PDO::PARAM_STR);
+				$insert->bindValue(6, $geoipRecord["country_name"], PDO::PARAM_STR);
+				$insert->bindValue(7, $geoipRecord["region"], PDO::PARAM_STR);
+				$insert->bindValue(8, $geoipRecord["city"], PDO::PARAM_STR);
+				$insert->bindValue(9, $geoipRecord["postal_code"], PDO::PARAM_STR);
+				$insert->bindValue(10, $geoipRecord["latitude"], PDO::PARAM_STR);
+				$insert->bindValue(11, $geoipRecord["longitude"], PDO::PARAM_STR);
 				$insert->execute();
 				$id = $dbh->lastInsertId();
 			} else {
