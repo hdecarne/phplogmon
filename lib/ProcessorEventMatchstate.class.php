@@ -123,7 +123,7 @@ class ProcessorEventMatchstate {
 				if(!$this->isEmpty()) {
 					if(!$this->isErroneous()) {
 						if(Options::pretend()) {
-							Log::debug("Found event '{$this}'");
+							Log::info("Found event '{$this}'");
 						}
 						$this->update();
 						$matchCount = 1;

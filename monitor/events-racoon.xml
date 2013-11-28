@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="syslog" service="ipsec">
+		<event type="granted">
+			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
+			<hostip>0</hostip>
+		</event>
+	</events>
+</logmon>

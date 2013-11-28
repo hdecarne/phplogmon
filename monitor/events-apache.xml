@@ -2,12 +2,16 @@
 <logmon version="1">
 	<events sourceid="apachelog">
 		<event type="granted">
-			<pattern>/^(.*) - (.*) \[.*\] \".*\" 2\d\d .*$/U</pattern>
+			<pattern>/^(.*) - - \[.*\] \".*\" 2\d\d .*$/U</pattern>
+			<hostip>0</hostip>
+		</event>
+		<event type="granted">
+			<pattern>/^(.*) - ([^\-].*) \[.*\] \".*\" 2\d\d .*$/U</pattern>
 			<user>1</user>
 			<hostip>0</hostip>
 		</event>
 		<event type="denied">
-			<pattern>/^(.*) - ([^-]*.*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
+			<pattern>/^(.*) - ([^\-].*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
 			<user>1</user>
 			<hostip>0</hostip>
 		</event>

@@ -70,7 +70,7 @@ class QueryHostip {
 	}
 
 	private static function safeGethostbyaddr($hostip) {
-		$host = ($hostip != "" ? gethostbyaddr($hostip) : $host);
+		$host = ($hostip != "" ? gethostbyaddr($hostip) : $hostip);
 		return ($host !== false ? $host : $hostip);
 	}
 
