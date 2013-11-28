@@ -47,6 +47,11 @@ class QueryService {
 	}
 
 	public static function discardUnused($dbh) {
+		if(!Options::pretend()) {
+			$dbh->clearCache(get_class());
+			$delete = $dbh->prepare("DELETE FROM service WHERE id NOT IN (SELECT serviceid FROM event)");
+			$delete->execute();
+		}
 	}
 
 }

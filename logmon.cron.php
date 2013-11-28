@@ -49,6 +49,7 @@ try {
 			$sourceEvents = $monitor->getSourceEvents($source);
 			$processor->process($source, $sourceEvents);
 		}
+		$processor->discard(EVENT_DISCARD_THRESHOLD);
 		$status = 0;
 	} else {
 		$status = 1;

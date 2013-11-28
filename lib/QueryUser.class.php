@@ -47,6 +47,11 @@ class QueryUser {
 	}
 
 	public static function discardUnused($dbh) {
+		if(!Options::pretend()) {
+			$dbh->clearCache(get_class());
+			$delete = $dbh->prepare("DELETE FROM user WHERE id NOT IN (SELECT userid FROM event)");
+			$delete->execute();
+		}
 	}
 
 }

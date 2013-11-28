@@ -18,4 +18,15 @@ define('DBDSN', 'mysql:host=localhost;dbname=logmon');
 define('DBUSER', 'logmon');
 define('DBPASS', 'secret');
 
+/*
+ * Number of days after which old events are discarded.
+ */
+define('EVENT_DISCARD_THRESHOLD', 7);
+
+/*
+ * External library links.
+ */
+define('EXTJS_STYLE_URL', false);
+define('EXTJS_SCRIPT_URL', false);
+
 ?>

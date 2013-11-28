@@ -47,6 +47,11 @@ class QueryLoghost {
 	}
 
 	public static function discardUnused($dbh) {
+		if(!Options::pretend()) {
+			$dbh->clearCache(get_class());
+			$delete = $dbh->prepare("DELETE FROM loghost WHERE id NOT IN (SELECT loghostid FROM event)");
+			$delete->execute();
+		}
 	}
 
 }

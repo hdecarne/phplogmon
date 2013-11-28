@@ -62,6 +62,11 @@ class QueryHostip {
 	}
 
 	public static function discardUnused($dbh) {
+		if(!Options::pretend()) {
+			$dbh->clearCache(get_class());
+			$delete = $dbh->prepare("DELETE FROM hostip WHERE id NOT IN (SELECT hostipid FROM event)");
+			$delete->execute();
+		}
 	}
 
 	private static function safeGethostbyaddr($hostip) {

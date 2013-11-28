@@ -65,6 +65,16 @@ class Processor {
 		Log::notice("{$processedLineCount} line(s) processed {$recordedEventCount} event(s) recorded");
 	}
 
+	public function discard($days) {
+		$discardedEventCount = ProcessorEventMatchstate::discardOld($this->tDbh, $days);
+		Log::notice("{$discardedEventCount} old event(s) discarded");
+		QueryLoghost::discardUnused($this->tDbh);
+		QueryUser::discardUnused($this->tDbh);
+		QueryHostip::discardUnused($this->tDbh);
+		QueryHostmac::discardUnused($this->tDbh);
+		QueryService::discardUnused($this->tDbh);
+	}
+
 	private function scanLogFiles($file) {
 		$logfiles = array();
 		$pathinfo = pathinfo($file);

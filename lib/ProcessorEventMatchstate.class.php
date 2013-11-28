@@ -80,6 +80,21 @@ class ProcessorEventMatchstate {
 		return $matchCount;
 	}
 
+	public static function discardOld($dbh, $days) {
+		$discardCount = 0;
+		if(!Options::pretend()) {
+			$threshold = time() - $days * 24 * 60 * 60;
+			$delete = $dbh->prepare("DELETE FROM log WHERE eventid IN (SELECT id FROM event WHERE last <= ?)");
+			$delete->bindValue(1, $threshold, PDO::PARAM_INT);
+			$delete->execute();
+			$delete = $dbh->prepare("DELETE FROM event WHERE last <= ?");
+			$delete->bindValue(1, $threshold, PDO::PARAM_INT);
+			$delete->execute();
+			$discardCount = $delete->rowCount();
+		}
+		return $discardCount;
+	}
+
 	private function matchAndUpdate($lineTimestamp, $line) {
 		$patterns = $this->tEvent->getPatterns();
 		$match = false;

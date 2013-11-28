@@ -51,6 +51,11 @@ class QueryHostmac {
 	}
 
 	public static function discardUnused($dbh) {
+		if(!Options::pretend()) {
+			$dbh->clearCache(get_class());
+			$delete = $dbh->prepare("DELETE FROM hostmac WHERE id NOT IN (SELECT hostmacid FROM event)");
+			$delete->execute();
+		}
 	}
 
 	private static function getVendor($hostmac) {

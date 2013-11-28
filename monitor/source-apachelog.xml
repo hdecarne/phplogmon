@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
-	<source id="apachelog" loghost="localhost">
+	<source id="apachelog" loghost="homefs1">
 		<tspattern>/^.* - .* \[(\d\d\/\D\D\D\/\d\d\d\d:\d\d:\d\d:\d\d .\d\d\d\d)\] \".*\" \d\d\d .*$/U</tspattern>
 		<tsformat>d/M/Y:H:i:s O</tsformat>
 		<file service="http" decoder="auto">/var/log/apache2/access_log*</file>

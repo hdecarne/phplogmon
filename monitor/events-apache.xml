@@ -12,7 +12,7 @@
 			<hostip>0</hostip>
 		</event>
 		<event type="error">
-			<pattern>/^(.*) - (.*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
+			<pattern>/^(.*) - (.*) \[.*\] \".*\" 5\d\d .*$/U</pattern>
 			<user>1</user>
 			<hostip>0</hostip>
 		</event>

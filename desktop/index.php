@@ -1,10 +1,8 @@
 <?php
-require_once("lib/autoload.php");
+require_once("../lib/autoload.php");
 
-$debug = true;
-$handler = false;
 try {
-	$config = dirname(__FILE__)."/logmon.conf.php";
+	$config = dirname(__FILE__)."/../logmon.conf.php";
 	$requiredConfigs = array($config);
 	CheckConfig::configs($requiredConfigs);
 	require_once($config);
@@ -17,22 +15,26 @@ try {
 	Log::open(__FILE__, $debug, false, $debug);
 	WebAccess::initSession();
 
-	if(isset($_REQUEST["action"])) {
-		$handler = true;
-	}
+	$lang = WebAccess::lang();
 } catch(Exception $e) {
 	Log::err($e);
 	Log::close();
 	if($debug) {
 		WebAccess::reportExceptionAndExit($e);
-	} else {
+    } else {
 		WebAccess::sendStatusAndExit(WebAccess::STATUS_SERVICE_UNAVAILABLE);
 	}
 }
-if($handler != false) {
-	Log::close();
-} else {
-	Log::close();
-	WebAccess::redirectRootAndExit();
-}
 ?>
+<!DOCTYPE HTML>
+<html lang="<?php Html::out($lang); ?>">
+<head>
+<meta charset="utf-8" />
+<title>LogMon</title>
+<link rel="stylesheet" type="text/css" href="<?php Html::out(EXTJS_STYLE_URL); ?>" />
+<script type="text/javascript" src="<?php Html::out(EXTJS_SCRIPT_URL); ?>"></script>
+<script type="text/javascript" src="app.js"></script>
+</head>
+<body>
+</body>
+</html>

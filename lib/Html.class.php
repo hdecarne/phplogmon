@@ -18,18 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ViewStart extends View {
+class Html {
 
-	public function __construct($dbh) {
-		parent::__construct($dbh);
-	}
-
-	public function renderTitle() {
-		print "TEST";
-	}
-
-	public function renderBody() {
-		print $_SERVER["HTTP_USER_AGENT"];
+	public static function out($out) {
+		print htmlentities($out);
 	}
 
 }
