@@ -109,7 +109,7 @@ class QueryHostip {
 				}
 			}
 			if($matchingNetwork === false) {
-				$matchingNetwork = (strlen($addr) == 16 ? $hostip."/128" : $hostip."/32");
+				$matchingNetwork = $hostip;
 			}
 		} else {
 			$matchingNetwork = $hostip;

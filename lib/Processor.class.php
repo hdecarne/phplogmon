@@ -62,12 +62,12 @@ class Processor {
 		}
 		ProcessorSourcestate::updateAll($sourcestates);
 		$this->tDbh->commit();
-		Log::notice("{$processedLineCount} line(s) processed {$recordedEventCount} event(s) recorded");
+		Log::notice(sprintf("%u line(s) processed %u event(s) recorded",$processedLineCount, $recordedEventCount));
 	}
 
 	public function discard($days) {
 		$discardedEventCount = ProcessorEventMatchstate::discardOld($this->tDbh, $days);
-		Log::notice("{$discardedEventCount} old event(s) discarded");
+		Log::notice(sprintf("%u old event(s) discarded", $discardedEventCount));
 		QueryLoghost::discardUnused($this->tDbh);
 		QueryUser::discardUnused($this->tDbh);
 		QueryHostip::discardUnused($this->tDbh);

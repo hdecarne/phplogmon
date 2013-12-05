@@ -62,7 +62,7 @@ if(isset($dbh)) {
 	$dbh->close();
 }
 $elapsed = round(microtime(true) - $elapsed, 3);
-Log::notice("Log file processing finished with status '{$status}' (Total processing time: {$elapsed} s)");
+Log::notice(sprintf("Log file processing finished with status '%d' (Total processing time: %f s)", $status, $elapsed));
 Log::close();
 exit($status);
 

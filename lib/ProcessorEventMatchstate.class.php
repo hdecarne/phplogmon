@@ -102,8 +102,8 @@ class ProcessorEventMatchstate {
 			$this->tNextPatternIndex++;
 			$match = true;
 		} elseif($this->tNextPatternIndex > 0 && preg_match($patterns[0], $line, $matches) === 1) {
+			$this->reset();
 			$this->tNextPatternIndex = 1;
-			$this->tMatchedLines = array();
 			$match = true;
 		}
 		$matchCount = 0;
