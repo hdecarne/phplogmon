@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<events sourceid="syslog" service="l2tp">
+		<event type="granted">
+			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
+			<pattern>/^.* pppd\[.*\]: PAP peer authentication succeeded for (.*)$/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+		<event type="denied">
+			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
+			<pattern>/^.* pppd\[.*\]: PAP peer authentication failed for (.*)$/U</pattern>
+			<user>1</user>
+			<hostip>0</hostip>
+		</event>
+	</events>
+</logmon>

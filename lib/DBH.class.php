@@ -75,8 +75,14 @@ class DBH {
 		return $this->tDbh->lastInsertId();
 	}
 
-	public function getCache($name) {
-		return (isset($this->tCaches[$name]) ? $this->tCaches[$name] : $this->tCaches[$name] = array());
+	public function &getCache($name) {
+		if(isset($this->tCaches[$name])) {
+			$cache =& $this->tCaches[$name];
+		} else {
+			$cache = array();
+			$this->tCaches[$name] =& $cache;
+		}
+		return $cache;
 	}
 
 	public function clearCache($name) {

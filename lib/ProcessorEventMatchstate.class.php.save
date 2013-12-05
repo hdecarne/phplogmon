@@ -1,3 +1,6 @@
+
+
+
 <?php
 /**
  * phplogmon
@@ -44,8 +47,8 @@ class ProcessorEventMatchstate {
 	private function reset() {
 		$this->tNextPatternIndex = 0;
 		$this->tMatches = array();
-		$this->tMatchedTimestamp = 0;
 		$this->tMatchedLines = array();
+		$this->tMatchedTimestamp = 0;
 		$this->tMatchedUser = "";
 		$this->tMatchedHostip = "";
 		$this->tMatchedHostmac = "";
@@ -124,10 +127,8 @@ class ProcessorEventMatchstate {
 					if(!$this->isErroneous()) {
 						if(Options::pretend() || Options::debug()) {
 							Log::info("Found event '{$this}'");
-							$matchedLineIndex = 0;
 							foreach($this->tMatchedLines as $matchedLine) {
-								Log::debug("line[{$matchedLineIndex}] '{$matchedLine}'");
-								$matchedLineIndex++;
+								Log::debug("Matching line '{$matchedLine}'");
 							}
 						}
 						$this->update();

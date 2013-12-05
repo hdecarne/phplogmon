@@ -23,6 +23,11 @@ class QueryLoghost {
 	private function __construct() {
 	}
 
+	public static function getLoghostId($dbh, $loghost) {
+		$cache =& $dbh->getCache(get_class());
+		return (isset($cache[$loghost]) ? $cache[$loghost] : $cache[$loghost] = self::getDbLoghostId($dbh, $loghost));
+	}
+
 	private static function getDbLoghostId($dbh, $loghost) {
 		$select = $dbh->prepare("SELECT a.id FROM loghost a WHERE loghost = ?");
 		$select->bindValue(1, $loghost, PDO::PARAM_STR);
@@ -39,11 +44,6 @@ class QueryLoghost {
 			}
 		}
 		return $id;
-	}
-
-	public static function getLoghostId($dbh, $loghost) {
-		$cache =& $dbh->getCache(get_class());
-		return (isset($cache[$loghost]) ? $cache[$loghost] : $cache[$loghost] = self::getDbLoghostId($dbh, $loghost));
 	}
 
 	public static function discardUnused($dbh) {

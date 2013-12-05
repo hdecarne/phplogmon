@@ -25,7 +25,25 @@ class QueryHostmac {
 	private function __construct() {
 	}
 
+	public static function normalizeHostmac($hostmac) {
+		$normalized = false;
+		if($hostmac == "") {
+			$normalized = $hostmac;
+		} elseif(preg_match("/([a-fA-F0-9]{2}:?){6}/", $hostmac) == 1) {
+			$normalized = strtoupper($hostmac);
+		}
+		return $normalized;
+	}
+
+	public static function getHostmacId($dbh, $hostmac) {
+		$cache =& $dbh->getCache(get_class());
+		return (isset($cache[$hostmac]) ? $cache[$hostmac] : $cache[$hostmac] = self::getDbHostmacId($dbh, $hostmac));
+	}
+
 	private static function getDbHostmacId($dbh, $hostmac) {
+		if($hostmac != "") {
+			Log::debug("Retrieving info for mac '{$hostmac}'...");
+		}
 		$select = $dbh->prepare("SELECT a.id FROM hostmac a WHERE hostmac = ?");
 		$select->bindValue(1, $hostmac, PDO::PARAM_STR);
 		$select->execute();
@@ -43,11 +61,6 @@ class QueryHostmac {
 			}
 		}
 		return $id;
-	}
-
-	public static function getHostmacId($dbh, $hostmac) {
-		$cache =& $dbh->getCache(get_class());
-		return (isset($cache[$hostmac]) ? $cache[$hostmac] : $cache[$hostmac] = self::getDbHostmacId($dbh, $hostmac));
 	}
 
 	public static function discardUnused($dbh) {

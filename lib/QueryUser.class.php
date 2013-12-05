@@ -23,7 +23,15 @@ class QueryUser {
 	private function __construct() {
 	}
 
+	public static function getUserId($dbh, $user) {
+		$cache =& $dbh->getCache(get_class());
+		return (isset($cache[$user]) ? $cache[$user] : $cache[$user] = self::getDbUserId($dbh, $user));
+	}
+
 	private static function getDbUserId($dbh, $user) {
+		if($user != "") {
+			Log::debug("Retrieving info for user '{$user}'...");
+		}
 		$select = $dbh->prepare("SELECT a.id FROM user a WHERE user = ?");
 		$select->bindValue(1, $user, PDO::PARAM_STR);
 		$select->execute();
@@ -39,11 +47,6 @@ class QueryUser {
 			}
 		}
 		return $id;
-	}
-
-	public static function getUserId($dbh, $user) {
-		$cache =& $dbh->getCache(get_class());
-		return (isset($cache[$user]) ? $cache[$user] : $cache[$user] = self::getDbUserId($dbh, $user));
 	}
 
 	public static function discardUnused($dbh) {

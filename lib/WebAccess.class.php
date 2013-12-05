@@ -27,8 +27,8 @@ class WebAccess {
 	const SESSION_KEY_LANG = "Lang";
 	const SESSION_KEY_UI = "UI";
 
-	const UI_DESKTOP = "desktop";
-	const UI_MOBILE = "mobile";
+	const UI_DESKTOP = "d";
+	const UI_MOBILE = "m";
 
 	public static function reportExceptionAndExit($e) {
 		print "<!DOCTYPE HTML>\n";

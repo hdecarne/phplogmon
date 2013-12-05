@@ -23,6 +23,11 @@ class QueryService {
 	private function __construct() {
 	}
 
+	public static function getServiceId($dbh, $service) {
+		$cache =& $dbh->getCache(get_class());
+		return (isset($cache[$service]) ? $cache[$service] : $cache[$service] = self::getDbServiceId($dbh, $service));
+	}
+
 	private static function getDbServiceId($dbh, $service) {
 		$select = $dbh->prepare("SELECT a.id FROM service a WHERE service = ?");
 		$select->bindValue(1, $service, PDO::PARAM_STR);
@@ -39,11 +44,6 @@ class QueryService {
 			}
 		}
 		return $id;
-	}
-
-	public static function getServiceId($dbh, $service) {
-		$cache =& $dbh->getCache(get_class());
-		return (isset($cache[$service]) ? $cache[$service] : $cache[$service] = self::getDbServiceId($dbh, $service));
 	}
 
 	public static function discardUnused($dbh) {

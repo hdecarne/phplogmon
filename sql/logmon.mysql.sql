@@ -53,19 +53,19 @@ CREATE TABLE user (
 
 CREATE TABLE hostip (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	hostip CHAR(40) NOT NULL,
-	networkid INT UNSIGNED NOT NULL,
+	hostip VARCHAR(40) NOT NULL,
+	network VARCHAR(44) NOT NULL,
 	host VARCHAR(64) NOT NULL,
 	continentcode CHAR(2),
 	countrycode CHAR(2),
 	countryname VARCHAR(64),
 	region CHAR(2),
-	city VARCHAR(256),
+	city VARCHAR(64),
 	postalcode VARCHAR(64),
 	latitude DOUBLE,
 	longitude DOUBLE,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( hostip, networkid, host )
+	UNIQUE KEY ( hostip, network, host )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -86,7 +86,7 @@ CREATE TABLE hostmac (
 
 CREATE TABLE service (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	service CHAR(32) NOT NULL,
+	service VARCHAR(32) NOT NULL,
 	PRIMARY KEY ( id ),
 	UNIQUE KEY ( service )
 ) ENGINE=InnoDB CHARSET=utf8;
