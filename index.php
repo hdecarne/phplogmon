@@ -10,7 +10,7 @@ try {
 	require_once($config);
 	$debug = DEBUG;
 
-	$requiredExtensions = array("mbstring", "PDO");
+	$requiredExtensions = array("mbstring", "PDO", "json");
 	CheckConfig::extensions($requiredExtensions);
 
 	mb_internal_encoding("UTF-8");

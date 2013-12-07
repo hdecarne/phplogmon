@@ -173,7 +173,8 @@ class QueryHostip {
 				self::$sIpv4Networks[] = array($addr, $scope, $network);
 				Log::debug(" {$network}");
 			} elseif(preg_match("/\s*inet6\s*([0-9a-fA-F:]+)\s*prefixlen\s*([0-9a-fA-F:]+)\s*scopeid.*/", $line, $matches) === 1
-				&& ($addr = @inet_pton($matches[1])) !== false && ($scope = intval($matches[2])) !== false) {
+				&& ($addr = @inet_pton($matches[1])) !== false && is_numeric($matches[2]) !== false) {
+				$scope = intval($matches[2]);
 				$byteOffset = floor($scope/8);
 				$tmpAddr = substr($addr, 0, $byteOffset);
 				$mergeBits = $scope % 8;

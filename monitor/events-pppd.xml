@@ -7,9 +7,5 @@
 			<user>0</user>
 			<hostip>1</hostip>
 		</event>
-		<event type="denied">
-			<pattern>/^.* pppd\[.*\]: PAP peer authentication failed for (.*)$/U</pattern>
-			<user>0</user>
-		</event>
 	</events>
 </logmon>

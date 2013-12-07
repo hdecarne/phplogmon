@@ -59,8 +59,8 @@ abstract class MatchesDecoder {
 
 	protected function bindParam($matches, $index) {
 		$param = false;
-		$indexVal = intval($index);
-		if($indexVal !== false) {
+		if(is_numeric($index)) {
+			$indexVal = intval($index);
 			$indexLimit = count($matches) - 1;
 			if(0 <= $index && $index <= $indexLimit) {
 				$param = $matches[$indexVal];

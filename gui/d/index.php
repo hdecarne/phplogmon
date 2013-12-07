@@ -1,14 +1,14 @@
 <?php
-require_once("../lib/autoload.php");
+require_once("../../lib/autoload.php");
 
 try {
-	$config = dirname(__FILE__)."/../logmon.conf.php";
+	$config = dirname(__FILE__)."/../../logmon.conf.php";
 	$requiredConfigs = array($config);
 	CheckConfig::configs($requiredConfigs);
 	require_once($config);
 	$debug = DEBUG;
 
-	$requiredExtensions = array("mbstring", "PDO");
+	$requiredExtensions = array("mbstring", "PDO", "json");
 	CheckConfig::extensions($requiredExtensions);
 
 	mb_internal_encoding("UTF-8");

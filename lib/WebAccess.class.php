@@ -27,8 +27,8 @@ class WebAccess {
 	const SESSION_KEY_LANG = "Lang";
 	const SESSION_KEY_UI = "UI";
 
-	const UI_DESKTOP = "d";
-	const UI_MOBILE = "m";
+	const UI_DESKTOP = "gui/d/";
+	const UI_MOBILE = "gui/m/";
 
 	public static function reportExceptionAndExit($e) {
 		print "<!DOCTYPE HTML>\n";
@@ -70,7 +70,6 @@ class WebAccess {
 		$redirect .= $_SERVER["HTTP_HOST"];
 		$redirect .= substr($_SERVER["SCRIPT_NAME"], 0, -strlen("index.php"));
 		$redirect .= $target;
-		$redirect .= "/";
 		header($redirect);
 		flush();
 		exit;

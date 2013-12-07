@@ -39,12 +39,34 @@ try {
 	Log::open(__FILE__, true, Options::verbose(), Options::debug());
 
 	Log::notice(sprintf("Running '%s'...", implode(" ", $argv)));
+	$argIndex = 1;
+	$argValue = false;
+	while($argIndex < $argc && $argValue === false) {
+		$arg = $argv[$argIndex];
+		if(substr($arg, 0, 2) != "--") {
+			if(is_numeric($arg)) {
+				$argValue = intval($arg);
+				if($argValue > 0) {
+					Log::notice("Collecting events of last {$argValue} seconds");
+				} else {
+					Log::warning("Ignoring invalid parameter '{$arg}'");
+					$argValue = false;
+				}
+			} else {
+				Log::warning("Ingnoring unexpected parameter '{$arg}'");
+			}
+		}
+		$argIndex++;
+	}
+	if($argValue === false) {
+		$argValue = 3600;
+	}
 	$grantedCount = 0;
 	$deniedCount = 0;
 	$errorCount = 0;
 	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 	$select = $dbh->prepare("SELECT typeid, count(typeid) FROM event WHERE last >= ? GROUP BY typeid");
-	$select->bindValue(1, time() - 3600, PDO::PARAM_INT);
+	$select->bindValue(1, time() - $argValue, PDO::PARAM_INT);
 	$select->execute();
 	$select->bindColumn(1, $typeid, PDO::PARAM_STR);
 	$select->bindColumn(2, $count, PDO::PARAM_INT);
@@ -63,7 +85,10 @@ try {
 				Log::warning("Unknown typeid {$typeid} encountered");
 		}
 	}
-	print "GRANTED:{$grantedCount} DENIED:{$deniedCount} ERROR:{$errorCount}";
+	print("GRANTED:{$grantedCount} DENIED:{$deniedCount} ERROR:{$errorCount}");
+	if(Options::verbose()) {
+		print("\n");
+	}
 	$status = 0;
 } catch(Exception $e) {
 	Log::err(sprintf("Cacti data generation failed with exception: %s\nDetails: %s", $e->getMessage(), $e));
