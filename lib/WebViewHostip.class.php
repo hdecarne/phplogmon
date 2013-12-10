@@ -34,7 +34,7 @@ class WebViewHostip extends WebView {
 		print("<div class=\"filter\">\n");
 		$this->printFilter();
 		print("</div><div class=\"events\">\n");
-		$this->printData();
+		$this->printEventData();
 		print("</div>\n");
 		$this->endBody();
 		$this->endHtml();
@@ -49,11 +49,11 @@ class WebViewHostip extends WebView {
 		$this->printSelectService();
 	}
 
-	private function printData() {
+	private function printEventData() {
 		$dbh = $this->dbh();
-		$type = $this->getSelectType();
-		$loghost = $this->getSelectLoghost();
-		$service = $this->getSelectService();
+		$type = $this->getRequestType();
+		$loghost = $this->getRequestLoghost();
+		$service = $this->getRequestService();
 		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.hostip, d.host, d.countrycode, d.countryname, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, hostip d WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.hostipid = d.id AND d.host <> '' AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) GROUP BY a.typeid, b.id, c.id, d.id ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
 		$select->bindParam(2, $type, PDO::PARAM_STR);
@@ -103,10 +103,10 @@ class WebViewHostip extends WebView {
 			Html::out("{$loghost}");
 			print("</td><td>");
 			Html::out($service);
-			print("</td><td>");
+			print("</td><td><a href=\"?cmd=viewevents&hostip={$hostipId}\">");
 			$this->printImgCountry("tableicon", $countrycode, $countryname);
 			Html::out(" {$host}");
-			print("</td><td class=\"right\">");
+			print("</a></td><td class=\"right\">");
 			Html::out($count);
 			print("</td><td>");
 			Html::out($l12n->formatTimestamp($first));

@@ -104,6 +104,30 @@ class WebAccess {
 		return (isset($_REQUEST[$key]) ? $_REQUEST[$key] : $defaultValue);
 	}
 
+	protected function getRequestType() {
+		return self::getRequest("type", "*");
+	}
+
+	protected function getRequestLoghost() {
+		return self::getRequest("loghost", "*");
+	}
+
+	protected function getRequestService() {
+		return self::getRequest("service", "*");
+	}
+
+	protected function getRequestHostip() {
+		return self::getRequest("hostip", "*");
+	}
+
+	protected function getRequestHostmac() {
+		return self::getRequest("hostmac", "*");
+	}
+
+	protected function getRequestUser() {
+		return self::getRequest("user", "*");
+	}
+
 }
 
 ?>

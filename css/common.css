@@ -3,6 +3,10 @@ body {
 	font-size: 14px;
 }
 
+a {
+	text-decoration: none;
+}
+
 img {
 	border: 0;
 	vertical-align: middle;

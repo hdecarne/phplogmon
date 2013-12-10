@@ -26,7 +26,13 @@ try {
 	}
 }
 $cmd = WebAccess::getRequest(WebAccess::REQUEST_CMD, false);
-$view = new WebViewHostip($dbh);
+switch($cmd) {
+	case "viewevents":
+		$view = new WebViewEvents($dbh);
+		break;
+	default:
+		$view = new WebViewHostip($dbh);
+}
 $view->printHtml();
 if(isset($dbh)) {
 	$dbh->close();

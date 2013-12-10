@@ -24,7 +24,7 @@ abstract class WebView extends WebAccess {
 
 	protected function __construct($dbh) {
 		parent::__construct($dbh);
-		$this->tL12n = L12n::match(self::getSession(self::SESSION_LANG));
+		$this->tL12n = L12n::match(self::getSession(self::SESSION_LANG, "en"));
 	}
 
 	protected function l12n() {
@@ -48,7 +48,7 @@ abstract class WebView extends WebAccess {
 		print("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n");
 		print("<meta http-equiv=\"cache-control\" content=\"no-cache\" />\n");
 		print("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\" />\n");
-		$stylesheet = (self::getSession(self::SESSION_MOBILE) ? "css/mobile.css" : "css/desktop.css");
+		$stylesheet = (self::getSession(self::SESSION_MOBILE, false) ? "css/mobile.css" : "css/desktop.css");
 		print("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$stylesheet}\">\n");
 		print("<script src=\"js/logmon.js\" type=\"text/javascript\"></script>\n");
 		print("<title>{$title}</title>\n");
@@ -75,12 +75,8 @@ abstract class WebView extends WebAccess {
 		print("</body>\n");
 	}
 
-	protected function getSelectType() {
-		return self::getRequest("type", "*");
-	}
-
 	protected function printSelectType() {
-		$value = $this->getSelectType();
+		$value = $this->getRequestType();
 		$l12n = $this->l12n();
 		print("<label for=\"typefilter\">");
 		Html::out($l12n->t("Status:"));
@@ -105,12 +101,8 @@ abstract class WebView extends WebAccess {
 		print("</select>\n");
 	}
 
-	protected function getSelectLoghost() {
-		return self::getRequest("loghost", "*");
-	}
-
 	protected function printSelectLoghost() {
-		$value = $this->getSelectLoghost();
+		$value = $this->getRequestLoghost();
 		$l12n = $this->l12n();
 		print("<label for=\"loghostfilter\">");
 		Html::out($l12n->t("Log:"));
@@ -121,7 +113,7 @@ abstract class WebView extends WebAccess {
 		$select->bindColumn(1, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghost, PDO::PARAM_STR);
 		print("<select size=\"1\" onchange=\"applyOption('hostip', 'loghost', this.value)\">\n");
-		print("<option");
+		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
 		print("</option>\n");
@@ -134,12 +126,9 @@ abstract class WebView extends WebAccess {
 		print("</select>\n");
 	}
 
-	protected function getSelectService() {
-		return self::getRequest("service", "*");
-	}
 
 	protected function printSelectService() {
-		$value = $this->getSelectService();
+		$value = $this->getRequestService();
 		$l12n = $this->l12n();
 		print("<label for=\"servicefilter\">");
 		Html::out($l12n->t("Service:"));
@@ -150,7 +139,7 @@ abstract class WebView extends WebAccess {
 		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
 		$select->bindColumn(2, $service, PDO::PARAM_STR);
 		print("<select size=\"1\" onchange=\"applyOption('hostip', 'service', this.value)\">\n");
-		print("<option");
+		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
 		print("</option>\n");
