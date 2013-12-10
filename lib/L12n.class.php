@@ -31,7 +31,7 @@ class L12n {
 		$this->tLang = $lang;
 	}
 
-	public static function match()  {
+	public static function match($lang)  {
 		return new self("en");
 	}
 
@@ -40,6 +40,11 @@ class L12n {
 	}
 
 	public function t($text) {
+		return $text;
+	}
+
+	public function formatTimestamp($ts) {
+		return date($this->t("Y-m-d H:i:s"), $ts);
 	}
 
 }

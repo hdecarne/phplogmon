@@ -28,10 +28,10 @@ class ProcessorEventMatchstate {
 	private $tMatches;
 	private $tMatchedTimestamp;
 	private $tMatchedLines;
-	private $tMatchedUser;
+	private $tMatchedService;
 	private $tMatchedHostip;
 	private $tMatchedHostmac;
-	private $tMatchedService;
+	private $tMatchedUser;
 
 	private function __construct($dbh, $source, $file, $event) {
 		$this->tDbh = $dbh;
@@ -46,22 +46,22 @@ class ProcessorEventMatchstate {
 		$this->tMatches = array();
 		$this->tMatchedTimestamp = 0;
 		$this->tMatchedLines = array();
-		$this->tMatchedUser = "";
+		$this->tMatchedService = "";
 		$this->tMatchedHostip = "";
 		$this->tMatchedHostmac = "";
-		$this->tMatchedService = "";
+		$this->tMatchedUser = "";
 	}
 
 	public function __toString() {
-		return "user='{$this->tMatchedUser}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';service='{$this->tMatchedService}';{$this->tEvent}";
+		return "user='service='{$this->tMatchedService}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';user='{$this->tMatchedUser}';{$this->tEvent}";
 	}
 
 	private function isEmpty() {
-		return $this->tMatchedUser === "" && $this->tMatchedHostip === "" && $this->tMatchedHostmac === "" && $this->tMatchedService === "";
+		return $this->tMatchedService === "" && $this->tMatchedHostip === "" && $this->tMatchedHostmac === "" && $this->tMatchedUser === "";
 	}
 
 	private function isErroneous() {
-		return $this->tMatchedUser === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedService === false;
+		return $this->tMatchedService === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedUser === false;
 	}
 
 	public static function create($dbh, $source, $file, $events) {
@@ -116,10 +116,10 @@ class ProcessorEventMatchstate {
 				$this->tMatchedTimestamp = $lineTimestamp;
 			}
 			if($this->tNextPatternIndex == count($patterns)) {
-				$this->tMatchedUser = $this->applyUserEvaluator();
+				$this->tMatchedService = $this->applyServiceEvaluator();
 				$this->tMatchedHostip = $this->applyHostipEvaluator();
 				$this->tMatchedHostmac = $this->applyHostmacEvaluator();
-				$this->tMatchedService = $this->applyServiceEvaluator();
+				$this->tMatchedUser = $this->applyUserEvaluator();
 				if(!$this->isEmpty()) {
 					if(!$this->isErroneous()) {
 						if(Options::pretend() || Options::debug()) {
@@ -144,23 +144,6 @@ class ProcessorEventMatchstate {
 		return $matchCount;
 	}
 
-	private function applyUserEvaluator() {
-		$evaluator = $this->tEvent->getUserEvaluator();
-		return (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
-	}
-
-	private function applyHostipEvaluator() {
-		$evaluator = $this->tEvent->getHostipEvaluator();
-		$hostip = (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
-		return QueryHostip::normalizeHostip($hostip);
-	}
-
-	private function applyHostmacEvaluator() {
-		$evaluator = $this->tEvent->getHostmacEvaluator();
-		$hostmac = (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
-		return QueryHostmac::normalizeHostmac($hostmac);
-	}
-
 	private function applyServiceEvaluator() {
 		$evaluator = $this->tEvent->getServiceEvaluator();
 		if(!is_null($evaluator)) {
@@ -175,6 +158,23 @@ class ProcessorEventMatchstate {
 		return $service;
 	}
 
+	private function applyHostipEvaluator() {
+		$evaluator = $this->tEvent->getHostipEvaluator();
+		$hostip = (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
+		return QueryHostip::normalizeHostip($hostip);
+	}
+
+	private function applyHostmacEvaluator() {
+		$evaluator = $this->tEvent->getHostmacEvaluator();
+		$hostmac = (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
+		return QueryHostmac::normalizeHostmac($hostmac);
+	}
+
+	private function applyUserEvaluator() {
+		$evaluator = $this->tEvent->getUserEvaluator();
+		return (!is_null($evaluator) ? $this->applyEvaluator($evaluator) : "");
+	}
+
 	private function applyEvaluator($evaluator) {
 		$result = false;
 		$matchesDecoder = MatchesDecoder::create($evaluator->getDecoder());
@@ -184,17 +184,18 @@ class ProcessorEventMatchstate {
 
 	private function update() {
 		$loghostId = QueryLoghost::getLoghostId($this->tDbh, $this->tSource->getLoghost());
-		$userId = QueryUser::getUserId($this->tDbh, $this->tMatchedUser);
+		$serviceId = QueryService::getServiceId($this->tDbh, $this->tMatchedService);
 		$hostipId = QueryHostip::getHostipId($this->tDbh, $this->tMatchedHostip);
 		$hostmacId = QueryHostmac::getHostmacId($this->tDbh, $this->tMatchedHostmac);
-		$serviceId = QueryService::getServiceId($this->tDbh, $this->tMatchedService);
+		$userId = QueryUser::getUserId($this->tDbh, $this->tMatchedUser);
 		if(!Options::pretend()) {
-			$select = $this->tDbh->prepare("SELECT a.id, a.count, a.first, a.last FROM event a WHERE a.typeid = ? AND userid = ? AND hostipid = ? AND hostmacid = ? AND serviceid = ?");
-			$select->bindValue(1, $this->tEvent->getTypeid(), PDO::PARAM_STR);
-			$select->bindValue(2, $userId, PDO::PARAM_STR);
-			$select->bindValue(3, $hostipId, PDO::PARAM_STR);
-			$select->bindValue(4, $hostmacId, PDO::PARAM_STR);
-			$select->bindValue(5, $serviceId, PDO::PARAM_STR);
+			$select = $this->tDbh->prepare("SELECT a.id, a.count, a.first, a.last FROM event a WHERE a.loghostid = ? AND a.serviceid = ? AND a.typeid = ? AND a.hostipid = ? AND a.hostmacid = ? AND a.userid = ?");
+			$select->bindValue(1, $loghostId, PDO::PARAM_STR);
+			$select->bindValue(2, $serviceId, PDO::PARAM_STR);
+			$select->bindValue(3, $this->tEvent->getTypeid(), PDO::PARAM_STR);
+			$select->bindValue(4, $hostipId, PDO::PARAM_STR);
+			$select->bindValue(5, $hostmacId, PDO::PARAM_STR);
+			$select->bindValue(6, $userId, PDO::PARAM_STR);
 			$select->execute();
 			$select->bindColumn(1, $id, PDO::PARAM_STR);
 			$select->bindColumn(2, $count, PDO::PARAM_INT);
@@ -211,13 +212,13 @@ class ProcessorEventMatchstate {
 				$update->bindValue(4, $id,  PDO::PARAM_STR);
 				$update->execute();
 			} else {
-				$insert = $this->tDbh->prepare("INSERT INTO event (loghostid, typeid, userid, hostipid, hostmacid, serviceid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				$insert = $this->tDbh->prepare("INSERT INTO event (loghostid, serviceid, typeid, hostipid, hostmacid, userid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
 				$insert->bindValue(1, $loghostId,  PDO::PARAM_STR);
-				$insert->bindValue(2, $this->tEvent->getTypeid(),  PDO::PARAM_STR);
-				$insert->bindValue(3, $userId, PDO::PARAM_STR);
+				$insert->bindValue(2, $serviceId, PDO::PARAM_STR);
+				$insert->bindValue(3, $this->tEvent->getTypeid(),  PDO::PARAM_STR);
 				$insert->bindValue(4, $hostipId, PDO::PARAM_STR);
 				$insert->bindValue(5, $hostmacId, PDO::PARAM_STR);
-				$insert->bindValue(6, $serviceId, PDO::PARAM_STR);
+				$insert->bindValue(6, $userId, PDO::PARAM_STR);
 				$insert->bindValue(7, 1, PDO::PARAM_INT);
 				$insert->bindValue(8, $this->tMatchedTimestamp, PDO::PARAM_INT);
 				$insert->bindValue(9, $this->tMatchedTimestamp, PDO::PARAM_INT);

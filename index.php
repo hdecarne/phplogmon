@@ -1,38 +1,35 @@
 <?php
 require_once("lib/autoload.php");
 
-$debug = true;
-$handler = false;
+Options::setDebug(true);
 try {
 	$config = dirname(__FILE__)."/logmon.conf.php";
 	$requiredConfigs = array($config);
 	CheckConfig::configs($requiredConfigs);
 	require_once($config);
-	$debug = DEBUG;
+	Options::setDebug(DEBUG);
 
 	$requiredExtensions = array("mbstring", "PDO", "json");
 	CheckConfig::extensions($requiredExtensions);
 
 	mb_internal_encoding("UTF-8");
-	Log::open(__FILE__, $debug, false, $debug);
+	Log::open(__FILE__, Options::debug(), false, Options::debug());
 	WebAccess::initSession();
-
-	if(isset($_REQUEST["action"])) {
-		$handler = true;
-	}
+	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 } catch(Exception $e) {
 	Log::err($e);
 	Log::close();
-	if($debug) {
+	if(Options::debug()) {
 		WebAccess::reportExceptionAndExit($e);
 	} else {
 		WebAccess::sendStatusAndExit(WebAccess::STATUS_SERVICE_UNAVAILABLE);
 	}
 }
-if($handler != false) {
-	Log::close();
-} else {
-	Log::close();
-	WebAccess::redirectRootAndExit();
+$cmd = WebAccess::getRequest(WebAccess::REQUEST_CMD, false);
+$view = new WebViewHostip($dbh);
+$view->printHtml();
+if(isset($dbh)) {
+	$dbh->close();
 }
+Log::close();
 ?>

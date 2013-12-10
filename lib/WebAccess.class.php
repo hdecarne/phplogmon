@@ -24,11 +24,22 @@ class WebAccess {
 
 	const SESSION_NAME = "Logmon";
 
-	const SESSION_KEY_LANG = "Lang";
-	const SESSION_KEY_UI = "UI";
+	const SESSION_LANG = "lang";
+	const SESSION_MOBILE = "mobile";
 
-	const UI_DESKTOP = "gui/d/";
-	const UI_MOBILE = "gui/m/";
+	const REQUEST_CMD = "cmd";
+	const REQUEST_LANG = "lang";
+	const REQUEST_MOBILE = "mobile";
+
+	private $tDbh;
+
+	protected function __construct($dbh) {
+		$this->tDbh = $dbh;
+	}
+
+	protected function dbh() {
+		return $this->tDbh;
+	}
 
 	public static function reportExceptionAndExit($e) {
 		print "<!DOCTYPE HTML>\n";
@@ -63,28 +74,16 @@ class WebAccess {
 		exit;
 	}
 
-	public static function redirectRootAndExit() {
-		$target = $_SESSION[self::SESSION_KEY_UI];
-		$redirect = "Location: ";
-		$redirect .= (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https://" : "http://");
-		$redirect .= $_SERVER["HTTP_HOST"];
-		$redirect .= substr($_SERVER["SCRIPT_NAME"], 0, -strlen("index.php"));
-		$redirect .= $target;
-		header($redirect);
-		flush();
-		exit;
-	}
-
 	public static function initSession() {
 		session_name(self::SESSION_NAME);
 		if(!session_start()) {
 			throw new Exception("Cannot start session");
 		}
-		if(!isset($_SESSION[self::SESSION_KEY_LANG])) {
-			$_SESSION[self::SESSION_KEY_LANG] = self::getDefaultLang();
+		if(!isset($_SESSION[self::SESSION_LANG])) {
+			$_SESSION[self::SESSION_LANG] = self::getDefaultLang();
 		}
-		if(!isset($_SESSION[self::SESSION_KEY_UI])) {
-			$_SESSION[self::SESSION_KEY_UI] = self::getDefaultUI();
+		if(!isset($_SESSION[self::SESSION_MOBILE])) {
+			$_SESSION[self::SESSION_MOBILE] = self::getDefaultMobile();
 		}
 	}
 
@@ -92,12 +91,17 @@ class WebAccess {
 		return "en";
 	}
 
-	private static function getDefaultUI() {
-		return self::UI_DESKTOP;
+	private static function getDefaultMobile() {
+		$browser = get_browser();
+		return is_object($browser) && $browser->ismobiledevice != false;
 	}
 
-	public static function lang() {
-		return $_SESSION[self::SESSION_KEY_LANG];
+	public static function getSession($key, $defaultValue) {
+		return (isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue);
+	}
+
+	public static function getRequest($key, $defaultValue) {
+		return (isset($_REQUEST[$key]) ? $_REQUEST[$key] : $defaultValue);
 	}
 
 }

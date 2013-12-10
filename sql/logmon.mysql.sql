@@ -4,10 +4,10 @@
 
 DROP TABLE IF EXISTS log;
 DROP TABLE IF EXISTS event;
-DROP TABLE IF EXISTS service;
+DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS hostmac;
 DROP TABLE IF EXISTS hostip;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS service;
 DROP TABLE IF EXISTS loghost;
 DROP TABLE IF EXISTS sourcestate;
 
@@ -37,14 +37,14 @@ CREATE TABLE loghost (
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
--- Table 'user'
+-- Table 'service'
 --
 
-CREATE TABLE user (
+CREATE TABLE service (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	user VARCHAR(64) NOT NULL,
+	service VARCHAR(32) NOT NULL,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( user )
+	UNIQUE KEY ( service )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -54,7 +54,6 @@ CREATE TABLE user (
 CREATE TABLE hostip (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 	hostip VARCHAR(40) NOT NULL,
-	network VARCHAR(44) NOT NULL,
 	host VARCHAR(64) NOT NULL,
 	continentcode CHAR(2),
 	countrycode CHAR(2),
@@ -65,7 +64,7 @@ CREATE TABLE hostip (
 	latitude DOUBLE,
 	longitude DOUBLE,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( hostip, network, host )
+	UNIQUE KEY ( hostip, host )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -81,14 +80,14 @@ CREATE TABLE hostmac (
 ) ENGINE=InnoDB;
 
 --
--- Table 'service'
+-- Table 'user'
 --
 
-CREATE TABLE service (
+CREATE TABLE user (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	service VARCHAR(32) NOT NULL,
+	user VARCHAR(64) NOT NULL,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( service )
+	UNIQUE KEY ( user )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -98,26 +97,27 @@ CREATE TABLE service (
 CREATE TABLE event (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 	loghostid INT UNSIGNED NOT NULL,
+	serviceid INT UNSIGNED NOT NULL,
 	typeid INT UNSIGNED NOT NULL,
-	userid INT UNSIGNED NOT NULL,
 	hostipid INT UNSIGNED NOT NULL,
 	hostmacid INT UNSIGNED NOT NULL,
-	serviceid INT UNSIGNED NOT NULL,
+	userid INT UNSIGNED NOT NULL,
 	count INT NOT NULL,
 	first INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( typeid, userid , hostipid, hostmacid, serviceid ),
+	UNIQUE KEY ( loghostid, serviceid, typeid, hostipid, hostmacid, userid ),
 	FOREIGN KEY ( loghostid ) REFERENCES loghost ( id ),
-	FOREIGN KEY ( userid ) REFERENCES user ( id ),
+	FOREIGN KEY ( serviceid ) REFERENCES service ( id ),
 	FOREIGN KEY ( hostipid ) REFERENCES hostip ( id ),
 	FOREIGN KEY ( hostmacid ) REFERENCES hostmac ( id ),
-	FOREIGN KEY ( serviceid ) REFERENCES service ( id ),
+	FOREIGN KEY ( userid ) REFERENCES user ( id ),
+	INDEX ( loghostid ),
+	INDEX ( serviceid ),
 	INDEX ( typeid ),
-	INDEX ( userid ),
 	INDEX ( hostipid ),
 	INDEX ( hostmacid ),
-	INDEX ( serviceid )
+	INDEX ( userid )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --

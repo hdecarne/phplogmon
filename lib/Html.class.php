@@ -21,7 +21,7 @@
 class Html {
 
 	public static function out($out) {
-		print htmlentities($out);
+		print(htmlentities($out));
 	}
 
 }
