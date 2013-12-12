@@ -25,17 +25,17 @@ class WebViewHostip extends WebView {
 	}
 
 	public function printHtml() {
-		$this->beginHtml();
 		$l12n = $this->l12n();
+		$this->beginHtml();
 		$title = $l12n->t("LogMon - IP access");
 		$this->beginHeader($title);
 		$this->endHeader();
 		$this->beginBody();
-		print("<div class=\"filter\">\n");
+		print("<div class=\"filter\">");
 		$this->printFilter();
-		print("</div><div class=\"events\">\n");
+		print("</div><div class=\"events\">");
 		$this->printEventData();
-		print("</div>\n");
+		print("</div>");
 		$this->endBody();
 		$this->endHtml();
 	}
@@ -51,9 +51,9 @@ class WebViewHostip extends WebView {
 
 	private function printEventData() {
 		$dbh = $this->dbh();
-		$type = $this->getRequestType();
-		$loghost = $this->getRequestLoghost();
-		$service = $this->getRequestService();
+		$type = $this->getSessionType();
+		$loghost = $this->getSessionLoghost();
+		$service = $this->getSessionService();
 		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.hostip, d.host, d.countrycode, d.countryname, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, hostip d WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.hostipid = d.id AND d.host <> '' AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) GROUP BY a.typeid, b.id, c.id, d.id ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
 		$select->bindParam(2, $type, PDO::PARAM_STR);
@@ -74,8 +74,8 @@ class WebViewHostip extends WebView {
 		$select->bindColumn(10, $first, PDO::PARAM_INT);
 		$select->bindColumn(11, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
-		print("<table>\n");
-		print("<thead>\n");
+		print("<table>");
+		print("<thead>");
 		print("<tr><th>");
 		Html::out($l12n->t("Nr"));
 		print("</th><th>");
@@ -90,9 +90,9 @@ class WebViewHostip extends WebView {
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
 		Html::out($l12n->t("Period"));
-		print("</th></tr>\n");
-		print("</thead>\n");
-		print("<tbody>\n");
+		print("</th></tr>");
+		print("</thead>");
+		print("<tbody>");
 		$rowNr = 1;
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
@@ -104,18 +104,17 @@ class WebViewHostip extends WebView {
 			print("</td><td>");
 			Html::out($service);
 			print("</td><td><a href=\"?cmd=viewevents&hostip={$hostipId}\">");
-			$this->printImgCountry("tableicon", $countrycode, $countryname);
-			Html::out(" {$host}");
+			$this->printHostip($hostip, $host, $countrycode, $countryname);
 			print("</a></td><td class=\"right\">");
 			Html::out($count);
 			print("</td><td>");
 			Html::out($l12n->formatTimestamp($first));
 			Html::out(" - ");
 			Html::out($l12n->formatTimestamp($last));
-			print("</td></tr>\n");
+			print("</td></tr>");
 			$rowNr++;
 		}
-		print("</tbody>\n");
+		print("</tbody>");
 		print("</table>");
 	}
 

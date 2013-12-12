@@ -31,20 +31,20 @@ class WebViewEvents extends WebView {
 		$this->beginHeader($title);
 		$this->endHeader();
 		$this->beginBody();
-		print("<div class=\"filter\">\n");
+		print("<div class=\"filter\">");
 		$this->printFilter();
 		if($this->getRequestHostip() != "*") {
-			print("</div><div class=\"events\">\n");
+			print("</div><div class=\"events\">");
 			$this->printHostipEventData();
-			print("</div>\n");
+			print("</div>");
 		} elseif($this->getRequestHostmac() != "*") {
-			print("</div><div class=\"events\">\n");
+			print("</div><div class=\"events\">");
 			$this->printHostmacEventData();
-			print("</div>\n");
+			print("</div>");
 		} elseif($this->getRequestUser() != "*") {
-			print("</div><div class=\"events\">\n");
+			print("</div><div class=\"events\">");
 			$this->printUserEventData();
-			print("</div>\n");
+			print("</div>");
 		}
 		$this->endBody();
 		$this->endHtml();
@@ -61,9 +61,9 @@ class WebViewEvents extends WebView {
 
 	private function printHostipEventData() {
 		$dbh = $this->dbh();
-		$type = $this->getRequestType();
-		$loghost = $this->getRequestLoghost();
-		$service = $this->getRequestService();
+		$type = $this->getSessionType();
+		$loghost = $this->getSessionLoghost();
+		$service = $this->getSessionService();
 		$hostip = $this->getRequestHostip();
 		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.user, e.id, e.hostmac, e.vendor, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, user d, hostmac e WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.userid = d.id AND a.hostmacid = e.id AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR a.hostipid = ?) GROUP BY a.typeid, b.id, c.id, d.id, e.id ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
@@ -87,8 +87,8 @@ class WebViewEvents extends WebView {
 		$select->bindColumn(10, $first, PDO::PARAM_INT);
 		$select->bindColumn(11, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
-		print("<table>\n");
-		print("<thead>\n");
+		print("<table>");
+		print("<thead>");
 		print("<tr><th>");
 		Html::out($l12n->t("Nr"));
 		print("</th><th>");
@@ -105,9 +105,9 @@ class WebViewEvents extends WebView {
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
 		Html::out($l12n->t("Period"));
-		print("</th></tr>\n");
-		print("</thead>\n");
-		print("<tbody>\n");
+		print("</th></tr>");
+		print("</thead>");
+		print("<tbody>");
 		$rowNr = 1;
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
@@ -121,7 +121,7 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($user != "") {
 				print("<a href=\"?cmd=viewevents&user={$userId}\">");
-				Html::out("{$user}");
+				$this->printUser($user);
 				print("</a>");
 			} else {
 				Html::out("-");
@@ -129,10 +129,7 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($hostmac != "") {
 				print("<a href=\"?cmd=viewevents&hostmac={$hostmacId}\">");
-				Html::out("{$hostmac}");
-				if($vendor != "") {
-					Html::out(" ({$vendor})");
-				}
+				$this->printHostmac($hostmac, $vendor);
 				print("</a>");
 			} else {
 				Html::out("-");
@@ -143,18 +140,18 @@ class WebViewEvents extends WebView {
 			Html::out($l12n->formatTimestamp($first));
 			Html::out(" - ");
 			Html::out($l12n->formatTimestamp($last));
-			print("</td></tr>\n");
+			print("</td></tr>");
 			$rowNr++;
 		}
-		print("</tbody>\n");
+		print("</tbody>");
 		print("</table>");
 	}
 
 	private function printHostmacEventData() {
 		$dbh = $this->dbh();
-		$type = $this->getRequestType();
-		$loghost = $this->getRequestLoghost();
-		$service = $this->getRequestService();
+		$type = $this->getSessionType();
+		$loghost = $this->getSessionLoghost();
+		$service = $this->getSessionService();
 		$hostmac = $this->getRequestHostmac();
 		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.hostip, d.host, d.countrycode, d.countryname, e.id, e.user, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, hostip d, user e WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.hostipid = d.id AND a.userid = e.id AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR a.hostmacid = ?) GROUP BY a.typeid, b.id, c.id, d.id, e.id ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
@@ -180,8 +177,8 @@ class WebViewEvents extends WebView {
 		$select->bindColumn(12, $first, PDO::PARAM_INT);
 		$select->bindColumn(13, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
-		print("<table>\n");
-		print("<thead>\n");
+		print("<table>");
+		print("<thead>");
 		print("<tr><th>");
 		Html::out($l12n->t("Nr"));
 		print("</th><th>");
@@ -198,9 +195,9 @@ class WebViewEvents extends WebView {
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
 		Html::out($l12n->t("Period"));
-		print("</th></tr>\n");
-		print("</thead>\n");
-		print("<tbody>\n");
+		print("</th></tr>");
+		print("</thead>");
+		print("<tbody>");
 		$rowNr = 1;
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
@@ -214,8 +211,7 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($hostip != "") {
 				print("<a href=\"?cmd=viewevents&hostip={$hostipId}\">");
-				$this->printImgCountry("tableicon", $countrycode, $countryname);
-				Html::out(" {$host}");
+				$this->printHostip($hostip, $host, $countrycode, $countryname);
 				print("</a>");
 			} else {
 				Html::out("-");
@@ -223,10 +219,10 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($user != "") {
 				print("<a href=\"?cmd=viewevents&user={$userId}\">");
-				Html::out("{$user}");
+				$this->printUser($user);
 				print("</a>");
 			} else {
-				Html::out("{$user}");
+				Html::out("-");
 			}
 			print("</td><td class=\"right\">");
 			Html::out($count);
@@ -234,18 +230,18 @@ class WebViewEvents extends WebView {
 			Html::out($l12n->formatTimestamp($first));
 			Html::out(" - ");
 			Html::out($l12n->formatTimestamp($last));
-			print("</td></tr>\n");
+			print("</td></tr>");
 			$rowNr++;
 		}
-		print("</tbody>\n");
+		print("</tbody>");
 		print("</table>");
 	}
 
 	private function printUserEventData() {
 		$dbh = $this->dbh();
-		$type = $this->getRequestType();
-		$loghost = $this->getRequestLoghost();
-		$service = $this->getRequestService();
+		$type = $this->getSessionType();
+		$loghost = $this->getSessionLoghost();
+		$service = $this->getSessionService();
 		$user = $this->getRequestUser();
 		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.hostip, d.host, d.countrycode, d.countryname, e.id, e.hostmac, e.vendor, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, hostip d, hostmac e WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.hostipid = d.id AND a.hostmacid = e.id AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR a.userid = ?) GROUP BY a.typeid, b.id, c.id, d.id, e.id ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
@@ -272,8 +268,8 @@ class WebViewEvents extends WebView {
 		$select->bindColumn(13, $first, PDO::PARAM_INT);
 		$select->bindColumn(14, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
-		print("<table>\n");
-		print("<thead>\n");
+		print("<table>");
+		print("<thead>");
 		print("<tr><th>");
 		Html::out($l12n->t("Nr"));
 		print("</th><th>");
@@ -290,9 +286,9 @@ class WebViewEvents extends WebView {
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
 		Html::out($l12n->t("Period"));
-		print("</th></tr>\n");
-		print("</thead>\n");
-		print("<tbody>\n");
+		print("</th></tr>");
+		print("</thead>");
+		print("<tbody>");
 		$rowNr = 1;
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
@@ -306,8 +302,7 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($hostip != "") {
 				print("<a href=\"?cmd=viewevents&hostip={$hostipId}\">");
-				$this->printImgCountry("tableicon", $countrycode, $countryname);
-				Html::out(" {$host}");
+				$this->printHostip($hostip, $host, $countrycode, $countryname);
 				print("</a>");
 			} else {
 				Html::out("-");
@@ -315,10 +310,7 @@ class WebViewEvents extends WebView {
 			print("</td><td>");
 			if($hostmac != "") {
 				print("<a href=\"?cmd=viewevents&hostmac={$hostmacId}\">");
-				Html::out("{$hostmac}");
-				if($vendor != "") {
-					Html::out(" ({$vendor})");
-				}
+				$this->printHostmac($hostmac, $vendor);
 				print("</a>");
 			} else {
 				Html::out("-");
@@ -329,10 +321,10 @@ class WebViewEvents extends WebView {
 			Html::out($l12n->formatTimestamp($first));
 			Html::out(" - ");
 			Html::out($l12n->formatTimestamp($last));
-			print("</td></tr>\n");
+			print("</td></tr>");
 			$rowNr++;
 		}
-		print("</tbody>\n");
+		print("</tbody>");
 		print("</table>");
 	}
 

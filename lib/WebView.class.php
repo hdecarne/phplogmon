@@ -24,7 +24,10 @@ abstract class WebView extends WebAccess {
 
 	protected function __construct($dbh) {
 		parent::__construct($dbh);
-		$this->tL12n = L12n::match(self::getSession(self::SESSION_LANG, "en"));
+		$this->tL12n = L12n::match($this->getSessionLang());
+		self::mergeSession(self::SESSION_TYPE);
+		self::mergeSession(self::SESSION_LOGHOST);
+		self::mergeSession(self::SESSION_SERVICE);
 	}
 
 	protected function l12n() {
@@ -43,68 +46,75 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function beginHeader($title) {
-		print("<header>\n");
-		print("<meta charset=\"utf-8\" />\n");
-		print("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n");
-		print("<meta http-equiv=\"cache-control\" content=\"no-cache\" />\n");
-		print("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\" />\n");
-		$stylesheet = (self::getSession(self::SESSION_MOBILE, false) ? "css/mobile.css" : "css/desktop.css");
-		print("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$stylesheet}\">\n");
-		print("<script src=\"js/logmon.js\" type=\"text/javascript\"></script>\n");
-		print("<title>{$title}</title>\n");
+		print("<header>");
+		print("<meta charset=\"utf-8\" />");
+		print("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+		print("<meta http-equiv=\"cache-control\" content=\"no-cache\" />");
+		print("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\" />");
+		$stylesheet = ($this->getSessionMobile() ? "css/mobile.css" : "css/desktop.css");
+		print("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$stylesheet}\">");
+		print("<script src=\"js/logmon.js\" type=\"text/javascript\"></script>");
+		print("<title>{$title}</title>");
 	}
 
 	protected function endHeader() {
-		print("</header>\n");
+		print("</header>");
 	}
 
 	protected function beginBody() {
-		print("<body>\n");
-		print("<form name=\"request\" action=\".\" method=\"get\">\n");
-		print("<input name=\"cmd\" type=\"hidden\" />\n");
-		$type = self::getRequest("type", "*");
-		print("<input name=\"type\" type=\"hidden\" value=\"{$type}\" />\n");
-		$loghost = self::getRequest("loghost", "*");
-		print("<input name=\"loghost\" type=\"hidden\" value=\"{$loghost}\" />\n");
-		$service = self::getRequest("service", "*");
-		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />\n");
-		print("</form>\n");
+		print("<body>");
+		print("<form name=\"request\" action=\".\" method=\"get\">");
+		$cmd = $this->getRequestCmd();
+		print("<input name=\"cmd\" type=\"hidden\" value=\"{$cmd}\" />");
+		$type = $this->getSessionType();
+		print("<input name=\"type\" type=\"hidden\" value=\"{$type}\" />");
+		$loghost = $this->getSessionLoghost();
+		print("<input name=\"loghost\" type=\"hidden\" value=\"{$loghost}\" />");
+		$service = $this->getSessionService();
+		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />");
+		$hostip = $this->getRequestHostip();
+		print("<input name=\"hostip\" type=\"hidden\" value=\"{$hostip}\" />");
+		$hostmac = $this->getRequestHostmac();
+		print("<input name=\"hostmac\" type=\"hidden\" value=\"{$hostmac}\" />");
+		$user = $this->getRequestUser();
+		print("<input name=\"user\" type=\"hidden\" value=\"{$user}\" />");
+		print("</form>");
 	}
 
 	protected function endBody() {
-		print("</body>\n");
+		print("</body>");
 	}
 
 	protected function printSelectType() {
-		$value = $this->getRequestType();
+		$value = $this->getSessionType();
 		$l12n = $this->l12n();
-		print("<label for=\"typefilter\">");
+		print("<label for=\"typefilter\"> ");
 		Html::out($l12n->t("Status:"));
 		print("</label>");
-		print("<select size=\"1\" onchange=\"applyOption('hostip', 'type', this.value)\">\n");
+		print("<select size=\"1\" onchange=\"applyOption('*', 'type', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
-		print("</option>\n");
+		print("</option>");
 		print("<option value=\"1\"");
 		print($value == "1" ? " selected>" : ">");
 		Html::out($l12n->t("Granted"));
-		print("</option>\n");
+		print("</option>");
 		print("<option value=\"2\"");
 		print($value == "2" ? " selected>" : ">");
 		Html::out($l12n->t("Denied"));
-		print("</option>\n");
+		print("</option>");
 		print("<option value=\"3\"");
 		print($value == "3" ? " selected>" : ">");
 		Html::out($l12n->t("Error"));
-		print("</option>\n");
-		print("</select>\n");
+		print("</option>");
+		print("</select>");
 	}
 
 	protected function printSelectLoghost() {
-		$value = $this->getRequestLoghost();
+		$value = $this->getSessionLoghost();
 		$l12n = $this->l12n();
-		print("<label for=\"loghostfilter\">");
+		print("<label for=\"loghostfilter\"> ");
 		Html::out($l12n->t("Log:"));
 		print("</label>");
 		$dbh = $this->dbh();
@@ -112,25 +122,24 @@ abstract class WebView extends WebAccess {
 		$select->execute();
 		$select->bindColumn(1, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghost, PDO::PARAM_STR);
-		print("<select size=\"1\" onchange=\"applyOption('hostip', 'loghost', this.value)\">\n");
+		print("<select size=\"1\" onchange=\"applyOption('*', 'loghost', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
-		print("</option>\n");
+		print("</option>");
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<option value=\"{$loghostId}\"");
 			print($value == $loghostId ? " selected>" : ">");
 			Html::out($loghost);
-			print("</option>\n");
+			print("</option>");
 		}
-		print("</select>\n");
+		print("</select>");
 	}
 
-
 	protected function printSelectService() {
-		$value = $this->getRequestService();
+		$value = $this->getSessionService();
 		$l12n = $this->l12n();
-		print("<label for=\"servicefilter\">");
+		print("<label for=\"servicefilter\"> ");
 		Html::out($l12n->t("Service:"));
 		print("</label>");
 		$dbh = $this->dbh();
@@ -138,18 +147,18 @@ abstract class WebView extends WebAccess {
 		$select->execute();
 		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
 		$select->bindColumn(2, $service, PDO::PARAM_STR);
-		print("<select size=\"1\" onchange=\"applyOption('hostip', 'service', this.value)\">\n");
+		print("<select size=\"1\" onchange=\"applyOption('*', 'service', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
-		print("</option>\n");
+		print("</option>");
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<option value=\"{$serviceId}\"");
 			print($value == $serviceId ? " selected>" : ">");
 			Html::out($service);
-			print("</option>\n");
+			print("</option>");
 		}
-		print("</select>\n");
+		print("</select>");
 	}
 
 	protected function printImgType($imgClass, $typeId) {
@@ -186,6 +195,40 @@ abstract class WebView extends WebAccess {
 			$title = $alt;
 		}
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+	}
+
+	protected function printHostip($hostip, $host, $countrycode, $countryname) {
+		if($hostip != "") {
+			$this->printImgCountry("tableicon", $countrycode, $countryname);
+			if($host != $hostip) {
+				print("<span title=\"{$hostip}\">");
+				Html::out(" {$host}");
+				print("</span>");
+			} else {
+				Html::out(" {$host}");
+			}
+		} else {
+			Html::out("-");
+		}
+	}
+
+	protected function printHostmac($hostmac, $vendor) {
+		if($hostmac != "") {
+			Html::out("{$hostmac}");
+			if($vendor != "") {
+				Html::out(" ({$vendor})");
+			}
+		} else {
+			Html::out("-");
+		}
+	}
+
+	protected function printUser($user) {
+		if($user != "") {
+			Html::out("{$user}");
+		} else {
+			Html::out("-");
+		}
 	}
 
 }

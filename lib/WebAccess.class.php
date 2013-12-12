@@ -27,14 +27,34 @@ class WebAccess {
 	const SESSION_LANG = "lang";
 	const SESSION_MOBILE = "mobile";
 
+	const SESSION_TYPE = "type";
+	const SESSION_LOGHOST = "loghost";
+	const SESSION_SERVICE = "service";
+
 	const REQUEST_CMD = "cmd";
-	const REQUEST_LANG = "lang";
-	const REQUEST_MOBILE = "mobile";
+	const REQUEST_TYPE = "type";
+	const REQUEST_LOGHOST = "loghost";
+	const REQUEST_SERVICE = "service";
+	const REQUEST_HOSTIP = "hostip";
+	const REQUEST_HOSTMAC = "hostmac";
+	const REQUEST_USER = "user";
 
 	private $tDbh;
 
 	protected function __construct($dbh) {
 		$this->tDbh = $dbh;
+		session_name(self::SESSION_NAME);
+		if(!session_start()) {
+			throw new Exception("Cannot start session");
+		}
+		if(!isset($_SESSION[self::SESSION_LANG])) {
+			$_SESSION[self::SESSION_LANG] = self::getDefaultLang();
+		}
+		self::mergeSession(self::SESSION_LANG);
+		if(!isset($_SESSION[self::SESSION_MOBILE])) {
+			$_SESSION[self::SESSION_MOBILE] = self::getDefaultMobile();
+		}
+		self::mergeSession(self::SESSION_MOBILE);
 	}
 
 	protected function dbh() {
@@ -74,19 +94,6 @@ class WebAccess {
 		exit;
 	}
 
-	public static function initSession() {
-		session_name(self::SESSION_NAME);
-		if(!session_start()) {
-			throw new Exception("Cannot start session");
-		}
-		if(!isset($_SESSION[self::SESSION_LANG])) {
-			$_SESSION[self::SESSION_LANG] = self::getDefaultLang();
-		}
-		if(!isset($_SESSION[self::SESSION_MOBILE])) {
-			$_SESSION[self::SESSION_MOBILE] = self::getDefaultMobile();
-		}
-	}
-
 	private static function getDefaultLang() {
 		return "en";
 	}
@@ -96,36 +103,54 @@ class WebAccess {
 		return is_object($browser) && $browser->ismobiledevice != false;
 	}
 
+	public static function mergeSession($key) {
+		if(isset($_REQUEST[$key])) {
+			$_SESSION[$key] = $_REQUEST[$key];
+		}
+	}
+
 	public static function getSession($key, $defaultValue) {
 		return (isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue);
+	}
+
+	protected function getSessionLang() {
+		return self::getSession(self::SESSION_LANG, "en");
+	}
+
+	protected function getSessionMobile() {
+		return self::getSession(self::SESSION_MOBILE, false);
+	}
+
+	protected function getSessionType() {
+		return self::getSession(self::SESSION_TYPE, "*");
+	}
+
+	protected function getSessionLoghost() {
+		return self::getSession(self::SESSION_LOGHOST, "*");
+	}
+
+	protected function getSessionService() {
+		return self::getSession(self::SESSION_SERVICE, "*");
 	}
 
 	public static function getRequest($key, $defaultValue) {
 		return (isset($_REQUEST[$key]) ? $_REQUEST[$key] : $defaultValue);
 	}
 
-	protected function getRequestType() {
-		return self::getRequest("type", "*");
-	}
-
-	protected function getRequestLoghost() {
-		return self::getRequest("loghost", "*");
-	}
-
-	protected function getRequestService() {
-		return self::getRequest("service", "*");
+	protected function getRequestCmd() {
+		return self::getRequest(self::REQUEST_CMD, "*");
 	}
 
 	protected function getRequestHostip() {
-		return self::getRequest("hostip", "*");
+		return self::getRequest(self::REQUEST_HOSTIP, "*");
 	}
 
 	protected function getRequestHostmac() {
-		return self::getRequest("hostmac", "*");
+		return self::getRequest(self::REQUEST_HOSTMAC, "*");
 	}
 
 	protected function getRequestUser() {
-		return self::getRequest("user", "*");
+		return self::getRequest(self::REQUEST_USER, "*");
 	}
 
 }

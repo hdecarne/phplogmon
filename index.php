@@ -14,8 +14,15 @@ try {
 
 	mb_internal_encoding("UTF-8");
 	Log::open(__FILE__, Options::debug(), false, Options::debug());
-	WebAccess::initSession();
 	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
+	$cmd = WebAccess::getRequest("cmd", false);
+	switch($cmd) {
+		case "viewevents":
+			$view = new WebViewEvents($dbh);
+			break;
+		default:
+			$view = new WebViewHostip($dbh);
+	}
 } catch(Exception $e) {
 	Log::err($e);
 	Log::close();
@@ -24,14 +31,6 @@ try {
 	} else {
 		WebAccess::sendStatusAndExit(WebAccess::STATUS_SERVICE_UNAVAILABLE);
 	}
-}
-$cmd = WebAccess::getRequest(WebAccess::REQUEST_CMD, false);
-switch($cmd) {
-	case "viewevents":
-		$view = new WebViewEvents($dbh);
-		break;
-	default:
-		$view = new WebViewHostip($dbh);
 }
 $view->printHtml();
 if(isset($dbh)) {

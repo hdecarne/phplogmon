@@ -20,8 +20,12 @@
 
 class Html {
 
-	public static function out($out) {
-		print($out != "" ? htmlentities($out) : "&nbsp;");
+	public static function format($s) {
+		return ($s != "" ? htmlentities($s) : "&nbsp;");
+	}
+
+	public static function out($s) {
+		print(self::format($s));
 	}
 
 }
