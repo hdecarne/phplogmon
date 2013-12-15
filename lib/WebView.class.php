@@ -263,7 +263,8 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function printImgCountry($imgClass, $countrycode, $countryname) {
-		$imgSrc = "img/country/{$countrycode}.png";
+		$imgName = strtoupper($countrycode);
+		$imgSrc = "img/country/{$imgName}.png";
 		$imgFile = dirname(__FILE__)."/../".$imgSrc;
 		if(preg_match("/[A-Z]{2}/", $countrycode) == 1 && is_file($imgFile)) {
 			$src = $imgSrc;
