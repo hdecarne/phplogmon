@@ -214,8 +214,12 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printImgDownload($imgClass) {
-		print("<img class=\"{$imgClass}\" src=\"img/download_log.png\" />");
+	protected function printImgLogView($imgClass) {
+		print("<img class=\"{$imgClass}\" src=\"img/log_view.png\" />");
+	}
+
+	protected function printImgLogDownload($imgClass) {
+		print("<img class=\"{$imgClass}\" src=\"img/log_download.png\" />");
 	}
 
 	protected function printImgType($imgClass, $typeId) {

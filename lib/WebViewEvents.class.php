@@ -65,6 +65,7 @@ class WebViewEvents extends WebView {
 		$this->printSelectType();
 		$this->printSelectLoghost();
 		$this->printSelectService();
+		$this->printSelectNetwork();
 	}
 
 	private function printHostipEventData() {
@@ -73,7 +74,13 @@ class WebViewEvents extends WebView {
 		$loghost = $this->getSessionLoghost();
 		$service = $this->getSessionService();
 		$hostip = $this->getRequestHostip();
-		$select = $dbh->prepare("SELECT a.typeid, b.loghost, c.service, d.id, d.user, e.id, e.hostmac, e.vendor, SUM(a.count), MIN(a.first), MAX(a.last) FROM event a, loghost b, service c, user d, hostmac e WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.userid = d.id AND a.hostmacid = e.id AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR a.hostipid = ?) GROUP BY a.typeid, b.id, c.id, d.id, e.id ORDER BY MAX(a.last) DESC");
+		$select = $dbh->prepare(
+			"SELECT a.typeid, b.loghost, c.service, d.id, d.user, e.id, e.hostmac, e.vendor, SUM(a.count), MIN(a.first), MAX(a.last) ".
+			"FROM event a, loghost b, service c, user d, hostmac e ".
+			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.userid = d.id AND a.hostmacid = e.id AND ".
+				"('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR a.hostipid = ?) ".
+			"GROUP BY a.typeid, b.id, c.id, d.id, e.id ".
+			"ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $type, PDO::PARAM_STR);
 		$select->bindParam(2, $type, PDO::PARAM_STR);
 		$select->bindParam(3, $loghost, PDO::PARAM_STR);

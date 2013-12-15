@@ -139,7 +139,9 @@ class WebViewHostips extends WebView {
 			print("</td><td>");
 			$this->printTimerange($now, $first, $last);
 			print("</td><td class=\"center\"><a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&hostip={$hostipId}\">");
-			$this->printImgDownload("tableicon");
+			$this->printImgLogView("tableicon");
+			print("</a> <a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&hostip={$hostipId}\">");
+			$this->printImgLogDownload("tableicon");
 			print("</a></td></tr>");
 			$rowNr++;
 		}
