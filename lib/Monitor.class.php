@@ -21,8 +21,9 @@
 class Monitor {
 
 	private $tReadSources = array();
-	private $tEnabledSources = array();
+	private $tReadNetworkmaps = array();
 	private $tReadEvents = array();
+	private $tEnabledSources = array();
 
 	private function __construct() {
 	}
@@ -38,41 +39,18 @@ class Monitor {
 					$monitor->tReadSources[] = $source;
 					Log::debug("Read source '{$source}'");
 				}
+				foreach($reader->getNetworkmaps() as $networkmap) {
+					$monitor->tReadNetworkmaps[] = $networkmap;
+					Log::debug("Read network map '{$networkmap}'");
+				}
 				foreach($reader->getEvents() as $event) {
 					$monitor->tReadEvents[] = $event;
 					Log::debug("Read event '{$event}'");
 				}
 			}
 		}
-		$sourceRefs = array();
-		$sourceEnabled = array();
-		foreach($monitor->tReadSources as $source) {
-			$sourceid = $source->getId();
-			if(!isset($sourceRefs[$sourceid])) {
-				$sourceRefs[$sourceid] = 0;
-				$sourceEnabled[$sourceid] = true;
-			} else {
-				$sourceEnabled[$sourceid] = false;
-			}
-		}
-		foreach($monitor->tReadEvents as $event) {
-			$eventSourceid = $event->getSourceid();
-			if(isset($sourceRefs[$eventSourceid])) {
-				$sourceRefs[$eventSourceid]++;
-			} else {
-				Log::warning("Ignoring event '{$event}' due to undefined source '{$eventSourceid}'");
-			}
-		}
-		foreach($monitor->tReadSources as $source) {
-			$sourceid = $source->getId();
-			if($sourceEnabled[$sourceid] == false) {
-				Log::warning("Ignoring duplicate source '{$source}'");
-			} elseif($sourceRefs[$source->getId()] == 0) {
-				Log::warning("Ignoring unused source '{$source}'");
-			} else {
-				$monitor->tEnabledSources[] = $source;
-			}
-		}
+		self::validateSourceReferences($monitor->tReadSources, $monitor->tReadNetworkmaps, $monitor->tReadEvents);
+		$monitor->tEnabledSources = self::filterUnreferencedSources(self::filterDuplicateSources($monitor->tReadSources), $monitor->tReadNetworkmaps, $monitor->tReadEvents);
 		if(count($monitor->tEnabledSources) == 0) {
 			Log::err("Found no active source/events definitions while reading monitor configuration from directory '{$path}'");
 			$monitor = false;
@@ -90,16 +68,116 @@ class Monitor {
 		return $xmls;
 	}
 
+	private static function validateSourceReferences($sources, $networkmaps, $events) {
+		$sourceNames = array();
+		foreach($sources as $source) {
+			$sourceName = $source->getName();
+			$sourceNames[$sourceName] = $sourceName;
+		}
+		foreach($networkmaps as $networkmap) {
+			foreach($networkmap->getSourceNames() as $networkmapSourceName) {
+				if(!isset($sourceNames[$networkmapSourceName])) {
+					Log::warn("Unknown source reference '{$networkmapSourceName}' used by network map {$networkmap}");
+				}
+			}
+		}
+		foreach($events as $event) {
+			foreach($event->getSourceNames() as $eventSourceName) {
+				if(!isset($sourceNames[$eventSourceName])) {
+					Log::warn("Unknown source reference '{$eventSourceName}' used by event {$event}");
+				}
+			}
+		}
+	}
+
+	private static function filterDuplicateSources($sources) {
+		$duplicate = array();
+		foreach($sources as $source) {
+			if(!isset($duplicate[$source->getName()])) {
+				$duplicate[$source->getName()] = 1;
+			} else {
+				$duplicate[$source->getName()]++;
+			}
+		}
+		$filtered = array();
+		foreach($sources as $source) {
+			if($duplicate[$source->getName()] == 1) {
+				$filtered[] = $source;
+			} else {
+				Log::warning("Ignoring duplicate source '{$source}'");
+			}
+		}
+		return $filtered;
+	}
+
+	private static function filterUnreferencedSources($sources, $networkmaps, $events) {
+		$filtered = array();
+		foreach($sources as $source) {
+			$sourceName = $source->getName();
+			$networkmapRefCount = 0;
+			foreach($networkmaps as $networkmap) {
+				$networkmapSourceNames = $networkmap->getSourceNames();
+				foreach($networkmapSourceNames as $networkmapSourceName) {
+					if($sourceName == $networkmapSourceName) {
+						$networkmapRefCount++;
+					}
+				}
+			}
+			$eventRefCount = 0;
+			foreach($events as $event) {
+				$eventSourceNames = $event->getSourceNames();
+				foreach($eventSourceNames as $eventSourceName) {
+					if($sourceName == $eventSourceName) {
+						$eventRefCount++;
+					}
+				}
+			}
+			if($eventRefCount > 0 && $networkmapRefCount == 1) {
+				$filtered[] = $source;
+			} elseif($eventRefCount == 0 && $networkmapRefCount == 0) {
+				Log::warning("Ignoring unused source '{$source}' (no referencing events or network maps)");
+			} elseif($eventRefCount == 0 && $networkmapRefCount == 1) {
+				Log::warning("Ignoring unused source '{$source}' (no referencing events)");
+			} elseif($networkmapRefCount == 0) {
+				Log::warning("Ignoring source '{$source}' due to missing network map");
+			} else {
+				Log::warning("Ignoring source '{$source}' due to non-unique network map");
+			}
+		}
+		return $filtered;
+	}
+
 	public function getEnabledSources() {
 		return $this->tEnabledSources;
 	}
 
+	public function getSourceNetworkmap($source) {
+		$networkmaps = array();
+		$sourceName = $source->getName();
+		foreach($this->tReadNetworkmaps as $networkmap) {
+			foreach($networkmap->getSourceNames() as $networkmapSourceName) {
+				if($sourceName == $networkmapSourceName) {
+					$networkmaps[] = $networkmap;
+					break;
+				}
+			}
+		}
+		$networkmapCount = count($networkmaps);
+		if($networkmapCount != 1) {
+			throw new Exception(Log::err("Unexpected number ({$networkmapCount}) of network maps references to {$source}"));
+		}
+		return $networkmaps[0];
+	}
+
 	public function getSourceEvents($source) {
 		$events = array();
-		$sourceid = $source->getId();
+		$sourceName = $source->getName();
 		foreach($this->tReadEvents as $event) {
-			if($event->getSourceid() == $sourceid) {
-				$events[] = $event;
+			foreach($event->getSourceNames() as $eventSourceName) {
+				if($sourceName == $eventSourceName) {
+					$events[] = $event;
+					break;
+				}
 			}
 		}
 		return $events;

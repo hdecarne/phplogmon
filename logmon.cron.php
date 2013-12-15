@@ -46,8 +46,9 @@ try {
 		$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 		$processor = new Processor($dbh);
 		foreach($sources as $source) {
+			$sourceNetworkmap = $monitor->getSourceNetworkmap($source);
 			$sourceEvents = $monitor->getSourceEvents($source);
-			$processor->process($source, $sourceEvents);
+			$processor->process($source, $sourceNetworkmap, $sourceEvents);
 		}
 		$processor->discard(EVENT_DISCARD_THRESHOLD);
 		$status = 0;

@@ -73,7 +73,7 @@ class QueryHostmac {
 
 	private static function getVendor($hostmac) {
 		if(count(self::$sVendorCache) == 0) {
-			$fh = Files::safeFopen(dirname(__FILE__)."/oui.txt", "r");
+			$fh = Files::safeFopen(dirname(__FILE__)."/../data/oui.txt", "r");
 			while(($line = fgets($fh)) !== false) {
 				if(preg_match("/^(.*)\\(hex\\)(.*)$/U", $line, $matches) === 1) {
 					$vendorPrefix = strtoupper(str_replace("-", ":", trim($matches[1])));

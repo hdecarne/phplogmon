@@ -28,13 +28,18 @@ abstract class WebView extends WebAccess {
 		self::mergeSession(self::SESSION_TYPE);
 		self::mergeSession(self::SESSION_LOGHOST);
 		self::mergeSession(self::SESSION_SERVICE);
+		self::mergeSession(self::SESSION_NETWORK);
 	}
+
+	public function send() {
+		$this->sendHtml();
+	}
+
+	abstract public function sendHtml();
 
 	protected function l12n() {
 		return $this->tL12n;
 	}
-
-	abstract public function printHtml();
 
 	protected function beginHtml() {
 		print("<!DOCTYPE HTML>\n");
@@ -72,6 +77,8 @@ abstract class WebView extends WebAccess {
 		print("<input name=\"loghost\" type=\"hidden\" value=\"{$loghost}\" />");
 		$service = $this->getSessionService();
 		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />");
+		$network = $this->getSessionNetwork();
+		print("<input name=\"network\" type=\"hidden\" value=\"{$network}\" />");
 		$hostip = $this->getRequestHostip();
 		print("<input name=\"hostip\" type=\"hidden\" value=\"{$hostip}\" />");
 		$hostmac = $this->getRequestHostmac();
@@ -82,14 +89,38 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function endBody() {
+		print("<address>");
+		Html::out(Version::signature());
+		if(isset($_SERVER["REQUEST_TIME_FLOAT"])) {
+			$elapsed = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+			Html::out(sprintf($this->tL12n->t(" - %f s"), $elapsed));
+		}
+		print("</address>");
 		print("</body>");
+	}
+
+	protected function printNavHostips() {
+		print("<a class=\"navbar\"href=\"?cmd=viewhostips\">");
+		Html::out($this->tL12n->t("IP access"));
+		print("</a>");
+	}
+
+	protected function printNavHostmacs() {
+		print("<a class=\"navbar\"href=\"?cmd=viewhostmacs\">");
+		Html::out($this->tL12n->t("MAC access"));
+		print("</a>");
+	}
+
+	protected function printNavUsers() {
+		print("<a class=\"navbar\"href=\"?cmd=viewusers\">");
+		Html::out($this->tL12n->t("User access"));
+		print("</a>");
 	}
 
 	protected function printSelectType() {
 		$value = $this->getSessionType();
-		$l12n = $this->l12n();
 		print("<label for=\"typefilter\"> ");
-		Html::out($l12n->t("Status:"));
+		Html::out($this->tL12n->t("Status:"));
 		print("</label>");
 		print("<select size=\"1\" onchange=\"applyOption('*', 'type', this.value)\">");
 		print("<option value=\"*\"");
@@ -98,24 +129,23 @@ abstract class WebView extends WebAccess {
 		print("</option>");
 		print("<option value=\"1\"");
 		print($value == "1" ? " selected>" : ">");
-		Html::out($l12n->t("Granted"));
+		Html::out($this->tL12n->t("Granted"));
 		print("</option>");
 		print("<option value=\"2\"");
 		print($value == "2" ? " selected>" : ">");
-		Html::out($l12n->t("Denied"));
+		Html::out($this->tL12n->t("Denied"));
 		print("</option>");
 		print("<option value=\"3\"");
 		print($value == "3" ? " selected>" : ">");
-		Html::out($l12n->t("Error"));
+		Html::out($this->tL12n->t("Error"));
 		print("</option>");
 		print("</select>");
 	}
 
 	protected function printSelectLoghost() {
 		$value = $this->getSessionLoghost();
-		$l12n = $this->l12n();
 		print("<label for=\"loghostfilter\"> ");
-		Html::out($l12n->t("Log:"));
+		Html::out($this->tL12n->t("Log:"));
 		print("</label>");
 		$dbh = $this->dbh();
 		$select = $dbh->prepare("SELECT a.id, a.loghost FROM loghost a ORDER BY a.loghost");
@@ -138,9 +168,8 @@ abstract class WebView extends WebAccess {
 
 	protected function printSelectService() {
 		$value = $this->getSessionService();
-		$l12n = $this->l12n();
 		print("<label for=\"servicefilter\"> ");
-		Html::out($l12n->t("Service:"));
+		Html::out($this->tL12n->t("Service:"));
 		print("</label>");
 		$dbh = $this->dbh();
 		$select = $dbh->prepare("SELECT a.id, a.service FROM service a ORDER BY a.service");
@@ -159,6 +188,34 @@ abstract class WebView extends WebAccess {
 			print("</option>");
 		}
 		print("</select>");
+	}
+
+	protected function printSelectNetwork() {
+		$value = $this->getSessionNetwork();
+		print("<label for=\"networkfilter\"> ");
+		Html::out($this->tL12n->t("Network:"));
+		print("</label>");
+		$dbh = $this->dbh();
+		$select = $dbh->prepare("SELECT a.id, a.network FROM network a ORDER BY a.network");
+		$select->execute();
+		$select->bindColumn(1, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(2, $network, PDO::PARAM_STR);
+		print("<select size=\"1\" onchange=\"applyOption('*', 'network', this.value)\">");
+		print("<option value=\"*\"");
+		print($value == "*" ? " selected>" : ">");
+		Html::out("*");
+		print("</option>");
+		while($select->fetch(PDO::FETCH_BOUND) !== false) {
+			print("<option value=\"{$networkId}\"");
+			print($value == $networkId ? " selected>" : ">");
+			Html::out($network);
+			print("</option>");
+		}
+		print("</select>");
+	}
+
+	protected function printImgDownload($imgClass) {
+		print("<img class=\"{$imgClass}\" src=\"img/download_log.png\" />");
 	}
 
 	protected function printImgType($imgClass, $typeId) {
@@ -180,6 +237,25 @@ abstract class WebView extends WebAccess {
 			$title = $alt;
 		}
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+	}
+
+	protected function printTimerange($now, $first, $last) {
+		$l12n = $this->l12n();
+		$elapsed = $now - $last;
+		if($elapsed < 60) {
+			$when = sprintf($l12n->t("> %u second(s)"), $elapsed);
+		} elseif(($elapsed /= 60) < 60) {
+			$when = sprintf($l12n->t("> %u minute(s)"), $elapsed);
+		} elseif(($elapsed /= 60) < 24) {
+			$when = sprintf($l12n->t("> %u hour(s)"), $elapsed);
+		} else {
+			$elapsed /= 24;
+			$when = sprintf($l12n->t("> %u day(s)"), $elapsed);
+		}
+		$timerange = Html::format($l12n->formatTimestamp($first)." - ".$l12n->formatTimestamp($last));
+		print("<span title=\"{$timerange}\">");
+		Html::out($when);
+		print("</span>");
 	}
 
 	protected function printImgCountry($imgClass, $countrycode, $countryname) {

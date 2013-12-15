@@ -26,7 +26,7 @@ class Processor {
 		$this->tDbh = $dbh;
 	}
 
-	public function process($source, $events) {
+	public function process($source, $networkmap, $events) {
 		Log::notice("Evaluating source {$source}...");
 		$processedLineCount = 0;
 		$recordedEventCount = 0;
@@ -35,7 +35,7 @@ class Processor {
 		foreach($source->getFiles() as $file) {
 			$logfiles = self::scanLogFiles($file->getFile());
 			if(count($logfiles) > 0) {
-				$matchstates = ProcessorEventMatchstate::create($this->tDbh, $source, $file, $events);
+				$matchstates = ProcessorEventMatchstate::create($this->tDbh, $source, $file, $networkmap, $events);
 				foreach($logfiles as $logfile) {
 					if(isset($sourcestates[$logfile])) {
 						$sourcestate = $sourcestates[$logfile];
@@ -70,6 +70,7 @@ class Processor {
 		Log::notice(sprintf("%u old event(s) discarded", $discardedEventCount));
 		QueryLoghost::discardUnused($this->tDbh);
 		QueryUser::discardUnused($this->tDbh);
+		QueryHostipNetwork::discardUnused($this->tDbh);
 		QueryHostip::discardUnused($this->tDbh);
 		QueryHostmac::discardUnused($this->tDbh);
 		QueryService::discardUnused($this->tDbh);

@@ -24,14 +24,16 @@ class WebViewEvents extends WebView {
 		parent::__construct($dbh);
 	}
 
-	public function printHtml() {
+	public function sendHtml() {
 		$this->beginHtml();
 		$l12n = $this->l12n();
 		$title = $l12n->t("LogMon - Events");
 		$this->beginHeader($title);
 		$this->endHeader();
 		$this->beginBody();
-		print("<div class=\"filter\">");
+		print("<div class=\"navbar\">");
+		$this->printNavbar();
+		print("</div><div class=\"filter\">");
 		$this->printFilter();
 		if($this->getRequestHostip() != "*") {
 			print("</div><div class=\"events\">");
@@ -50,10 +52,16 @@ class WebViewEvents extends WebView {
 		$this->endHtml();
 	}
 
+	private function printNavbar() {
+		$this->printNavHostips();
+		Html::out(" | ");
+		$this->printNavHostmacs();
+		Html::out(" | ");
+		$this->printNavUsers();
+	}
+
+
 	private function printFilter() {
-		print("<span class=\"header1\">");
-		Html::out("Filter");
-		print("</span> ");
 		$this->printSelectType();
 		$this->printSelectLoghost();
 		$this->printSelectService();
@@ -104,11 +112,12 @@ class WebViewEvents extends WebView {
 		print("</th><th>");
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
-		Html::out($l12n->t("Period"));
+		Html::out($l12n->t("When"));
 		print("</th></tr>");
 		print("</thead>");
 		print("<tbody>");
 		$rowNr = 1;
+		$now = time();
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
 			Html::out($rowNr);
@@ -137,9 +146,7 @@ class WebViewEvents extends WebView {
 			print("</td><td class=\"right\">");
 			Html::out($count);
 			print("</td><td>");
-			Html::out($l12n->formatTimestamp($first));
-			Html::out(" - ");
-			Html::out($l12n->formatTimestamp($last));
+			$this->printTimerange($now, $first, $last);
 			print("</td></tr>");
 			$rowNr++;
 		}
@@ -194,11 +201,12 @@ class WebViewEvents extends WebView {
 		print("</th><th>");
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
-		Html::out($l12n->t("Period"));
+		Html::out($l12n->t("When"));
 		print("</th></tr>");
 		print("</thead>");
 		print("<tbody>");
 		$rowNr = 1;
+		$now = time();
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
 			Html::out($rowNr);
@@ -227,9 +235,7 @@ class WebViewEvents extends WebView {
 			print("</td><td class=\"right\">");
 			Html::out($count);
 			print("</td><td>");
-			Html::out($l12n->formatTimestamp($first));
-			Html::out(" - ");
-			Html::out($l12n->formatTimestamp($last));
+			$this->printTimerange($now, $first, $last);
 			print("</td></tr>");
 			$rowNr++;
 		}
@@ -285,11 +291,12 @@ class WebViewEvents extends WebView {
 		print("</th><th>");
 		Html::out($l12n->t("Count"));
 		print("</th><th>");
-		Html::out($l12n->t("Period"));
+		Html::out($l12n->t("When"));
 		print("</th></tr>");
 		print("</thead>");
 		print("<tbody>");
 		$rowNr = 1;
+		$now = time();
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			print("<tr><td class=\"right\">");
 			Html::out($rowNr);
@@ -318,9 +325,7 @@ class WebViewEvents extends WebView {
 			print("</td><td class=\"right\">");
 			Html::out($count);
 			print("</td><td>");
-			Html::out($l12n->formatTimestamp($first));
-			Html::out(" - ");
-			Html::out($l12n->formatTimestamp($last));
+			$this->printTimerange($now, $first, $last);
 			print("</td></tr>");
 			$rowNr++;
 		}

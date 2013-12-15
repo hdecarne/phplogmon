@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS hostmac;
 DROP TABLE IF EXISTS hostip;
 DROP TABLE IF EXISTS service;
+DROP TABLE IF EXISTS network;
 DROP TABLE IF EXISTS loghost;
 DROP TABLE IF EXISTS sourcestate;
 
@@ -17,12 +18,12 @@ DROP TABLE IF EXISTS sourcestate;
 
 CREATE TABLE sourcestate (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-	sourceid VARCHAR(64) NOT NULL,
+	name VARCHAR(64) NOT NULL,
 	file VARCHAR(1024) NOT NULL,
 	mtime INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
-	INDEX ( sourceid )
+	INDEX ( name )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -34,6 +35,17 @@ CREATE TABLE loghost (
 	loghost VARCHAR(64) NOT NULL,
 	PRIMARY KEY ( id ),
 	UNIQUE KEY ( loghost )
+) ENGINE=InnoDB CHARSET=utf8;
+
+--
+-- Table 'network'
+--
+
+CREATE TABLE network (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	network VARCHAR(64) NOT NULL,
+	PRIMARY KEY ( id ),
+	UNIQUE KEY ( network )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -99,6 +111,7 @@ CREATE TABLE event (
 	loghostid INT UNSIGNED NOT NULL,
 	serviceid INT UNSIGNED NOT NULL,
 	typeid INT UNSIGNED NOT NULL,
+	networkid INT UNSIGNED NOT NULL,
 	hostipid INT UNSIGNED NOT NULL,
 	hostmacid INT UNSIGNED NOT NULL,
 	userid INT UNSIGNED NOT NULL,
@@ -106,7 +119,7 @@ CREATE TABLE event (
 	first INT NOT NULL,
 	last INT NOT NULL,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( loghostid, serviceid, typeid, hostipid, hostmacid, userid ),
+	UNIQUE KEY ( loghostid, serviceid, typeid, networkid, hostipid, hostmacid, userid ),
 	FOREIGN KEY ( loghostid ) REFERENCES loghost ( id ),
 	FOREIGN KEY ( serviceid ) REFERENCES service ( id ),
 	FOREIGN KEY ( hostipid ) REFERENCES hostip ( id ),
@@ -115,6 +128,7 @@ CREATE TABLE event (
 	INDEX ( loghostid ),
 	INDEX ( serviceid ),
 	INDEX ( typeid ),
+	INDEX ( networkid ),
 	INDEX ( hostipid ),
 	INDEX ( hostmacid ),
 	INDEX ( userid )
@@ -125,8 +139,10 @@ CREATE TABLE event (
 --
 
 CREATE TABLE log (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 	eventid INT UNSIGNED NOT NULL,
 	line VARCHAR(1024) NOT NULL,
+	PRIMARY KEY ( id ),
 	FOREIGN KEY ( eventid ) REFERENCES event ( id ),
 	INDEX ( eventid )
 ) ENGINE=InnoDB CHARSET=utf8;

@@ -1,10 +1,38 @@
 body {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 14px;
+	margin: 0px;
+	padding: 0px;
+}
+
+div.navbar {
+	padding: 10px 8px;
+	color: #ffffff;
+	background-color: #a0a0a0;
+}
+div.filter {
+	padding: 6px 8px;
+	background-color: #e0e0e0;
+}
+div.events {
+	margin: 8px;
+}
+
+address {
+	margin: 8px;
+}
+
+span, label {
+	color: #101010;
 }
 
 a {
 	text-decoration: none;
+}
+a.navbar {
+	font-weight: bold;
+	color: #ffffff;
+	text-decoration: underline;
 }
 
 img {
@@ -38,12 +66,4 @@ th.left, td.left {
 }
 th.right, td.right {
 	text-align: right;
-}
-
-span, label {
-	color: #101010;
-}
-
-span.header1 {
-	font-weight:bold;
 }

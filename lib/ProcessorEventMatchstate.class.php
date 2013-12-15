@@ -23,6 +23,7 @@ class ProcessorEventMatchstate {
 	private $tDbh;
 	private $tSource;
 	private $tFile;
+	private $tNetworkmap;
 	private $tEvent;
 	private $tNextPatternIndex;
 	private $tMatches;
@@ -33,10 +34,11 @@ class ProcessorEventMatchstate {
 	private $tMatchedHostmac;
 	private $tMatchedUser;
 
-	private function __construct($dbh, $source, $file, $event) {
+	private function __construct($dbh, $source, $file, $networkmap, $event) {
 		$this->tDbh = $dbh;
 		$this->tSource = $source;
 		$this->tFile = $file;
+		$this->tNetworkmap = $networkmap;
 		$this->tEvent = $event;
 		$this->reset();
 	}
@@ -64,10 +66,10 @@ class ProcessorEventMatchstate {
 		return $this->tMatchedService === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedUser === false;
 	}
 
-	public static function create($dbh, $source, $file, $events) {
+	public static function create($dbh, $source, $file, $networkmap, $events) {
 		$states = array();
 		foreach($events as $event) {
-			$states[] = new self($dbh, $source, $file, $event);
+			$states[] = new self($dbh, $source, $file, $networkmap, $event);
 		}
 		return $states;
 	}
@@ -185,17 +187,19 @@ class ProcessorEventMatchstate {
 	private function update() {
 		$loghostId = QueryLoghost::getLoghostId($this->tDbh, $this->tSource->getLoghost());
 		$serviceId = QueryService::getServiceId($this->tDbh, $this->tMatchedService);
+		$networkId = QueryHostipNetwork::getNetworkId($this->tDbh, $this->tNetworkmap, $this->tMatchedHostip);
 		$hostipId = QueryHostip::getHostipId($this->tDbh, $this->tMatchedHostip);
 		$hostmacId = QueryHostmac::getHostmacId($this->tDbh, $this->tMatchedHostmac);
 		$userId = QueryUser::getUserId($this->tDbh, $this->tMatchedUser);
 		if(!Options::pretend()) {
-			$select = $this->tDbh->prepare("SELECT a.id, a.count, a.first, a.last FROM event a WHERE a.loghostid = ? AND a.serviceid = ? AND a.typeid = ? AND a.hostipid = ? AND a.hostmacid = ? AND a.userid = ?");
+			$select = $this->tDbh->prepare("SELECT a.id, a.count, a.first, a.last FROM event a WHERE a.loghostid = ? AND a.serviceid = ? AND a.typeid = ? AND a.networkid = ? AND a.hostipid = ? AND a.hostmacid = ? AND a.userid = ?");
 			$select->bindValue(1, $loghostId, PDO::PARAM_STR);
 			$select->bindValue(2, $serviceId, PDO::PARAM_STR);
 			$select->bindValue(3, $this->tEvent->getTypeid(), PDO::PARAM_STR);
-			$select->bindValue(4, $hostipId, PDO::PARAM_STR);
-			$select->bindValue(5, $hostmacId, PDO::PARAM_STR);
-			$select->bindValue(6, $userId, PDO::PARAM_STR);
+			$select->bindValue(4, $networkId, PDO::PARAM_STR);
+			$select->bindValue(5, $hostipId, PDO::PARAM_STR);
+			$select->bindValue(6, $hostmacId, PDO::PARAM_STR);
+			$select->bindValue(7, $userId, PDO::PARAM_STR);
 			$select->execute();
 			$select->bindColumn(1, $id, PDO::PARAM_STR);
 			$select->bindColumn(2, $count, PDO::PARAM_INT);
@@ -212,16 +216,17 @@ class ProcessorEventMatchstate {
 				$update->bindValue(4, $id,  PDO::PARAM_STR);
 				$update->execute();
 			} else {
-				$insert = $this->tDbh->prepare("INSERT INTO event (loghostid, serviceid, typeid, hostipid, hostmacid, userid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				$insert = $this->tDbh->prepare("INSERT INTO event (loghostid, serviceid, typeid, networkid, hostipid, hostmacid, userid, count, first, last) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 				$insert->bindValue(1, $loghostId,  PDO::PARAM_STR);
 				$insert->bindValue(2, $serviceId, PDO::PARAM_STR);
 				$insert->bindValue(3, $this->tEvent->getTypeid(),  PDO::PARAM_STR);
-				$insert->bindValue(4, $hostipId, PDO::PARAM_STR);
-				$insert->bindValue(5, $hostmacId, PDO::PARAM_STR);
-				$insert->bindValue(6, $userId, PDO::PARAM_STR);
-				$insert->bindValue(7, 1, PDO::PARAM_INT);
-				$insert->bindValue(8, $this->tMatchedTimestamp, PDO::PARAM_INT);
+				$insert->bindValue(4, $networkId, PDO::PARAM_STR);
+				$insert->bindValue(5, $hostipId, PDO::PARAM_STR);
+				$insert->bindValue(6, $hostmacId, PDO::PARAM_STR);
+				$insert->bindValue(7, $userId, PDO::PARAM_STR);
+				$insert->bindValue(8, 1, PDO::PARAM_INT);
 				$insert->bindValue(9, $this->tMatchedTimestamp, PDO::PARAM_INT);
+				$insert->bindValue(10, $this->tMatchedTimestamp, PDO::PARAM_INT);
 				$insert->execute();
 				$id = $this->tDbh->lastInsertId();
 			}

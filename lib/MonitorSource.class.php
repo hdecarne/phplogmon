@@ -20,19 +20,19 @@
 
 class MonitorSource {
 
-	private $tId;
+	private $tName;
 	private $tLoghost;
 	private $tTspattern;
 	private $tTsformat;
 	private $tFiles = array();
 
-	public function __construct($id, $loghost) {
-		$this->tId = $id;
+	public function __construct($name, $loghost) {
+		$this->tName = $name;
 		$this->tLoghost = $loghost;
 	}
 
 	public function __toString() {
-		$string = "id={$this->tId};files=";
+		$string = "name={$this->tName};files=";
 		foreach($this->tFiles as $file) {
 			if(substr($string, -1) != "=") {
 				$string .= ";";
@@ -42,8 +42,8 @@ class MonitorSource {
 		return $string;
 	}
 
-	public function getId() {
-		return $this->tId;
+	public function getName() {
+		return $this->tName;
 	}
 
 	public function getLoghost() {

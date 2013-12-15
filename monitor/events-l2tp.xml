@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
-	<events sourceid="syslog" service="l2tp">
+	<events service="l2tp">
+		<source refname="syslog" />
 		<event type="granted">
 			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
 			<pattern>/^.* pppd\[.*\]: PAP peer authentication succeeded for (.*)$/U</pattern>

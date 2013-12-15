@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class WebAccess {
+abstract class WebAccess {
 
 	const STATUS_SERVICE_UNAVAILABLE = 503;
 
@@ -30,11 +30,13 @@ class WebAccess {
 	const SESSION_TYPE = "type";
 	const SESSION_LOGHOST = "loghost";
 	const SESSION_SERVICE = "service";
+	const SESSION_NETWORK = "network";
 
 	const REQUEST_CMD = "cmd";
 	const REQUEST_TYPE = "type";
 	const REQUEST_LOGHOST = "loghost";
 	const REQUEST_SERVICE = "service";
+	const REQUEST_NETWORK = "network";
 	const REQUEST_HOSTIP = "hostip";
 	const REQUEST_HOSTMAC = "hostmac";
 	const REQUEST_USER = "user";
@@ -45,7 +47,7 @@ class WebAccess {
 		$this->tDbh = $dbh;
 		session_name(self::SESSION_NAME);
 		if(!session_start()) {
-			throw new Exception("Cannot start session");
+			throw new Exception(Log::err("Cannot start session"));
 		}
 		if(!isset($_SESSION[self::SESSION_LANG])) {
 			$_SESSION[self::SESSION_LANG] = self::getDefaultLang();
@@ -56,6 +58,8 @@ class WebAccess {
 		}
 		self::mergeSession(self::SESSION_MOBILE);
 	}
+
+	abstract public function send();
 
 	protected function dbh() {
 		return $this->tDbh;
@@ -133,12 +137,32 @@ class WebAccess {
 		return self::getSession(self::SESSION_SERVICE, "*");
 	}
 
+	protected function getSessionNetwork() {
+		return self::getSession(self::SESSION_NETWORK, "*");
+	}
+
 	public static function getRequest($key, $defaultValue) {
 		return (isset($_REQUEST[$key]) ? $_REQUEST[$key] : $defaultValue);
 	}
 
 	protected function getRequestCmd() {
 		return self::getRequest(self::REQUEST_CMD, "*");
+	}
+
+	protected function getRequestType() {
+		return self::getRequest(self::REQUEST_TYPE, "*");
+	}
+
+	protected function getRequestLoghost() {
+		return self::getRequest(self::REQUEST_LOGHOST, "*");
+	}
+
+	protected function getRequestService() {
+		return self::getRequest(self::REQUEST_SERVICE, "*");
+	}
+
+	protected function getRequestNetwork() {
+		return self::getRequest(self::REQUEST_NETWORK, "*");
 	}
 
 	protected function getRequestHostip() {

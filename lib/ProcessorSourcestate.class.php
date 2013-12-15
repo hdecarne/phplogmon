@@ -23,7 +23,7 @@ class ProcessorSourcestate {
 	private $tDbh;
 	private $tTouched;
 	private $tId;
-	private $tSourceid;
+	private $tName;
 	private $tFile;
 	private $tMtime;
 	private $tLast;
@@ -36,18 +36,18 @@ class ProcessorSourcestate {
 
 	public static function query($dbh, $source) {
 		$sourcestates = array();
-		$select = $dbh->prepare("SELECT a.id, a.sourceid, a.file, a.mtime, a.last FROM sourcestate a WHERE a.sourceid = ?");
-		$select->bindValue(1, $source->getId(), PDO::PARAM_STR);
+		$select = $dbh->prepare("SELECT a.id, a.name, a.file, a.mtime, a.last FROM sourcestate a WHERE a.name = ?");
+		$select->bindValue(1, $source->getName(), PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $id, PDO::PARAM_STR);
-		$select->bindColumn(2, $sourceid, PDO::PARAM_STR);
+		$select->bindColumn(2, $name, PDO::PARAM_STR);
 		$select->bindColumn(3, $file, PDO::PARAM_STR);
 		$select->bindColumn(4, $mtime, PDO::PARAM_INT);
 		$select->bindColumn(5, $last, PDO::PARAM_INT);
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {
 			$sourcestate = new self($dbh);
 			$sourcestate->tId = $id;
-			$sourcestate->tSourceid = $sourceid;
+			$sourcestate->tName = $name;
 			$sourcestate->tFile = $file;
 			$sourcestate->tMtime = $mtime;
 			$sourcestate->tLast = $last;
@@ -60,7 +60,7 @@ class ProcessorSourcestate {
 	public static function add(&$sourcestates, $dbh, $source, $file) {
 		$sourcestate = new self($dbh);
 		$sourcestate->tId = null;
-		$sourcestate->tSourceid = $source->getId();
+		$sourcestate->tName = $source->getName();
 		$sourcestate->tFile = $file;
 		$sourcestate->tMtime = 0;
 		$sourcestate->tLast = 0;
@@ -104,8 +104,8 @@ class ProcessorSourcestate {
 			if($this->tTouched) {
 				$this->tMtime = Files::safeFilemtime($this->tFile);
 				if(is_null($this->tId)) {
-					$insert = $this->tDbh->prepare("INSERT INTO sourcestate (sourceid, file, mtime, last) VALUES(?, ?, ?, ?)");
-					$insert->bindValue(1, $this->tSourceid, PDO::PARAM_STR);
+					$insert = $this->tDbh->prepare("INSERT INTO sourcestate (name, file, mtime, last) VALUES(?, ?, ?, ?)");
+					$insert->bindValue(1, $this->tName, PDO::PARAM_STR);
 					$insert->bindValue(2, $this->tFile, PDO::PARAM_STR);
 					$insert->bindValue(3, $this->tMtime, PDO::PARAM_INT);
 					$insert->bindValue(4, $this->tLast, PDO::PARAM_INT);

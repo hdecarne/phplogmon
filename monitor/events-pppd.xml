@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
-	<events sourceid="syslog" service="pppd">
+	<events service="pppd">
+		<source refname="syslog" />
 		<event type="granted">
 			<pattern>/^.* pppd\[.*\]: PAP peer authentication succeeded for (.*)$/U</pattern>
 			<pattern>/^.* pppd\[.*\]: remote IP address (.*)$/U</pattern>

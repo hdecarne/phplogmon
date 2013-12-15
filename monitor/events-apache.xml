@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
-	<events sourceid="apachelog">
+	<events>
+		<source refname="apachelog" />
 		<event type="granted">
 			<pattern>/^(.*) - - \[.*\] \".*\" 2\d\d .*$/U</pattern>
 			<hostip>0</hostip>

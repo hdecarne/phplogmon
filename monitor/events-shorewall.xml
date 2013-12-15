@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <logmon version="1">
-	<events sourceid="syslog">
+	<events>
+		<source refname="syslog" />
 		<event type="denied">
 			<pattern>/^.* Shorewall\:.*\:DROP\:IN=.* .* SRC=(.*) .* PROTO=(.*) .* DPT=(.*) .*$/U</pattern>
 			<hostip>0</hostip>

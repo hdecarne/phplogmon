@@ -28,11 +28,12 @@ class MonitorXmlReader {
 	private $tParseDataStack;
 	private $tParseHandlerStack;
 	private $tParsedSources;
+	private $tParsedNetworkmaps;
 	private $tParsedEvents;
 	private $tCurrentSource;
-	private $tCurrentSourceService;
-	private $tCurrentEventsSourceid;
+	private $tCurrentNetworkmap;
 	private $tCurrentEventsService;
+	private $tCurrentEventsSources;
 	private $tCurrentEvent;
 
 	public function __destruct() {
@@ -56,11 +57,12 @@ class MonitorXmlReader {
 		$this->tParseDataStack = array();
 		$this->tParseHandlerStack = array();
 		$this->tParsedSources = array();
+		$this->tParsedNetworkmaps = array();
 		$this->tParsedEvents = array();
 		$this->tCurrentSource = null;
-		$this->tCurrentSourceService = null;
-		$this->tCurrentEventsSourceid = null;
+		$this->tCurrentNetworkmap = null;
 		$this->tCurrentEventsService = null;
+		$this->tCurrentEventsSources = array();
 		$this->tCurrentEvent = null;
 		xml_parser_set_option($this->tParser, XML_OPTION_CASE_FOLDING, 0);
 		xml_set_object($this->tParser, $this);
@@ -98,6 +100,10 @@ class MonitorXmlReader {
 		return $this->tParsedEvents;
 	}
 
+	public function getNetworkmaps() {
+		return $this->tParsedNetworkmaps;
+	}
+
 	private function beginElement($parser, $name, $attribs) {
 		$depth = count($this->tParsePathStack);
 		$path = ($depth > 0 ? $this->tParsePathStack[$depth - 1]."/".$name : $name);
@@ -107,7 +113,7 @@ class MonitorXmlReader {
 			$handlers = array("beginLogmon", null, null);
 			break;
 		case "logmon/source":
-			$this->validateAttribs($attribs, array("id", "loghost"), array("service"));
+			$this->validateAttribs($attribs, array("name", "loghost"), array("service"));
 			$handlers = array("beginSource", null, "endSource");
 			break;
 		case "logmon/source/tspattern":
@@ -122,13 +128,33 @@ class MonitorXmlReader {
 			$this->validateAttribs($attribs, array(), array("service", "decoder"));
 			$handlers = array(null, "dataSourceFile", null);
 			break;
+		case "logmon/networkmap":
+			$this->validateAttribs($attribs, array("internal", "external"), array());
+			$handlers = array("beginNetworkmap", null, "endNetworkmap");
+			break;
+		case "logmon/networkmap/source":
+			$this->validateAttribs($attribs, array("refname"), array());
+			$handlers = array("beginNetworkmapSource", null, null);
+			break;
+		case "logmon/networkmap/network":
+			$this->validateAttribs($attribs, array("name", "type"), array());
+			$handlers = array(null, "dataNetwork", null);
+			break;
 		case "logmon/events":
-			$this->validateAttribs($attribs, array(), array("sourceid", "service"));
+			$this->validateAttribs($attribs, array(), array("service"));
 			$handlers = array("beginEvents", null, "endEvents");
 			break;
+		case "logmon/events/source":
+			$this->validateAttribs($attribs, array("refname"), array());
+			$handlers = array("beginEventsSource", null, null);
+			break;
 		case "logmon/events/event":
-			$this->validateAttribs($attribs, array("type"), array("sourceid", "service"));
+			$this->validateAttribs($attribs, array("type"), array("service"));
 			$handlers = array("beginEvent", null, "endEvent");
+			break;
+		case "logmon/events/even/source":
+			$this->validateAttribs($attribs, array("sourceid"), array());
+			$handlers = array("beginEventSource", null, "endEventSource");
 			break;
 		case "logmon/events/event/pattern":
 			$this->validateAttribs($attribs, array(), array());
@@ -254,8 +280,8 @@ class MonitorXmlReader {
 	}
 
 	private function beginSource($data) {
-		$id = trim($data["id"]);
-		$idValid = $this->validateAttributeValue("id", $id);
+		$name = trim($data["name"]);
+		$nameValid = $this->validateAttributeValue("name", $name);
 		$loghost = trim($data["loghost"]);
 		$loghostValid = $this->validateAttributeValue("loghost", $loghost);
 		if(isset($data["service"])) {
@@ -265,9 +291,8 @@ class MonitorXmlReader {
 			$service = "";
 			$serviceValid = true;
 		}
-		if($idValid && $loghostValid && $serviceValid) {
-			$this->tCurrentSource = new MonitorSource($id, $loghost);
-			$this->tCurrentSourceService;
+		if($nameValid && $loghostValid && $serviceValid) {
+			$this->tCurrentSource = new MonitorSource($name, $loghost);
 		}
 	}
 
@@ -284,14 +309,18 @@ class MonitorXmlReader {
 
 	private function dataSourceTspattern($data) {
 		$tspattern = $data["value"];
-		$this->validateElementValue("tspattern", $tspattern);
-		$this->tCurrentSource->setTspattern($tspattern);
+		$tspatternValid = $this->validateElementValue("tspattern", $tspattern);
+		if($tspatternValid) {
+			$this->tCurrentSource->setTspattern($tspattern);
+		}
 	}
 
 	private function dataSourceTsformat($data) {
 		$tsformat = $data["value"];
-		$this->validateElementValue("tsformat", $tsformat);
-		$this->tCurrentSource->setTsformat($tsformat);
+		$tsformatValid = $this->validateElementValue("tsformat", $tsformat);
+		if($tsformatValid) {
+			$this->tCurrentSource->setTsformat($tsformat);
+		}
 	}
 
 	private function dataSourceFile($data) {
@@ -316,14 +345,45 @@ class MonitorXmlReader {
 		}
 	}
 
-	private function beginEvents($data) {
-		if(isset($data["sourceid"])) {
-			$sourceid = trim($data["sourceid"]);
-			$sourceidValid = $this->validateAttributeValue("sourceid", $sourceid);
-		} else {
-			$sourceid = "";
-			$sourceidValid = true;
+	private function beginNetworkmap($data) {
+		$internal = trim($data["internal"]);
+		$internalValid = $this->validateAttributeValue("internal", $internal);
+		$external = trim($data["external"]);
+		$externalValid = $this->validateAttributeValue("external", $external);
+		if($internalValid && $externalValid) {
+			$this->tCurrentNetworkmap = new MonitorNetworkmap($internal, $external);
 		}
+	}
+
+	private function endNetworkmap($data) {
+		$sourcesValid = $this->validateElementExists("source", count($this->tCurrentNetworkmap->getSourceNames()) > 0);
+		if($sourcesValid) {
+			$this->tParsedNetworkmaps[] = $this->tCurrentNetworkmap;
+		}
+		$this->tCurrentNetworkmap = null;
+	}
+
+	private function beginNetworkmapSource($data) {
+		$refname = trim($data["refname"]);
+		$refnameValid = $this->validateAttributeValue("refname", $refname);
+		if($refnameValid) {
+			$this->tCurrentNetworkmap->addSource($refname);
+		}
+	}
+
+	private function dataNetwork($data) {
+		$name = trim($data["name"]);
+		$nameValid = $this->validateAttributeValue("name", $name);
+		$type = trim($data["type"]);
+		$typeValid = $this->validateAttributeValue("type", $type, MonitorNetwork::validTypes());
+		$network = trim($data["value"]);
+		$networkValid = $this->validateElementValue("network", $network);
+		if($nameValid && $typeValid && $networkValid) {
+			$this->tCurrentNetworkmap->addNetwork($name, $type, $network);
+		}
+	}
+
+	private function beginEvents($data) {
 		if(isset($data["service"])) {
 			$service = trim($data["service"]);
 			$serviceValid = $this->validateAttributeValue("service", $service);
@@ -331,25 +391,25 @@ class MonitorXmlReader {
 			$service = "";
 			$serviceValid = true;
 		}
-		$this->tCurrentEventsSourceid = $sourceid;
 		$this->tCurrentEventsService = $service;
 	}
 
 	private function endEvents($data) {
-		$this->tCurrentEventsSourceid = null;
+		$this->tCurrentEventsSources = array();
 		$this->tCurrentEventsService = null;
+	}
+
+	private function beginEventsSource($data) {
+		$refname = trim($data["refname"]);
+		$refnameValid = $this->validateAttributeValue("refname", $refname);
+		if($refnameValid) {
+			$this->tCurrentEventsSources[$refname] = $refname;
+		}
 	}
 
 	private function beginEvent($data) {
 		$type = trim($data["type"]);
 		$typeValid = $this->validateAttributeValue("type", $type, MonitorEvent::validTypes());
-		if(isset($data["sourceid"])) {
-			$sourceid = trim($data["sourceid"]);
-			$sourceidValid = $this->validateAttributeValue("sourceid", $sourceid);
-		} else {
-			$sourceid = $this->tCurrentEventsSourceid;
-			$sourceidValid = true;
-		}
 		if(isset($data["service"])) {
 			$service = trim($data["service"]);
 			$serviceValid = $this->validateAttributeValue("service", $service);
@@ -357,17 +417,29 @@ class MonitorXmlReader {
 			$service = $this->tCurrentEventsService;
 			$serviceValid = true;
 		}
-		if($typeValid && $sourceidValid && $serviceValid) {
-			$this->tCurrentEvent = new MonitorEvent($type, $sourceid, $service);
+		if($typeValid && $serviceValid) {
+			$this->tCurrentEvent = new MonitorEvent($type, $service);
+			foreach($this->tCurrentEventsSources as $source) {
+				$this->tCurrentEvent->addSource($source);
+			}
 		}
 	}
 
 	private function endEvent($data) {
+		$sourcesValid = $this->validateElementExists("source", count($this->tCurrentEvent->getSourceNames()) > 0);
 		$patternsValid = $this->validateElementExists("pattern", count($this->tCurrentEvent->getPatterns()) > 0);
-		if($patternsValid) {
+		if($sourcesValid && $patternsValid) {
 			$this->tParsedEvents[] = $this->tCurrentEvent;
 		}
 		$this->tCurrentEvent = null;
+	}
+
+	private function beginEventSource($data) {
+		$refname = trim($data["refname"]);
+		$refnameValid = $this->validateAttributeValue("refname", $refname);
+		if($refnameValid) {
+			$this->tCurrentEvent->addSource($refname);
+		}
 	}
 
 	private function dataEventPattern($data) {

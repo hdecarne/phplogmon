@@ -18,10 +18,13 @@ try {
 	$cmd = WebAccess::getRequest("cmd", false);
 	switch($cmd) {
 		case "viewevents":
-			$view = new WebViewEvents($dbh);
+			$access = new WebViewEvents($dbh);
+			break;
+		case "streamlogs":
+			$access = new WebStreamLogs($dbh);
 			break;
 		default:
-			$view = new WebViewHostip($dbh);
+			$access = new WebViewHostips($dbh);
 	}
 } catch(Exception $e) {
 	Log::err($e);
@@ -32,7 +35,7 @@ try {
 		WebAccess::sendStatusAndExit(WebAccess::STATUS_SERVICE_UNAVAILABLE);
 	}
 }
-$view->printHtml();
+$access->send();
 if(isset($dbh)) {
 	$dbh->close();
 }

@@ -37,31 +37,39 @@ class MonitorEvent {
 	);
 
 	private $tType;
-	private $tSourceid;
 	private $tDefaultService;
+	private $tSourceNames = array();
 	private $tPatterns = array();
 	private $tUserEvaluator = null;
 	private $tHostipEvaluator = null;
 	private $tHostmacEvaluator = null;
 	private $tServiceEvaluator = null;
 
-	public function __construct($type, $sourceid, $defaultService) {
+	public function __construct($type, $defaultService) {
 		$this->tType = $type;
-		$this->tSourceid = $sourceid;
 		$this->tDefaultService = $defaultService;
 	}
 
 	public function __toString() {
-		$patternString = "";
+		$patternsString = "";
 		$patternIndex = 0;
 		foreach($this->tPatterns as $pattern) {
-			if(strlen($patternString) > 0) {
-				$patternString .= ";";
+			if(strlen($patternsString) > 0) {
+				$patternsString .= ";";
 			}
-			$patternString .= "pattern[{$patternIndex}]='{$pattern}'";
+			$patternsString .= "pattern[{$patternIndex}]='{$pattern}'";
 			$patternIndex++;
 		}
-		return "type={$this->tType};sourceid={$this->tSourceid};{$patternString}";
+		$sourcesString = "";
+		$sourceIndex = 0;
+		foreach($this->tSourceNames as $sourceName) {
+			if(strlen($sourcesString) > 0) {
+				$sourcesString .= ";";
+			}
+			$sourcesString .= "source[{$sourceIndex}]='{$sourceName}'";
+			$sourceIndex++;
+		}
+		return "type={$this->tType};{$sourcesString};{$patternsString}";
 	}
 
 	public static function validTypes() {
@@ -76,12 +84,16 @@ class MonitorEvent {
 		return self::$sTypeMap[$this->tType];
 	}
 
-	public function getSourceid() {
-		return $this->tSourceid;
-	}
-
 	public function getDefaultService() {
 		return $this->tDefaultService;
+	}
+
+	public function addSource($sourceName) {
+		$this->tSourceNames[$sourceName] = $sourceName;
+	}
+
+	public function getSourceNames() {
+		return $this->tSourceNames;
 	}
 
 	public function addPattern($pattern) {
