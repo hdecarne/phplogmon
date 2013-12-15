@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logmon version="1">
+	<networkmap internal="internal" external="external">
+		<source refname="syslog" />
+		<source refname="apachelog" />
+		<network name="internal" type="ifconfig">ifconfig</network>
+		<network name="vpn" type="inet">10.2.2.0/16</network>
+	</networkmap>
+</logmon>
