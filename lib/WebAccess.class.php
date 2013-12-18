@@ -40,6 +40,7 @@ abstract class WebAccess {
 	const REQUEST_HOSTIP = "hostip";
 	const REQUEST_HOSTMAC = "hostmac";
 	const REQUEST_USER = "user";
+	const REQUEST_DOWNLOAD = "download";
 
 	private $tDbh;
 
@@ -175,6 +176,10 @@ abstract class WebAccess {
 
 	protected function getRequestUser() {
 		return self::getRequest(self::REQUEST_USER, "*");
+	}
+
+	protected function getRequestDownload() {
+		return self::getRequest(self::REQUEST_DOWNLOAD, "0");
 	}
 
 }

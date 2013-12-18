@@ -131,7 +131,8 @@ CREATE TABLE event (
 	INDEX ( networkid ),
 	INDEX ( hostipid ),
 	INDEX ( hostmacid ),
-	INDEX ( userid )
+	INDEX ( userid ),
+	INDEX ( last )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --
@@ -141,10 +142,12 @@ CREATE TABLE event (
 CREATE TABLE log (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 	eventid INT UNSIGNED NOT NULL,
+	time INT NOT NULL,
 	line VARCHAR(1024) NOT NULL,
 	PRIMARY KEY ( id ),
 	FOREIGN KEY ( eventid ) REFERENCES event ( id ),
-	INDEX ( eventid )
+	INDEX ( eventid ),
+	INDEX ( time )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --

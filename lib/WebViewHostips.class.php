@@ -125,7 +125,7 @@ class WebViewHostips extends WebView {
 			print("<tr><td class=\"right\">");
 			Html::out($rowNr);
 			print("</td><td class=\"center\">");
-			$this->printImgType("tableicon", $typeId);
+			$this->printImgType("icon16", $typeId);
 			print("</td><td>");
 			Html::out("{$loghost}");
 			print("</td><td>");
@@ -138,10 +138,10 @@ class WebViewHostips extends WebView {
 			Html::out($count);
 			print("</td><td>");
 			$this->printTimerange($now, $first, $last);
-			print("</td><td class=\"center\"><a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&hostip={$hostipId}\">");
-			$this->printImgLogView("tableicon");
-			print("</a> <a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&hostip={$hostipId}\">");
-			$this->printImgLogDownload("tableicon");
+			print("</td><td class=\"center\"><a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&network={$networkId}&hostip={$hostipId}\">");
+			$this->printImgLogView("icon16");
+			print("</a> <a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&network={$networkId}&hostip={$hostipId}&download=1\">");
+			$this->printImgLogDownload("icon16");
 			print("</a></td></tr>");
 			$rowNr++;
 		}

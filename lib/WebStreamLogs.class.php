@@ -26,6 +26,10 @@ class WebStreamLogs extends WebStream {
 
 	public function sendData() {
 		$this->sendContentType(self::CONTENT_TYPE_TEXT_PLAIN);
+		$download = $this->getRequestDownload() != 0;
+		if($download) {
+			$this->sendContentDisposition("logs.txt");
+		}
 		$this->sendLogs();
 	}
 
@@ -34,22 +38,25 @@ class WebStreamLogs extends WebStream {
 		$typeId = $this->getRequestType();
 		$loghostId = $this->getRequestLoghost();
 		$serviceId = $this->getRequestService();
+		$networkId = $this->getRequestNetwork();
 		$hostipId = $this->getRequestHostip();
 		$hostmacId = $this->getRequestHostmac();
 		$userId = $this->getRequestUser();
-		$select = $dbh->prepare("SELECT b.line FROM event a, log b WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.serviceid = ?) AND ('*' = ? OR a.hostipid = ?) AND ('*' = ? OR a.hostmacid = ?) AND ('*' = ? OR a.userid = ?) AND a.id = b.eventid ORDER BY b.id ASC");
+		$select = $dbh->prepare("SELECT b.line FROM event a, log b WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.serviceid = ?) AND ('*' = ? OR a.networkid = ?) AND ('*' = ? OR a.hostipid = ?) AND ('*' = ? OR a.hostmacid = ?) AND ('*' = ? OR a.userid = ?) AND a.id = b.eventid ORDER BY b.id ASC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
 		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $hostipId, PDO::PARAM_STR);
-		$select->bindParam(8, $hostipId, PDO::PARAM_STR);
-		$select->bindParam(9, $hostmacId, PDO::PARAM_STR);
-		$select->bindParam(10, $hostmacId, PDO::PARAM_STR);
-		$select->bindParam(11, $userId, PDO::PARAM_STR);
-		$select->bindParam(12, $userId, PDO::PARAM_STR);
+		$select->bindParam(7, $networkId, PDO::PARAM_STR);
+		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(9, $hostipId, PDO::PARAM_STR);
+		$select->bindParam(10, $hostipId, PDO::PARAM_STR);
+		$select->bindParam(11, $hostmacId, PDO::PARAM_STR);
+		$select->bindParam(12, $hostmacId, PDO::PARAM_STR);
+		$select->bindParam(13, $userId, PDO::PARAM_STR);
+		$select->bindParam(14, $userId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $line, PDO::PARAM_STR);
 		while($select->fetch(PDO::FETCH_BOUND) !== false) {

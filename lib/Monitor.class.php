@@ -77,14 +77,14 @@ class Monitor {
 		foreach($networkmaps as $networkmap) {
 			foreach($networkmap->getSourceNames() as $networkmapSourceName) {
 				if(!isset($sourceNames[$networkmapSourceName])) {
-					Log::warn("Unknown source reference '{$networkmapSourceName}' used by network map {$networkmap}");
+					Log::warning("Unknown source reference '{$networkmapSourceName}' used by network map {$networkmap}");
 				}
 			}
 		}
 		foreach($events as $event) {
 			foreach($event->getSourceNames() as $eventSourceName) {
 				if(!isset($sourceNames[$eventSourceName])) {
-					Log::warn("Unknown source reference '{$eventSourceName}' used by event {$event}");
+					Log::warning("Unknown source reference '{$eventSourceName}' used by event {$event}");
 				}
 			}
 		}

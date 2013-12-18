@@ -21,6 +21,6 @@ define('DBPASS', 'secret');
 /*
  * Number of days after which old events are discarded.
  */
-define('EVENT_DISCARD_THRESHOLD', 7);
+define('EVENT_DISCARD_THRESHOLD', 14);
 
 ?>

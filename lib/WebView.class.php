@@ -280,7 +280,7 @@ abstract class WebView extends WebAccess {
 
 	protected function printHostip($hostip, $host, $countrycode, $countryname) {
 		if($hostip != "") {
-			$this->printImgCountry("tableicon", $countrycode, $countryname);
+			$this->printImgCountry("icon16", $countrycode, $countryname);
 			if($host != $hostip) {
 				print("<span title=\"{$hostip}\">");
 				Html::out(" {$host}");

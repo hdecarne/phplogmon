@@ -183,7 +183,7 @@ class QueryHostipNetwork {
 			}
 		}
 		if($matchCount == 0) {
-			Log::warn("No network map entries have been created from ifconfig command '{$ifconfigCmd}' output");
+			Log::warning("No network map entries have been created from ifconfig command '{$ifconfigCmd}' output");
 		}
 		pclose($phandle);
 	}

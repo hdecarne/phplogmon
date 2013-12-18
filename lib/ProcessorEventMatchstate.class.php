@@ -86,8 +86,9 @@ class ProcessorEventMatchstate {
 		$discardCount = 0;
 		if(!Options::pretend()) {
 			$threshold = time() - $days * 24 * 60 * 60;
-			$delete = $dbh->prepare("DELETE FROM log WHERE eventid IN (SELECT id FROM event WHERE last <= ?)");
+			$delete = $dbh->prepare("DELETE FROM log WHERE time <= ? OR eventid IN (SELECT id FROM event WHERE last <= ?)");
 			$delete->bindValue(1, $threshold, PDO::PARAM_INT);
+			$delete->bindValue(2, $threshold, PDO::PARAM_INT);
 			$delete->execute();
 			$delete = $dbh->prepare("DELETE FROM event WHERE last <= ?");
 			$delete->bindValue(1, $threshold, PDO::PARAM_INT);
@@ -230,10 +231,11 @@ class ProcessorEventMatchstate {
 				$insert->execute();
 				$id = $this->tDbh->lastInsertId();
 			}
-			$insert = $this->tDbh->prepare("INSERT INTO log (eventid, line) VALUES(?, ?)");
+			$insert = $this->tDbh->prepare("INSERT INTO log (eventid, time, line) VALUES(?, ?, ?)");
 			foreach($this->tMatchedLines as $line) {
 				$insert->bindValue(1, $id,  PDO::PARAM_STR);
-				$insert->bindValue(2, $line, PDO::PARAM_STR);
+				$insert->bindValue(2, $this->tMatchedTimestamp, PDO::PARAM_STR);
+				$insert->bindValue(3, $line, PDO::PARAM_STR);
 				$insert->execute();
 			}
 		}

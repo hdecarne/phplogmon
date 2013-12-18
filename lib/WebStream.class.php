@@ -36,6 +36,10 @@ abstract class WebStream extends WebAccess {
 		header("Content-type: {$type}");
 	}
 
+	protected function sendContentDisposition($file) {
+		header("Content-Disposition: attachment; filename=\"{$file}\"");
+	}
+
 }
 
 ?>
