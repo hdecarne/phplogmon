@@ -20,26 +20,19 @@
 
 abstract class WebView extends WebAccess {
 
-	private $tL12n;
-
 	protected function __construct($dbh) {
 		parent::__construct($dbh);
-		$this->tL12n = L12n::match($this->getSessionLang());
 		self::mergeSession(self::SESSION_TYPE);
 		self::mergeSession(self::SESSION_LOGHOST);
 		self::mergeSession(self::SESSION_SERVICE);
 		self::mergeSession(self::SESSION_NETWORK);
 	}
 
-	public function send() {
+	public function sendResponse() {
 		$this->sendHtml();
 	}
 
 	abstract public function sendHtml();
-
-	protected function l12n() {
-		return $this->tL12n;
-	}
 
 	protected function beginHtml() {
 		print("<!DOCTYPE HTML>\n");
@@ -51,7 +44,7 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function beginHeader($title) {
-		print("<header>");
+		print("<head>");
 		print("<meta charset=\"utf-8\" />");
 		print("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
 		print("<meta http-equiv=\"cache-control\" content=\"no-cache\" />");
@@ -63,7 +56,7 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function endHeader() {
-		print("</header>");
+		print("</head>");
 	}
 
 	protected function beginBody() {
@@ -89,38 +82,48 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function endBody() {
+		$l12n = $this->l12n();
 		print("<address>");
 		Html::out(Version::signature());
 		if(isset($_SERVER["REQUEST_TIME_FLOAT"])) {
 			$elapsed = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-			Html::out(sprintf($this->tL12n->t(" - %f s"), $elapsed));
+			Html::out(sprintf($l12n->t(" - %f s"), $elapsed));
 		}
 		print("</address>");
 		print("</body>");
 	}
 
-	protected function printNavHostips() {
-		print("<a class=\"navbar\"href=\"?cmd=viewhostips\">");
-		Html::out($this->tL12n->t("IP access"));
+	protected function printNavBar() {
+		$l12n = $this->l12n();
+		print("<div class=\"navbar\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewhostips\">");
+		Html::out($l12n->t("IP access"));
 		print("</a>");
+		print(" | ");
+		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs\">");
+		Html::out($l12n->t("MAC access"));
+		print("</a>");
+		print(" | ");
+		print("<a class=\"navbar\" href=\"?cmd=viewusers\">");
+		Html::out($l12n->t("User access"));
+		print("</a>");
+		print("</div>");
 	}
 
-	protected function printNavHostmacs() {
-		print("<a class=\"navbar\"href=\"?cmd=viewhostmacs\">");
-		Html::out($this->tL12n->t("MAC access"));
-		print("</a>");
-	}
-
-	protected function printNavUsers() {
-		print("<a class=\"navbar\"href=\"?cmd=viewusers\">");
-		Html::out($this->tL12n->t("User access"));
-		print("</a>");
+	protected function printFilter() {
+		print("<div class=\"filter\">");
+		$this->printSelectType();
+		$this->printSelectLoghost();
+		$this->printSelectService();
+		$this->printSelectNetwork();
+		print("</div>");
 	}
 
 	protected function printSelectType() {
+		$l12n = $this->l12n();
 		$value = $this->getSessionType();
 		print("<label for=\"typefilter\"> ");
-		Html::out($this->tL12n->t("Status:"));
+		Html::out($l12n->t("Status:"));
 		print("</label>");
 		print("<select size=\"1\" onchange=\"applyOption('*', 'type', this.value)\">");
 		print("<option value=\"*\"");
@@ -129,23 +132,24 @@ abstract class WebView extends WebAccess {
 		print("</option>");
 		print("<option value=\"1\"");
 		print($value == "1" ? " selected>" : ">");
-		Html::out($this->tL12n->t("Granted"));
+		Html::out($l12n->t("Granted"));
 		print("</option>");
 		print("<option value=\"2\"");
 		print($value == "2" ? " selected>" : ">");
-		Html::out($this->tL12n->t("Denied"));
+		Html::out($l12n->t("Denied"));
 		print("</option>");
 		print("<option value=\"3\"");
 		print($value == "3" ? " selected>" : ">");
-		Html::out($this->tL12n->t("Error"));
+		Html::out($l12n->t("Error"));
 		print("</option>");
 		print("</select>");
 	}
 
 	protected function printSelectLoghost() {
+		$l12n = $this->l12n();
 		$value = $this->getSessionLoghost();
 		print("<label for=\"loghostfilter\"> ");
-		Html::out($this->tL12n->t("Log:"));
+		Html::out($l12n->t("Log:"));
 		print("</label>");
 		$dbh = $this->dbh();
 		$select = $dbh->prepare("SELECT a.id, a.loghost FROM loghost a ORDER BY a.loghost");
@@ -167,9 +171,10 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function printSelectService() {
+		$l12n = $this->l12n();
 		$value = $this->getSessionService();
 		print("<label for=\"servicefilter\"> ");
-		Html::out($this->tL12n->t("Service:"));
+		Html::out($l12n->t("Service:"));
 		print("</label>");
 		$dbh = $this->dbh();
 		$select = $dbh->prepare("SELECT a.id, a.service FROM service a ORDER BY a.service");
@@ -191,9 +196,10 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function printSelectNetwork() {
+		$l12n = $this->l12n();
 		$value = $this->getSessionNetwork();
 		print("<label for=\"networkfilter\"> ");
-		Html::out($this->tL12n->t("Network:"));
+		Html::out($l12n->t("Network:"));
 		print("</label>");
 		$dbh = $this->dbh();
 		$select = $dbh->prepare("SELECT a.id, a.network FROM network a ORDER BY a.network");
@@ -214,38 +220,121 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printImgLogView($imgClass) {
-		print("<img class=\"{$imgClass}\" src=\"img/log_view.png\" />");
-	}
-
-	protected function printImgLogDownload($imgClass) {
-		print("<img class=\"{$imgClass}\" src=\"img/log_download.png\" />");
-	}
-
-	protected function printImgType($imgClass, $typeId) {
-		if($typeId == MonitorEvent::TYPEID_GRANTED) {
-			$src = "img/type_granted.png";
-			$alt = $this->tL12n->t("Granted");
-			$title = $alt;
-		} elseif($typeId == MonitorEvent::TYPEID_DENIED) {
-			$src = "img/type_denied.png";
-			$alt = $this->tL12n->t("Denied");
-			$title = $alt;
-		} elseif($typeId == MonitorEvent::TYPEID_ERROR) {
-			$src = "img/type_error.png";
-			$alt = $this->tL12n->t("Error");
-			$title = $alt;
-		} else {
-			$src = "img/type_unknown.png";
-			$alt = $this->tL12n->t("Unknown");
-			$title = $alt;
+	protected function beginEventTable($headers) {
+		print("<div class=\"events\">");
+		print("<table>");
+		print("<thead>");
+		print("<tr>");
+		foreach($headers as $header) {
+			print("<th>");
+			Html::out($header);
+			print("</th>");
 		}
-		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+		print("</tr>");
+		print("</thead>");
+		print("<tbody>");
 	}
 
-	protected function printTimerange($now, $first, $last) {
+	protected function endEventTable() {
+		print("</tbody>");
+		print("</table>");
+		print("</div>");
+	}
+
+	protected function beginEventRow() {
+		print("<tr>");
+	}
+
+	protected function endEventRow() {
+		print("</tr>");
+	}
+
+	protected function printEventRowNr($rowNr) {
+		print("<td class=\"right\">");
+		Html::out($rowNr);
+		print("</td>");
+	}
+
+	protected function printEventType($typeId) {
+		print("<td class=\"center\">");
+		$this->printImgType("icon16", $typeId);
+		print("</td>");
+	}
+
+	protected function printEventLoghost($loghost) {
+		print("<td>");
+		Html::out($loghost);
+		print("</td>");
+	}
+
+	protected function printEventService($service) {
+		print("<td>");
+		Html::out($service);
+		print("</td>");
+	}
+
+	protected function printEventNetwork($network) {
+		print("<td>");
+		Html::out($network);
+		print("</td>");
+	}
+
+	protected function printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname) {
+		if($hostip != "") {
+			print("<td><a href=\"?cmd=viewevents&hostip={$hostipId}\">");
+			$this->printImgCountry("icon16", $countrycode, $countryname);
+			if($host != $hostip) {
+				print("<span title=\"{$hostip}\">");
+				Html::out(" {$host}");
+				print("</span>");
+			} else {
+				Html::out(" {$host}");
+			}
+			print("</a></td>");
+		} else {
+			print("<td class=\"center\">");
+			Html::out("-");
+			print("</td>");
+		}
+	}
+
+	protected function printEventHostmac($hostmacId, $hostmac, $vendor) {
+		if($hostmac != "") {
+			print("<td><a href=\"?cmd=viewevents&hostmac={$hostmacId}\">");
+			Html::out($hostmac);
+			if($vendor != "") {
+				Html::out(" ({$vendor})");
+			}
+			print("</a></td>");
+		} else {
+			print("<td class=\"center\">");
+			Html::out("-");
+			print("</td>");
+		}
+	}
+
+	protected function printEventUser($userId, $user) {
+		if($user != "") {
+			print("<td><a href=\"?cmd=viewevents&user={$userId}\">");
+			Html::out($user);
+			print("</a></td>");
+		} else {
+			print("<td class=\"center\">");
+			Html::out("-");
+			print("</td>");
+		}
+	}
+
+	protected function printEventCount($count) {
+		print("<td class=\"right\">");
+		Html::out($count);
+		print("</td>");
+	}
+
+	protected function printEventTimerange($now, $first, $last) {
 		$l12n = $this->l12n();
 		$elapsed = $now - $last;
+		print("<td>");
 		if($elapsed < 60) {
 			$when = sprintf($l12n->t("> %u second(s)"), $elapsed);
 		} elseif(($elapsed /= 60) < 60) {
@@ -260,9 +349,42 @@ abstract class WebView extends WebAccess {
 		print("<span title=\"{$timerange}\">");
 		Html::out($when);
 		print("</span>");
+		print("</td>");
+	}
+
+	protected function printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId) {
+		print("<td class=\"center\">");
+		print("<a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&network={$networkId}&hostip={$hostipId}&hostmac={$hostmacId}&user={$userId}\">");
+		print("<img class=\"icon16\" src=\"img/log_view.png\" />");
+		print("</a> <a href=\"?cmd=streamlogs&type={$typeId}&loghost={$loghostId}&service={$serviceId}&network={$networkId}&hostip={$hostipId}&hostmac={$hostmacId}&user={$userId}&download=1\">");
+		print("<img class=\"icon16\" src=\"img/log_download.png\" />");
+		print("</a></td>");
+	}
+
+	protected function printImgType($imgClass, $typeId) {
+		$l12n = $this->l12n();
+		if($typeId == MonitorEvent::TYPEID_GRANTED) {
+			$src = "img/type_granted.png";
+			$alt = $l12n->t("Granted");
+			$title = $alt;
+		} elseif($typeId == MonitorEvent::TYPEID_DENIED) {
+			$src = "img/type_denied.png";
+			$alt = $l12n->t("Denied");
+			$title = $alt;
+		} elseif($typeId == MonitorEvent::TYPEID_ERROR) {
+			$src = "img/type_error.png";
+			$alt = $l12n->t("Error");
+			$title = $alt;
+		} else {
+			$src = "img/type_unknown.png";
+			$alt = $l12n->t("Unknown");
+			$title = $alt;
+		}
+		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
 
 	protected function printImgCountry($imgClass, $countrycode, $countryname) {
+		$l12n = $this->l12n();
 		$imgName = strtoupper($countrycode);
 		$imgSrc = "img/country/{$imgName}.png";
 		$imgFile = dirname(__FILE__)."/../".$imgSrc;
@@ -272,44 +394,10 @@ abstract class WebView extends WebAccess {
 			$title = htmlentities($countryname);
 		} else {
 			$src = "img/country_unknown.png";
-			$alt = $this->tL12n->t("Unknown");
+			$alt = $l12n->t("Unknown");
 			$title = $alt;
 		}
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
-	}
-
-	protected function printHostip($hostip, $host, $countrycode, $countryname) {
-		if($hostip != "") {
-			$this->printImgCountry("icon16", $countrycode, $countryname);
-			if($host != $hostip) {
-				print("<span title=\"{$hostip}\">");
-				Html::out(" {$host}");
-				print("</span>");
-			} else {
-				Html::out(" {$host}");
-			}
-		} else {
-			Html::out("-");
-		}
-	}
-
-	protected function printHostmac($hostmac, $vendor) {
-		if($hostmac != "") {
-			Html::out("{$hostmac}");
-			if($vendor != "") {
-				Html::out(" ({$vendor})");
-			}
-		} else {
-			Html::out("-");
-		}
-	}
-
-	protected function printUser($user) {
-		if($user != "") {
-			Html::out("{$user}");
-		} else {
-			Html::out("-");
-		}
 	}
 
 }

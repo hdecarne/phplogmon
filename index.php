@@ -17,6 +17,15 @@ try {
 	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 	$cmd = WebAccess::getRequest("cmd", false);
 	switch($cmd) {
+		case "viewhostips":
+			$access = new WebViewHostips($dbh);
+			break;
+		case "viewhostmacs":
+			$access = new WebViewHostmacs($dbh);
+			break;
+		case "viewusers":
+			$access = new WebViewUsers($dbh);
+			break;
 		case "viewevents":
 			$access = new WebViewEvents($dbh);
 			break;
@@ -35,7 +44,7 @@ try {
 		WebAccess::sendStatusAndExit(WebAccess::STATUS_SERVICE_UNAVAILABLE);
 	}
 }
-$access->send();
+$access->sendResponse();
 if(isset($dbh)) {
 	$dbh->close();
 }

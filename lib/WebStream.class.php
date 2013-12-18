@@ -26,7 +26,7 @@ abstract class WebStream extends WebAccess {
 		parent::__construct($dbh);
 	}
 
-	public function send() {
+	public function sendResponse() {
 		$this->sendData();
 	}
 

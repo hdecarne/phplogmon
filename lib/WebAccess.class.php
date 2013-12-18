@@ -43,6 +43,7 @@ abstract class WebAccess {
 	const REQUEST_DOWNLOAD = "download";
 
 	private $tDbh;
+	private $tL12n;
 
 	protected function __construct($dbh) {
 		$this->tDbh = $dbh;
@@ -54,16 +55,27 @@ abstract class WebAccess {
 			$_SESSION[self::SESSION_LANG] = self::getDefaultLang();
 		}
 		self::mergeSession(self::SESSION_LANG);
+		$this->tL12n = L12n::match($this->getSessionLang());
 		if(!isset($_SESSION[self::SESSION_MOBILE])) {
 			$_SESSION[self::SESSION_MOBILE] = self::getDefaultMobile();
 		}
 		self::mergeSession(self::SESSION_MOBILE);
 	}
 
-	abstract public function send();
+	abstract public function sendResponse();
 
 	protected function dbh() {
 		return $this->tDbh;
+	}
+
+	protected function l12n() {
+		return $this->tL12n;
+	}
+
+	public static function sendStatusAndExit($status) {
+		http_response_code($status);
+		flush();
+		exit;
 	}
 
 	public static function reportExceptionAndExit($e) {
@@ -89,12 +101,6 @@ abstract class WebAccess {
 		print "</address>\n";
 		print "</body>\n";
 		print "</html>\n";
-		flush();
-		exit;
-	}
-
-	public static function sendStatusAndExit($status) {
-		http_response_code($status);
 		flush();
 		exit;
 	}
