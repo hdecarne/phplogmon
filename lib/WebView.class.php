@@ -89,6 +89,13 @@ abstract class WebView extends WebAccess {
 			Html::out(sprintf($l12n->t(" - %f s"), $elapsed));
 		}
 		print("</address>");
+		print("<address class=\"attribution\">");
+		print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2013 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
+		print("The accompanied image resources are subject to different copyrights:<br/>");
+		print("Navigation icons are made by <a href=\"http://www.flaticon.com/packs/batch/\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a><br/>");
+		print("Flags icons are made by <a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com/\">vathanx.deviantart.com</a><br/>");
+		print("See <a href=\"license.html\">license.html</a> for full license details.");
+		print("</address>");
 		print("</body>");
 	}
 
@@ -448,12 +455,12 @@ abstract class WebView extends WebAccess {
 		print("</tr>");
 	}
 
-	protected function printLogLinks($imgClass, $hostipId, $hostmacId, $userId) {
+	protected function printLogLinks($imgClass, $typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId) {
 		$l12n = $this->l12n();
-		print("<a href=\"?cmd=streamlogs&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
+		print("<a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
 		$alt = $title = Html::format($l12n->t("View"));
 		print("<img class=\"icon16\" src=\"img/log_view.png\" alt=\"{$alt}\" title=\"{$title}\" />");
-		print("</a> <a href=\"?cmd=streamlogs&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
+		print("</a> <a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
 		$alt = $title = Html::format($l12n->t("Download"));
 		print("<img class=\"icon16\" src=\"img/log_download.png\" alt=\"{$alt}\" title=\"{$title}\" />");
 		print("</a>");

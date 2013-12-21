@@ -26,7 +26,7 @@ define('EVENT_DISCARD_THRESHOLD', 14);
 /*
  * URI pattern to use for map link generation.
  * This format string is passed to php's sprintf function with the following parameters:
- *  %1$s: Host's  name
+ *  %1$s: Host's name
  *  %2$s: Host's latitude
  *  %3$s: Host's longitude
  */

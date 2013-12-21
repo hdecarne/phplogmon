@@ -102,7 +102,11 @@ class WebViewEvents extends WebView {
 				$this->endDetailsTableElement();
 			}
 			$this->beginDetailsTableElement($l12n->t("Logs"));
-			$this->printLogLinks("icon16", $hostipId, "*", "*");
+			$typeId = $this->getSessionType();
+			$loghostId = $this->getSessionLoghost();
+			$serviceId = $this->getSessionService();
+			$networkId = $this->getSessionNetwork();
+			$this->printLogLinks("icon16", $typeId, $loghostId, $serviceId, $networkId, $hostipId, "*", "*");
 			$this->endDetailsTableElement();
 			$this->endDetailsTable();
 			$this->endDetails2();

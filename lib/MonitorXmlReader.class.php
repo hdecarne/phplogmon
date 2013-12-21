@@ -31,6 +31,7 @@ class MonitorXmlReader {
 	private $tParsedNetworkmaps;
 	private $tParsedEvents;
 	private $tCurrentSource;
+	private $tCurrentSourceService;
 	private $tCurrentNetworkmap;
 	private $tCurrentEventsService;
 	private $tCurrentEventsSources;
@@ -60,6 +61,7 @@ class MonitorXmlReader {
 		$this->tParsedNetworkmaps = array();
 		$this->tParsedEvents = array();
 		$this->tCurrentSource = null;
+		$this->tCurrentSourceService = null;
 		$this->tCurrentNetworkmap = null;
 		$this->tCurrentEventsService = null;
 		$this->tCurrentEventsSources = array();
@@ -160,9 +162,9 @@ class MonitorXmlReader {
 			$this->validateAttribs($attribs, array(), array());
 			$handlers = array(null, "dataEventPattern", null);
 			break;
-		case "logmon/events/event/user":
+		case "logmon/events/event/service":
 			$this->validateAttribs($attribs, array(), array("decoder"));
-			$handlers = array(null, "dataEventUser", null);
+			$handlers = array(null, "dataEventService", null);
 			break;
 		case "logmon/events/event/hostip":
 			$this->validateAttribs($attribs, array(), array("decoder"));
@@ -172,9 +174,9 @@ class MonitorXmlReader {
 			$this->validateAttribs($attribs, array(), array("decoder"));
 			$handlers = array(null, "dataEventHostmac", null);
 			break;
-		case "logmon/events/event/service":
+		case "logmon/events/event/user":
 			$this->validateAttribs($attribs, array(), array("decoder"));
-			$handlers = array(null, "dataEventService", null);
+			$handlers = array(null, "dataEventUser", null);
 			break;
 		default:
 			$line = xml_get_current_line_number($this->tParser);
@@ -293,6 +295,7 @@ class MonitorXmlReader {
 		}
 		if($nameValid && $loghostValid && $serviceValid) {
 			$this->tCurrentSource = new MonitorSource($name, $loghost);
+			$this->tCurrentSourceService = $service;
 		}
 	}
 
@@ -450,8 +453,8 @@ class MonitorXmlReader {
 		}
 	}
 
-	private function dataEventUser($data) {
-		$this->dataEventEvaluator("user", "setUserEvaluator", $data);
+	private function dataEventService($data) {
+		$this->dataEventEvaluator("service", "setServiceEvaluator", $data);
 	}
 
 	private function dataEventHostip($data) {
@@ -462,8 +465,8 @@ class MonitorXmlReader {
 		$this->dataEventEvaluator("hostmac", "setHostmacEvaluator", $data);
 	}
 
-	private function dataEventService($data) {
-		$this->dataEventEvaluator("service", "setServiceEvaluator", $data);
+	private function dataEventUser($data) {
+		$this->dataEventEvaluator("user", "setUserEvaluator", $data);
 	}
 
 	private function dataEventEvaluator($name, $setter, $data) {

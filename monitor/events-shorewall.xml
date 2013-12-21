@@ -5,6 +5,7 @@
 		<event type="denied">
 			<pattern>/^.* Shorewall\:.*\:DROP\:IN=.* .* SRC=(.*) .* PROTO=(.*) .* DPT=(.*) .*$/U</pattern>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
 			<service decoder="srvbyport">2|1</service>
 		</event>
 	</events>

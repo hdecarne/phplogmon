@@ -42,7 +42,11 @@ class WebStreamLogs extends WebStream {
 		$hostipId = $this->getRequestHostip();
 		$hostmacId = $this->getRequestHostmac();
 		$userId = $this->getRequestUser();
-		$select = $dbh->prepare("SELECT b.line FROM event a, log b WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.serviceid = ?) AND ('*' = ? OR a.networkid = ?) AND ('*' = ? OR a.hostipid = ?) AND ('*' = ? OR a.hostmacid = ?) AND ('*' = ? OR a.userid = ?) AND a.id = b.eventid ORDER BY b.id ASC");
+		$select = $dbh->prepare(
+			"SELECT b.line FROM event a, log b ".
+			"WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.serviceid = ?) AND ('*' = ? OR a.networkid = ?) AND ".
+				"('*' = ? OR a.hostipid = ?) AND ('*' = ? OR a.hostmacid = ?) AND ('*' = ? OR a.userid = ?) AND a.id = b.eventid ".
+			"ORDER BY b.time ASC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);

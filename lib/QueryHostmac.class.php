@@ -27,7 +27,7 @@ class QueryHostmac {
 
 	public static function normalizeHostmac($hostmac) {
 		$normalized = false;
-		if($hostmac == "") {
+		if($hostmac === false || $hostmac === "") {
 			$normalized = $hostmac;
 		} elseif(preg_match("/([a-fA-F0-9]{2}:?){6}/", $hostmac) == 1) {
 			$normalized = strtoupper($hostmac);

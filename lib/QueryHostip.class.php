@@ -25,7 +25,7 @@ class QueryHostip {
 
 	public static function normalizeHostip($hostip) {
 		$normalized = false;
-		if($hostip == "") {
+		if($hostip === false || $hostip === "") {
 			$normalized = $hostip;
 		} elseif(($pton = @inet_pton($hostip)) !== false) {
 			$normalized = strtolower(inet_ntop($pton));

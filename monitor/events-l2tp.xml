@@ -5,14 +5,16 @@
 		<event type="granted">
 			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
 			<pattern>/^.* pppd\[.*\]: PAP peer authentication succeeded for (.*)$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 		<event type="denied">
 			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
 			<pattern>/^.* pppd\[.*\]: PAP peer authentication failed for (.*)$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 	</events>
 </logmon>

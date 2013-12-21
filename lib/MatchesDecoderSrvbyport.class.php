@@ -20,7 +20,7 @@
 
 class MatchesDecoderSrvbyport extends MatchesDecoder {
 
-	public function apply($matches, $term) {
+	public function apply($dbh, $matches, $term) {
 		$result = false;
 		$params = $this->bindParams($matches, $term, 2);
 		if($params !== false) {

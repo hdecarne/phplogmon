@@ -87,3 +87,7 @@ td.clear {
 td.bold {
 	font-weight: bold;
 }
+
+address.attribution {
+	font-size: 80%;
+}

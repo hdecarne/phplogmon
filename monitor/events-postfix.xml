@@ -4,13 +4,15 @@
 		<source refname="syslog" />
 		<event type="granted">
 			<pattern>/.* postfix\/smtpd\[.*\]: .*: client=.*\[(.*)\], sasl_method=.*, sasl_username=(.*)$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 		<event type="denied">
 			<pattern>/.* postfix\/smtpd\[.*\]: NOQUEUE: reject: RCPT from .*\[(.*)\]: .* Relay access denied; from=\x3C(.*)\x3E to/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 	</events>
 </logmon>

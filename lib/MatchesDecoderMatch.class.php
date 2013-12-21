@@ -20,7 +20,7 @@
 
 class MatchesDecoderMatch extends MatchesDecoder {
 
-	public function apply($matches, $term) {
+	public function apply($dbh, $matches, $term) {
 		return $this->bindParam($matches, $term);
 	}
 

@@ -5,6 +5,7 @@
 		<event type="granted">
 			<pattern>/^.* racoon: INFO: ISAKMP-SA established .*\[.*\]-(.*)\[.*\] spi:.*$/U</pattern>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
 		</event>
 	</events>
 </logmon>

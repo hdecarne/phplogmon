@@ -5,21 +5,25 @@
 		<event type="granted">
 			<pattern>/^(.*) - - \[.*\] \".*\" 2\d\d .*$/U</pattern>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
 		</event>
 		<event type="granted">
 			<pattern>/^(.*) - ([^\-].*) \[.*\] \".*\" 2\d\d .*$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 		<event type="denied">
 			<pattern>/^(.*) - ([^\-].*) \[.*\] \".*\" 4\d\d .*$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 		<event type="error">
 			<pattern>/^(.*) - (.*) \[.*\] \".*\" 5\d\d .*$/U</pattern>
-			<user>1</user>
 			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
 		</event>
 	</events>
 </logmon>

@@ -22,10 +22,12 @@ abstract class MatchesDecoder {
 
 	const DECODER_MATCH = "match";
 	const DECODER_SRVBYPORT = "srvbyport";
+	const DECODER_MACFROMIP = "macfromip";
 
 	private static $sDecoders = array(
 		self::DECODER_MATCH => "MatchesDecoderMatch",
-		self::DECODER_SRVBYPORT => "MatchesDecoderSrvbyport"
+		self::DECODER_SRVBYPORT => "MatchesDecoderSrvbyport",
+		self::DECODER_MACFROMIP => "MatchesDecoderMacfromip"
 	);
 
 	public static function validDecoders() {
@@ -73,7 +75,7 @@ abstract class MatchesDecoder {
 		return $param;
 	}
 
-	abstract public function apply($matches, $term);
+	abstract public function apply($dbh, $matches, $term);
 
 }
 
