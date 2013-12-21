@@ -51,7 +51,7 @@ class WebViewHostips extends WebView {
 			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.networkid = d.id AND a.hostipid = e.id AND e.hostip <> '' ".
 				"AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?) ".
 			"GROUP BY a.typeid, b.id, c.id, d.id, e.id ".
-			"ORDER BY a.last DESC");
+			"ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);

@@ -23,4 +23,21 @@ define('DBPASS', 'secret');
  */
 define('EVENT_DISCARD_THRESHOLD', 14);
 
+/*
+ * URI pattern to use for map link generation.
+ * This format string is passed to php's sprintf function with the following parameters:
+ *  %1$s: Host's  name
+ *  %2$s: Host's latitude
+ *  %3$s: Host's longitude
+ */
+define('MAP_URI_FORMAT', 'http://maps.google.com/maps?q=%2$s,+%3$s+(%1$s)&amp;iwloc=A');
+
+/*
+ * URI patterns to use for whois link generation.
+ * These format strings are passed to php's sprintf function with the following parameter:
+ *  %1$s: Either host's name or ip address
+ */
+define('WHOISHOST_URI_FORMAT', 'http://whois.domaintools.com/%1$s');
+define('WHOISIP_URI_FORMAT', 'http://whois.domaintools.com/%1$s');
+
 ?>

@@ -34,6 +34,7 @@ class WebViewEvents extends WebView {
 		$this->printNavBar();
 		$this->printFilter();
 		if($this->getRequestHostip() != "*") {
+			$this->printHostipDetails();
 			$this->printHostipEventData();
 		} elseif($this->getRequestHostmac() != "*") {
 			$this->printHostmacEventData();
@@ -42,6 +43,71 @@ class WebViewEvents extends WebView {
 		}
 		$this->endBody();
 		$this->endHtml();
+	}
+
+	private function printHostipDetails() {
+		$dbh = $this->dbh();
+		$typeId = $this->getSessionType();
+		$loghostId = $this->getSessionLoghost();
+		$serviceId = $this->getSessionService();
+		$networkId = $this->getSessionNetwork();
+		$hostipId = $this->getRequestHostip();
+		$select = $dbh->prepare(
+			"SELECT a.id, a.hostip, a.host, a.continentcode, a.countrycode, a.countryname, a.region, a.city, a.postalcode, a.latitude, a.longitude ".
+			"FROM hostip a ".
+			"WHERE a.id = ?");
+		$select->bindParam(1, $hostipId, PDO::PARAM_STR);
+		$select->execute();
+		$select->bindColumn(1, $hostipId, PDO::PARAM_STR);
+		$select->bindColumn(2, $hostip, PDO::PARAM_STR);
+		$select->bindColumn(3, $host, PDO::PARAM_STR);
+		$select->bindColumn(4, $continentcode, PDO::PARAM_STR);
+		$select->bindColumn(5, $countrycode, PDO::PARAM_STR);
+		$select->bindColumn(6, $countryname, PDO::PARAM_STR);
+		$select->bindColumn(7, $region, PDO::PARAM_STR);
+		$select->bindColumn(8, $city, PDO::PARAM_STR);
+		$select->bindColumn(9, $postalcode, PDO::PARAM_STR);
+		$select->bindColumn(10, $latitude, PDO::PARAM_STR);
+		$select->bindColumn(11, $longitude, PDO::PARAM_STR);
+		if($select->fetch(PDO::FETCH_BOUND) !== false) {
+			$l12n = $this->l12n();
+			$this->beginDetailsSection();
+			$this->beginDetails1();
+			$this->printImgCountry("icon128", $countrycode, $countryname);
+			$this->endDetails1();
+			$this->beginDetails2();
+			$this->beginDetailsTable();
+			$this->beginDetailsTableElement($l12n->t("IP address"));
+			$this->printHostipWhoisLink("icon16", $hostip);
+			$this->endDetailsTableElement();
+			if($hostip != $host) {
+				$this->beginDetailsTableElement($l12n->t("DNS name"));
+				$this->printHostWhoisLink("icon16", $host);
+				$this->endDetailsTableElement();
+			}
+			if($latitude != 0 || $longitude != 0) {
+				$this->beginDetailsTableElement($l12n->t("Location"));
+				$location = "";
+				if($city != "") {
+					if($postalcode != "") {
+						$location .= "{$postalcode} ";
+					}
+					$location .= "{$city}, ";
+				}
+				if($region != "") {
+					$location .= "{$region}, ";
+				}
+				$location .= "{$countryname} ({$countrycode}), {$continentcode}";
+				$this->printMapLink("icon16", $host, $latitude, $longitude, $location);
+				$this->endDetailsTableElement();
+			}
+			$this->beginDetailsTableElement($l12n->t("Logs"));
+			$this->printLogLinks("icon16", $hostipId, "*", "*");
+			$this->endDetailsTableElement();
+			$this->endDetailsTable();
+			$this->endDetails2();
+			$this->endDetailsSection();
+		}
 	}
 
 	private function printHostipEventData() {

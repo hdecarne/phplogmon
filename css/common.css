@@ -14,8 +14,17 @@ div.filter {
 	padding: 6px 8px;
 	background-color: #e0e0e0;
 }
-div.events {
+section.details {
 	margin: 8px;
+}
+div.details1 {
+	float: left;
+}
+div.details2 {
+}
+section.events {
+	margin: 8px;
+	clear: left;
 }
 
 address {
@@ -43,6 +52,10 @@ img.icon16 {
 	width: 16px;
 	height: 16px;
 }
+img.icon128 {
+	width: 128px;
+	height: 128px;
+}
 
 table {
 	border-collapse: collapse;
@@ -66,4 +79,11 @@ th.left, td.left {
 }
 th.right, td.right {
 	text-align: right;
+}
+
+td.clear {
+	border: 0px;
+}
+td.bold {
+	font-weight: bold;
 }
