@@ -29,14 +29,14 @@ abstract class WebAccess {
 
 	const SESSION_TYPE = "type";
 	const SESSION_LOGHOST = "loghost";
-	const SESSION_SERVICE = "service";
 	const SESSION_NETWORK = "network";
+	const SESSION_SERVICE = "service";
 
 	const REQUEST_CMD = "cmd";
 	const REQUEST_TYPE = "type";
 	const REQUEST_LOGHOST = "loghost";
-	const REQUEST_SERVICE = "service";
 	const REQUEST_NETWORK = "network";
+	const REQUEST_SERVICE = "service";
 	const REQUEST_HOSTIP = "hostip";
 	const REQUEST_HOSTMAC = "hostmac";
 	const REQUEST_USER = "user";
@@ -120,6 +120,12 @@ abstract class WebAccess {
 		}
 	}
 
+	public static function clearSession($key) {
+		if(isset($_SESSION[$key])) {
+			unset($_SESSION[$key]);
+		}
+	}
+
 	public static function getSession($key, $defaultValue) {
 		return (isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue);
 	}
@@ -140,12 +146,12 @@ abstract class WebAccess {
 		return self::getSession(self::SESSION_LOGHOST, "*");
 	}
 
-	protected function getSessionService() {
-		return self::getSession(self::SESSION_SERVICE, "*");
-	}
-
 	protected function getSessionNetwork() {
 		return self::getSession(self::SESSION_NETWORK, "*");
+	}
+
+	protected function getSessionService() {
+		return self::getSession(self::SESSION_SERVICE, "*");
 	}
 
 	public static function getRequest($key, $defaultValue) {
@@ -164,12 +170,12 @@ abstract class WebAccess {
 		return self::getRequest(self::REQUEST_LOGHOST, "*");
 	}
 
-	protected function getRequestService() {
-		return self::getRequest(self::REQUEST_SERVICE, "*");
-	}
-
 	protected function getRequestNetwork() {
 		return self::getRequest(self::REQUEST_NETWORK, "*");
+	}
+
+	protected function getRequestService() {
+		return self::getRequest(self::REQUEST_SERVICE, "*");
 	}
 
 	protected function getRequestHostip() {

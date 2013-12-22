@@ -37,24 +37,24 @@ class WebStreamLogs extends WebStream {
 		$dbh = $this->dbh();
 		$typeId = $this->getRequestType();
 		$loghostId = $this->getRequestLoghost();
-		$serviceId = $this->getRequestService();
 		$networkId = $this->getRequestNetwork();
+		$serviceId = $this->getRequestService();
 		$hostipId = $this->getRequestHostip();
 		$hostmacId = $this->getRequestHostmac();
 		$userId = $this->getRequestUser();
 		$select = $dbh->prepare(
 			"SELECT b.line FROM event a, log b ".
-			"WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.serviceid = ?) AND ('*' = ? OR a.networkid = ?) AND ".
+			"WHERE ('*' = ? OR a.typeid = ?) AND ('*' = ? OR a.loghostid = ?) AND ('*' = ? OR a.networkid = ?) AND ('*' = ? OR a.serviceid = ?) AND ".
 				"('*' = ? OR a.hostipid = ?) AND ('*' = ? OR a.hostmacid = ?) AND ('*' = ? OR a.userid = ?) AND a.id = b.eventid ".
 			"ORDER BY b.time ASC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $networkId, PDO::PARAM_STR);
-		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
+		$select->bindParam(7, $serviceId, PDO::PARAM_STR);
+		$select->bindParam(8, $serviceId, PDO::PARAM_STR);
 		$select->bindParam(9, $hostipId, PDO::PARAM_STR);
 		$select->bindParam(10, $hostipId, PDO::PARAM_STR);
 		$select->bindParam(11, $hostmacId, PDO::PARAM_STR);

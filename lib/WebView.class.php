@@ -20,12 +20,29 @@
 
 abstract class WebView extends WebAccess {
 
-	protected function __construct($dbh) {
+	private $tTypeFilter;
+	private $tLoghostFilter;
+	private $tNetworkFilter;
+	private $tServiceFilter;
+
+	protected function __construct($dbh, $typeFilter, $loghostFilter, $networkFilter, $serviceFilter) {
 		parent::__construct($dbh);
-		self::mergeSession(self::SESSION_TYPE);
-		self::mergeSession(self::SESSION_LOGHOST);
-		self::mergeSession(self::SESSION_SERVICE);
-		self::mergeSession(self::SESSION_NETWORK);
+		$this->tTypeFilter = $typeFilter;
+		$this->tLoghostFilter = $loghostFilter;
+		$this->tNetworkFilter = $networkFilter;
+		$this->tServiceFilter = $serviceFilter;
+		self::initSession(self::SESSION_TYPE, $this->tTypeFilter);
+		self::initSession(self::SESSION_LOGHOST, $this->tLoghostFilter);
+		self::initSession(self::SESSION_NETWORK, $this->tNetworkFilter);
+		self::initSession(self::SESSION_SERVICE, $this->tServiceFilter);
+	}
+
+	private static function initSession($key, $filter) {
+		if($filter) {
+			self::mergeSession($key);
+		} else {
+			self::clearSession($key);
+		}
 	}
 
 	public function sendResponse() {
@@ -67,10 +84,10 @@ abstract class WebView extends WebAccess {
 		print("<input name=\"type\" type=\"hidden\" value=\"{$type}\" />");
 		$loghost = $this->getSessionLoghost();
 		print("<input name=\"loghost\" type=\"hidden\" value=\"{$loghost}\" />");
-		$service = $this->getSessionService();
-		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />");
 		$network = $this->getSessionNetwork();
 		print("<input name=\"network\" type=\"hidden\" value=\"{$network}\" />");
+		$service = $this->getSessionService();
+		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />");
 		$hostip = $this->getRequestHostip();
 		print("<input name=\"hostip\" type=\"hidden\" value=\"{$hostip}\" />");
 		$hostmac = $this->getRequestHostmac();
@@ -118,10 +135,18 @@ abstract class WebView extends WebAccess {
 
 	protected function printFilter() {
 		print("<div class=\"filter\">");
-		$this->printSelectType();
-		$this->printSelectLoghost();
-		$this->printSelectService();
-		$this->printSelectNetwork();
+		if($this->tTypeFilter) {
+			$this->printSelectType();
+		}
+		if($this->tLoghostFilter) {
+			$this->printSelectLoghost();
+		}
+		if($this->tNetworkFilter) {
+			$this->printSelectNetwork();
+		}
+		if($this->tServiceFilter) {
+			$this->printSelectService();
+		}
 		print("</div>");
 	}
 
@@ -176,31 +201,6 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printSelectService() {
-		$l12n = $this->l12n();
-		$value = $this->getSessionService();
-		print("<label for=\"servicefilter\"> ");
-		Html::out($l12n->t("Service:"));
-		print("</label>");
-		$dbh = $this->dbh();
-		$select = $dbh->prepare("SELECT a.id, a.service FROM service a ORDER BY a.service");
-		$select->execute();
-		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
-		$select->bindColumn(2, $service, PDO::PARAM_STR);
-		print("<select id=\"servicefilter\" size=\"1\" onchange=\"applyOption('*', 'service', this.value)\">");
-		print("<option value=\"*\"");
-		print($value == "*" ? " selected>" : ">");
-		Html::out("*");
-		print("</option>");
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			print("<option value=\"{$serviceId}\"");
-			print($value == $serviceId ? " selected>" : ">");
-			Html::out($service);
-			print("</option>");
-		}
-		print("</select>");
-	}
-
 	protected function printSelectNetwork() {
 		$l12n = $this->l12n();
 		$value = $this->getSessionNetwork();
@@ -221,6 +221,31 @@ abstract class WebView extends WebAccess {
 			print("<option value=\"{$networkId}\"");
 			print($value == $networkId ? " selected>" : ">");
 			Html::out($network);
+			print("</option>");
+		}
+		print("</select>");
+	}
+
+	protected function printSelectService() {
+		$l12n = $this->l12n();
+		$value = $this->getSessionService();
+		print("<label for=\"servicefilter\"> ");
+		Html::out($l12n->t("Service:"));
+		print("</label>");
+		$dbh = $this->dbh();
+		$select = $dbh->prepare("SELECT a.id, a.service FROM service a ORDER BY a.service");
+		$select->execute();
+		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(2, $service, PDO::PARAM_STR);
+		print("<select id=\"servicefilter\" size=\"1\" onchange=\"applyOption('*', 'service', this.value)\">");
+		print("<option value=\"*\"");
+		print($value == "*" ? " selected>" : ">");
+		Html::out("*");
+		print("</option>");
+		while($select->fetch(PDO::FETCH_BOUND) !== false) {
+			print("<option value=\"{$serviceId}\"");
+			print($value == $serviceId ? " selected>" : ">");
+			Html::out($service);
 			print("</option>");
 		}
 		print("</select>");
@@ -273,15 +298,15 @@ abstract class WebView extends WebAccess {
 		print("</td>");
 	}
 
-	protected function printEventService($service) {
-		print("<td>");
-		Html::out($service);
-		print("</td>");
-	}
-
 	protected function printEventNetwork($network) {
 		print("<td>");
 		Html::out($network);
+		print("</td>");
+	}
+
+	protected function printEventService($service) {
+		print("<td>");
+		Html::out($service);
 		print("</td>");
 	}
 
@@ -358,13 +383,13 @@ abstract class WebView extends WebAccess {
 		print("</td>");
 	}
 
-	protected function printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId) {
+	protected function printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId) {
 		$l12n = $this->l12n();
 		print("<td class=\"center\">");
-		print("<a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
+		print("<a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;network={$networkId}&amp;service={$serviceId}&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
 		$alt = $title = Html::format($l12n->t("View"));
 		print("<img class=\"icon16\" src=\"img/log_view.png\" alt=\"{$alt}\" title=\"{$title}\" />");
-		print("</a> <a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
+		print("</a> <a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;network={$networkId}&amp;service={$serviceId}&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
 		$alt = $title = Html::format($l12n->t("Download"));
 		print("<img class=\"icon16\" src=\"img/log_download.png\" alt=\"{$alt}\" title=\"{$title}\" />");
 		print("</a></td>");
@@ -455,12 +480,12 @@ abstract class WebView extends WebAccess {
 		print("</tr>");
 	}
 
-	protected function printLogLinks($imgClass, $typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId) {
+	protected function printLogLinks($imgClass, $typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId) {
 		$l12n = $this->l12n();
-		print("<a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
+		print("<a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;network={$networkId}&amp;service={$serviceId}&amp;&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}\">");
 		$alt = $title = Html::format($l12n->t("View"));
 		print("<img class=\"icon16\" src=\"img/log_view.png\" alt=\"{$alt}\" title=\"{$title}\" />");
-		print("</a> <a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;service={$serviceId}&amp;network={$networkId}&amp;&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
+		print("</a> <a href=\"?cmd=streamlogs&amp;type={$typeId}&amp;loghost={$loghostId}&amp;network={$networkId}&amp;service={$serviceId}&amp;hostip={$hostipId}&amp;hostmac={$hostmacId}&amp;user={$userId}&amp;download=1\">");
 		$alt = $title = Html::format($l12n->t("Download"));
 		print("<img class=\"icon16\" src=\"img/log_download.png\" alt=\"{$alt}\" title=\"{$title}\" />");
 		print("</a>");

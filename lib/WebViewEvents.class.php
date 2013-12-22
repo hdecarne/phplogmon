@@ -21,7 +21,7 @@
 class WebViewEvents extends WebView {
 
 	public function __construct($dbh) {
-		parent::__construct($dbh);
+		parent::__construct($dbh, true, true, true, true);
 	}
 
 	public function sendHtml() {
@@ -106,7 +106,7 @@ class WebViewEvents extends WebView {
 			$loghostId = $this->getSessionLoghost();
 			$serviceId = $this->getSessionService();
 			$networkId = $this->getSessionNetwork();
-			$this->printLogLinks("icon16", $typeId, $loghostId, $serviceId, $networkId, $hostipId, "*", "*");
+			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, $hostipId, "*", "*");
 			$this->endDetailsTableElement();
 			$this->endDetailsTable();
 			$this->endDetails2();
@@ -122,29 +122,29 @@ class WebViewEvents extends WebView {
 		$networkId = $this->getSessionNetwork();
 		$hostipId = $this->getRequestHostip();
 		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.service, d.id, d.network, e.id, e.user, f.id, f.hostmac, f.vendor, ".
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.user, f.id, f.hostmac, f.vendor, ".
 				"a.count, a.first, a.last ".
-			"FROM event a, loghost b, service c, network d, user e, hostmac f ".
-			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.networkid = d.id AND a.userid = e.id AND a.hostmacid = f.id AND ".
+			"FROM event a, loghost b, network c, service d, user e, hostmac f ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND a.userid = e.id AND a.hostmacid = f.id AND ".
 				"('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?) AND a.hostipid = ? ".
 			"ORDER BY a.last DESC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $networkId, PDO::PARAM_STR);
-		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
+		$select->bindParam(7, $serviceId, PDO::PARAM_STR);
+		$select->bindParam(8, $serviceId, PDO::PARAM_STR);
 		$select->bindParam(9, $hostipId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
-		$select->bindColumn(4, $serviceId, PDO::PARAM_STR);
-		$select->bindColumn(5, $service, PDO::PARAM_STR);
-		$select->bindColumn(6, $networkId, PDO::PARAM_STR);
-		$select->bindColumn(7, $network, PDO::PARAM_STR);
+		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(5, $network, PDO::PARAM_STR);
+		$select->bindColumn(6, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(7, $service, PDO::PARAM_STR);
 		$select->bindColumn(8, $userId, PDO::PARAM_STR);
 		$select->bindColumn(9, $user, PDO::PARAM_STR);
 		$select->bindColumn(10, $hostmacId, PDO::PARAM_STR);
@@ -158,8 +158,8 @@ class WebViewEvents extends WebView {
 			$l12n->t("Nr"),
 			$l12n->t("Status"),
 			$l12n->t("Log"),
-			$l12n->t("Service"),
 			$l12n->t("Network"),
+			$l12n->t("Service"),
 			$l12n->t("User"),
 			$l12n->t("MAC"),
 			$l12n->t("Count"),
@@ -173,13 +173,13 @@ class WebViewEvents extends WebView {
 			$this->printEventRowNr($rowNr);
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
-			$this->printEventService($service);
 			$this->printEventNetwork($network);
+			$this->printEventService($service);
 			$this->printEventUser($userId, $user);
 			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId);
+			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
 			$this->endEventRow();
 			$rowNr++;
 		}
@@ -190,33 +190,33 @@ class WebViewEvents extends WebView {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionType();
 		$loghostId = $this->getSessionLoghost();
-		$serviceId = $this->getSessionService();
 		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
 		$hostmacId = $this->getRequestHostmac();
 		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.service, d.id, d.network, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.user, ".
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.user, ".
 				"a.count, a.first, a.last ".
-			"FROM event a, loghost b, service c, network d, hostip e, user f ".
-			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.networkid = d.id AND a.hostipid = e.id AND a.userid = f.id AND ".
+			"FROM event a, loghost b, network c, service d, hostip e, user f ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND a.hostipid = e.id AND a.userid = f.id AND ".
 				"('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?) AND a.hostmacid = ? ".
 			"ORDER BY a.last DESC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $networkId, PDO::PARAM_STR);
-		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
+		$select->bindParam(7, $serviceId, PDO::PARAM_STR);
+		$select->bindParam(8, $serviceId, PDO::PARAM_STR);
 		$select->bindParam(9, $hostmacId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
-		$select->bindColumn(4, $serviceId, PDO::PARAM_STR);
-		$select->bindColumn(5, $service, PDO::PARAM_STR);
-		$select->bindColumn(6, $networkId, PDO::PARAM_STR);
-		$select->bindColumn(7, $network, PDO::PARAM_STR);
+		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(5, $network, PDO::PARAM_STR);
+		$select->bindColumn(6, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(7, $service, PDO::PARAM_STR);
 		$select->bindColumn(8, $hostipId, PDO::PARAM_STR);
 		$select->bindColumn(9, $hostip, PDO::PARAM_STR);
 		$select->bindColumn(10, $host, PDO::PARAM_STR);
@@ -232,8 +232,8 @@ class WebViewEvents extends WebView {
 			$l12n->t("Nr"),
 			$l12n->t("Status"),
 			$l12n->t("Log"),
-			$l12n->t("Service"),
 			$l12n->t("Network"),
+			$l12n->t("Service"),
 			$l12n->t("Host"),
 			$l12n->t("User"),
 			$l12n->t("Count"),
@@ -247,13 +247,13 @@ class WebViewEvents extends WebView {
 			$this->printEventRowNr($rowNr);
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
-			$this->printEventService($service);
 			$this->printEventNetwork($network);
+			$this->printEventService($service);
 			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
 			$this->printEventUser($userId, $user);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId);
+			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
 			$this->endEventRow();
 			$rowNr++;
 		}
@@ -264,33 +264,33 @@ class WebViewEvents extends WebView {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionType();
 		$loghostId = $this->getSessionLoghost();
-		$serviceId = $this->getSessionService();
 		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
 		$userId = $this->getRequestUser();
 		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.service, d.id, d.network, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.hostmac, f.vendor, ".
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.hostmac, f.vendor, ".
 				"a.count, a.first, a.last ".
-			"FROM event a, loghost b, service c, network d, hostip e, hostmac f ".
-			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.networkid = d.id AND a.hostipid = e.id AND a.hostmacid = f.id AND ".
+			"FROM event a, loghost b, network c, service d, hostip e, hostmac f ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND a.hostipid = e.id AND a.hostmacid = f.id AND ".
 				"('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?) AND a.userid = ? ".
 			"ORDER BY a.last DESC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $networkId, PDO::PARAM_STR);
-		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
+		$select->bindParam(7, $serviceId, PDO::PARAM_STR);
+		$select->bindParam(8, $serviceId, PDO::PARAM_STR);
 		$select->bindParam(9, $userId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
-		$select->bindColumn(4, $serviceId, PDO::PARAM_STR);
-		$select->bindColumn(5, $service, PDO::PARAM_STR);
-		$select->bindColumn(6, $networkId, PDO::PARAM_STR);
-		$select->bindColumn(7, $network, PDO::PARAM_STR);
+		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(5, $network, PDO::PARAM_STR);
+		$select->bindColumn(6, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(7, $service, PDO::PARAM_STR);
 		$select->bindColumn(8, $hostipId, PDO::PARAM_STR);
 		$select->bindColumn(9, $hostip, PDO::PARAM_STR);
 		$select->bindColumn(10, $host, PDO::PARAM_STR);
@@ -307,8 +307,8 @@ class WebViewEvents extends WebView {
 			$l12n->t("Nr"),
 			$l12n->t("Status"),
 			$l12n->t("Log"),
-			$l12n->t("Service"),
 			$l12n->t("Network"),
+			$l12n->t("Service"),
 			$l12n->t("Host"),
 			$l12n->t("MAC"),
 			$l12n->t("Count"),
@@ -322,13 +322,13 @@ class WebViewEvents extends WebView {
 			$this->printEventRowNr($rowNr);
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
-			$this->printEventService($service);
 			$this->printEventNetwork($network);
+			$this->printEventService($service);
 			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
 			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, $hostmacId, $userId);
+			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
 			$this->endEventRow();
 			$rowNr++;
 		}

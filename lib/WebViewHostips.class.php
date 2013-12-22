@@ -21,7 +21,7 @@
 class WebViewHostips extends WebView {
 
 	public function __construct($dbh) {
-		parent::__construct($dbh);
+		parent::__construct($dbh, true, true, true, false);
 	}
 
 	public function sendHtml() {
@@ -42,46 +42,40 @@ class WebViewHostips extends WebView {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionType();
 		$loghostId = $this->getSessionLoghost();
-		$serviceId = $this->getSessionService();
 		$networkId = $this->getSessionNetwork();
 		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.service, d.id, d.network, e.id, e.hostip, e.host, e.countrycode, e.countryname, ".
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.hostip, d.host, d.countrycode, d.countryname, ".
 				"SUM(a.count), MIN(a.first), MAX(a.last) ".
-			"FROM event a, loghost b, service c, network d, hostip e ".
-			"WHERE a.loghostid = b.id AND a.serviceid = c.id AND a.networkid = d.id AND a.hostipid = e.id AND e.hostip <> '' ".
-				"AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?) ".
-			"GROUP BY a.typeid, b.id, c.id, d.id, e.id ".
+			"FROM event a, loghost b, network c, hostip d ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.hostipid = d.id AND d.hostip <> '' ".
+				"AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) ".
+			"GROUP BY a.typeid, b.id, c.id, d.id ".
 			"ORDER BY MAX(a.last) DESC");
 		$select->bindParam(1, $typeId, PDO::PARAM_STR);
 		$select->bindParam(2, $typeId, PDO::PARAM_STR);
 		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
 		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(6, $serviceId, PDO::PARAM_STR);
-		$select->bindParam(7, $networkId, PDO::PARAM_STR);
-		$select->bindParam(8, $networkId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
-		$select->bindColumn(4, $serviceId, PDO::PARAM_STR);
-		$select->bindColumn(5, $service, PDO::PARAM_STR);
-		$select->bindColumn(6, $networkId, PDO::PARAM_STR);
-		$select->bindColumn(7, $network, PDO::PARAM_STR);
-		$select->bindColumn(8, $hostipId, PDO::PARAM_STR);
-		$select->bindColumn(9, $hostip, PDO::PARAM_STR);
-		$select->bindColumn(10, $host, PDO::PARAM_STR);
-		$select->bindColumn(11, $countrycode, PDO::PARAM_STR);
-		$select->bindColumn(12, $countryname, PDO::PARAM_STR);
-		$select->bindColumn(13, $count, PDO::PARAM_INT);
-		$select->bindColumn(14, $first, PDO::PARAM_INT);
-		$select->bindColumn(15, $last, PDO::PARAM_INT);
+		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(5, $network, PDO::PARAM_STR);
+		$select->bindColumn(6, $hostipId, PDO::PARAM_STR);
+		$select->bindColumn(7, $hostip, PDO::PARAM_STR);
+		$select->bindColumn(8, $host, PDO::PARAM_STR);
+		$select->bindColumn(9, $countrycode, PDO::PARAM_STR);
+		$select->bindColumn(10, $countryname, PDO::PARAM_STR);
+		$select->bindColumn(11, $count, PDO::PARAM_INT);
+		$select->bindColumn(12, $first, PDO::PARAM_INT);
+		$select->bindColumn(13, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
 		$this->beginEventTable(array(
 			$l12n->t("Nr"),
 			$l12n->t("Status"),
 			$l12n->t("Log"),
-			$l12n->t("Service"),
 			$l12n->t("Network"),
 			$l12n->t("Host"),
 			$l12n->t("Count"),
@@ -95,12 +89,11 @@ class WebViewHostips extends WebView {
 			$this->printEventRowNr($rowNr);
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
-			$this->printEventService($service);
 			$this->printEventNetwork($network);
 			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, $hostipId, "*", "*");
+			$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", $hostipId, "*", "*");
 			$this->endEventRow();
 			$rowNr++;
 		}
