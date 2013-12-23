@@ -24,6 +24,7 @@ class ProcessorEventMatchstate {
 	private $tSource;
 	private $tFile;
 	private $tNetworkmap;
+	private $tUserdb;
 	private $tEvent;
 	private $tNextPatternIndex;
 	private $tMatches;
@@ -34,11 +35,12 @@ class ProcessorEventMatchstate {
 	private $tMatchedHostmac;
 	private $tMatchedUser;
 
-	private function __construct($dbh, $source, $file, $networkmap, $event) {
+	private function __construct($dbh, $source, $file, $networkmap, $userdb, $event) {
 		$this->tDbh = $dbh;
 		$this->tSource = $source;
 		$this->tFile = $file;
 		$this->tNetworkmap = $networkmap;
+		$this->tUserdb = $userdb;
 		$this->tEvent = $event;
 		$this->reset();
 	}
@@ -66,10 +68,13 @@ class ProcessorEventMatchstate {
 		return $this->tMatchedService === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedUser === false;
 	}
 
-	public static function create($dbh, $source, $file, $networkmap, $events) {
+	public static function create($dbh, $monitor, $source, $file) {
+		$networkmap = $monitor->getSourceNetworkmap($source);
+		$userdb = $monitor->getSourceUserdb($source);
+		$events = $monitor->getSourceEvents($source);
 		$states = array();
 		foreach($events as $event) {
-			$states[] = new self($dbh, $source, $file, $networkmap, $event);
+			$states[] = new self($dbh, $source, $file, $networkmap, $userdb, $event);
 		}
 		return $states;
 	}
@@ -191,7 +196,7 @@ class ProcessorEventMatchstate {
 		$networkId = QueryHostipNetwork::getNetworkId($this->tDbh, $this->tNetworkmap, $this->tMatchedHostip);
 		$hostipId = QueryHostip::getHostipId($this->tDbh, $this->tMatchedHostip);
 		$hostmacId = QueryHostmac::getHostmacId($this->tDbh, $this->tMatchedHostmac);
-		$userId = QueryUser::getUserId($this->tDbh, $this->tMatchedUser);
+		$userId = QueryUser::getUserId($this->tDbh, $this->tUserdb, $this->tMatchedUser);
 		if(!Options::pretend()) {
 			$select = $this->tDbh->prepare("SELECT a.id, a.count, a.first, a.last FROM event a WHERE a.loghostid = ? AND a.serviceid = ? AND a.typeid = ? AND a.networkid = ? AND a.hostipid = ? AND a.hostmacid = ? AND a.userid = ?");
 			$select->bindValue(1, $loghostId, PDO::PARAM_STR);

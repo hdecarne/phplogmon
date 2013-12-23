@@ -22,6 +22,7 @@ class Monitor {
 
 	private $tReadSources = array();
 	private $tReadNetworkmaps = array();
+	private $tReadUserdbs = array();
 	private $tReadEvents = array();
 	private $tEnabledSources = array();
 
@@ -43,14 +44,20 @@ class Monitor {
 					$monitor->tReadNetworkmaps[] = $networkmap;
 					Log::debug("Read network map '{$networkmap}'");
 				}
+				foreach($reader->getUserdbs() as $userdb) {
+					$monitor->tReadUserdbs[] = $userdb;
+					Log::debug("Read user db '{$userdb}'");
+				}
 				foreach($reader->getEvents() as $event) {
 					$monitor->tReadEvents[] = $event;
 					Log::debug("Read event '{$event}'");
 				}
 			}
 		}
-		self::validateSourceReferences($monitor->tReadSources, $monitor->tReadNetworkmaps, $monitor->tReadEvents);
-		$monitor->tEnabledSources = self::filterUnreferencedSources(self::filterDuplicateSources($monitor->tReadSources), $monitor->tReadNetworkmaps, $monitor->tReadEvents);
+		self::validateSourceReferences($monitor->tReadSources, $monitor->tReadNetworkmaps,
+			$monitor->tReadUserdbs, $monitor->tReadEvents);
+		$monitor->tEnabledSources = self::filterUnreferencedSources(self::filterDuplicateSources($monitor->tReadSources),
+			$monitor->tReadNetworkmaps, $monitor->tReadUserdbs, $monitor->tReadEvents);
 		if(count($monitor->tEnabledSources) == 0) {
 			Log::err("Found no active source/events definitions while reading monitor configuration from directory '{$path}'");
 			$monitor = false;
@@ -68,7 +75,7 @@ class Monitor {
 		return $xmls;
 	}
 
-	private static function validateSourceReferences($sources, $networkmaps, $events) {
+	private static function validateSourceReferences($sources, $networkmaps, $userdbs, $events) {
 		$sourceNames = array();
 		foreach($sources as $source) {
 			$sourceName = $source->getName();
@@ -78,6 +85,13 @@ class Monitor {
 			foreach($networkmap->getSourceNames() as $networkmapSourceName) {
 				if(!isset($sourceNames[$networkmapSourceName])) {
 					Log::warning("Unknown source reference '{$networkmapSourceName}' used by network map {$networkmap}");
+				}
+			}
+		}
+		foreach($userdbs as $userdb) {
+			foreach($userdb->getSourceNames() as $userdbSourceName) {
+				if(!isset($sourceNames[$userdbSourceName])) {
+					Log::warning("Unknown source reference '{$userdbSourceName}' used by user db {$userdb}");
 				}
 			}
 		}
@@ -110,7 +124,7 @@ class Monitor {
 		return $filtered;
 	}
 
-	private static function filterUnreferencedSources($sources, $networkmaps, $events) {
+	private static function filterUnreferencedSources($sources, $networkmaps, $userdbs, $events) {
 		$filtered = array();
 		foreach($sources as $source) {
 			$sourceName = $source->getName();
@@ -123,6 +137,15 @@ class Monitor {
 					}
 				}
 			}
+			$userdbRefCount = 0;
+			foreach($userdbs as $userdb) {
+				$userdbSourceNames = $userdb->getSourceNames();
+				foreach($userdbSourceNames as $userdbSourceName) {
+					if($sourceName == $userdbSourceName) {
+						$userdbRefCount++;
+					}
+				}
+			}
 			$eventRefCount = 0;
 			foreach($events as $event) {
 				$eventSourceNames = $event->getSourceNames();
@@ -132,16 +155,18 @@ class Monitor {
 					}
 				}
 			}
-			if($eventRefCount > 0 && $networkmapRefCount == 1) {
+			if($eventRefCount > 0 && $networkmapRefCount <= 1 && $userdbRefCount <= 1) {
 				$filtered[] = $source;
-			} elseif($eventRefCount == 0 && $networkmapRefCount == 0) {
-				Log::warning("Ignoring unused source '{$source}' (no referencing events or network maps)");
-			} elseif($eventRefCount == 0 && $networkmapRefCount == 1) {
-				Log::warning("Ignoring unused source '{$source}' (no referencing events)");
-			} elseif($networkmapRefCount == 0) {
-				Log::warning("Ignoring source '{$source}' due to missing network map");
 			} else {
-				Log::warning("Ignoring source '{$source}' due to non-unique network map");
+				if($eventRefCount == 0) {
+					Log::warning("Ignoring unused source '{$source}'");
+				}
+				if($networkmapRefCount > 1) {
+					Log::warning("Ignoring source '{$source}' due to non-unique network map");
+				}
+				if($userdbRefCount > 1) {
+					Log::warning("Ignoring source '{$source}' due to non-unique user db");
+				}
 			}
 		}
 		return $filtered;
@@ -163,10 +188,33 @@ class Monitor {
 			}
 		}
 		$networkmapCount = count($networkmaps);
-		if($networkmapCount != 1) {
+		if($networkmapCount == 0) {
+			$networkmaps[] = new MonitorNetworkmap("internal", "external");
+		} elseif($networkmapCount > 1) {
 			throw new Exception(Log::err("Unexpected number ({$networkmapCount}) of network maps references to {$source}"));
 		}
 		return $networkmaps[0];
+	}
+
+	public function getSourceUserdb($source) {
+		$userdbs = array();
+		$sourceName = $source->getName();
+		foreach($this->tReadUserdbs as $userdb) {
+			foreach($userdb->getSourceNames() as $userdbSourceName) {
+				if($sourceName == $userdbSourceName) {
+					$userdbs[] = $userdb;
+					break;
+				}
+			}
+		}
+		$userdbCount = count($userdbs);
+		if($userdbCount == 0) {
+			$userdbs[] = new MonitorUserdb(MonitorUserdb::TYPE_NONE);
+		} elseif($userdbCount > 1) {
+			throw new Exception(Log::err("Unexpected number ({$userdbCount}) of user db references to {$source}"));
+		}
+		$userdb = $userdbs[0];
+		return Userdb::create($userdb->getType(), $userdb->getProperties());
 	}
 
 	public function getSourceEvents($source) {

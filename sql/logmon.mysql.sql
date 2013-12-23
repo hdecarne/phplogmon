@@ -98,8 +98,9 @@ CREATE TABLE hostmac (
 CREATE TABLE user (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 	user VARCHAR(64) NOT NULL,
+	statusid INT UNSIGNED NOT NULL,
 	PRIMARY KEY ( id ),
-	UNIQUE KEY ( user )
+	UNIQUE KEY ( user , statusid )
 ) ENGINE=InnoDB CHARSET=utf8;
 
 --

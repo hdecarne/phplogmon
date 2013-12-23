@@ -23,23 +23,26 @@ class QueryUser {
 	private function __construct() {
 	}
 
-	public static function getUserId($dbh, $user) {
+	public static function getUserId($dbh, $userdb, $user) {
 		$cache =& $dbh->getCache(get_class());
-		return (isset($cache[$user]) ? $cache[$user] : $cache[$user] = self::getDbUserId($dbh, $user));
+		return (isset($cache[$user]) ? $cache[$user] : $cache[$user] = self::getDbUserId($dbh, $userdb, $user));
 	}
 
-	private static function getDbUserId($dbh, $user) {
+	private static function getDbUserId($dbh, $userdb, $user) {
 		if($user != "") {
 			Log::debug("Retrieving info for user '{$user}'...");
 		}
-		$select = $dbh->prepare("SELECT a.id FROM user a WHERE user = ?");
+		$statusId = $userdb->getStatus($user);
+		$select = $dbh->prepare("SELECT a.id FROM user a WHERE user = ? AND statusid = ?");
 		$select->bindValue(1, $user, PDO::PARAM_STR);
+		$select->bindValue(2, $statusId, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $id, PDO::PARAM_STR);
 		if($select->fetch(PDO::FETCH_BOUND) === false) {
 			if(!Options::pretend()) {
-				$insert = $dbh->prepare("INSERT INTO user (user) VALUES(?)");
+				$insert = $dbh->prepare("INSERT INTO user (user, statusid) VALUES(?, ?)");
 				$insert->bindValue(1, $user, PDO::PARAM_STR);
+				$insert->bindValue(2, $statusId, PDO::PARAM_STR);
 				$insert->execute();
 				$id = $dbh->lastInsertId();
 			} else {

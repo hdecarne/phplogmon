@@ -37,8 +37,10 @@ class WebViewEvents extends WebView {
 			$this->printHostipDetails();
 			$this->printHostipEventData();
 		} elseif($this->getRequestHostmac() != "*") {
+			$this->printHostmacDetails();
 			$this->printHostmacEventData();
 		} elseif($this->getRequestUser() != "*") {
+			$this->printUserDetails();
 			$this->printUserEventData();
 		}
 		$this->endBody();
@@ -49,8 +51,8 @@ class WebViewEvents extends WebView {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionType();
 		$loghostId = $this->getSessionLoghost();
-		$serviceId = $this->getSessionService();
 		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
 		$hostipId = $this->getRequestHostip();
 		$select = $dbh->prepare(
 			"SELECT a.id, a.hostip, a.host, a.continentcode, a.countrycode, a.countryname, a.region, a.city, a.postalcode, a.latitude, a.longitude ".
@@ -102,10 +104,6 @@ class WebViewEvents extends WebView {
 				$this->endDetailsTableElement();
 			}
 			$this->beginDetailsTableElement($l12n->t("Logs"));
-			$typeId = $this->getSessionType();
-			$loghostId = $this->getSessionLoghost();
-			$serviceId = $this->getSessionService();
-			$networkId = $this->getSessionNetwork();
 			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, $hostipId, "*", "*");
 			$this->endDetailsTableElement();
 			$this->endDetailsTable();
@@ -118,8 +116,8 @@ class WebViewEvents extends WebView {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionType();
 		$loghostId = $this->getSessionLoghost();
-		$serviceId = $this->getSessionService();
 		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
 		$hostipId = $this->getRequestHostip();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.user, f.id, f.hostmac, f.vendor, ".
@@ -176,7 +174,7 @@ class WebViewEvents extends WebView {
 			$this->printEventNetwork($network);
 			$this->printEventService($service);
 			$this->printEventUser($userId, $user);
-			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+			$this->printEventHostmac($hostmacId, $vendor);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
 			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
@@ -184,6 +182,45 @@ class WebViewEvents extends WebView {
 			$rowNr++;
 		}
 		$this->endEventTable();
+	}
+
+	private function printHostmacDetails() {
+		$dbh = $this->dbh();
+		$typeId = $this->getSessionType();
+		$loghostId = $this->getSessionLoghost();
+		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
+		$hostmacId = $this->getRequestHostmac();
+		$select = $dbh->prepare(
+			"SELECT a.id, a.hostmac, a.vendor ".
+			"FROM hostmac a ".
+			"WHERE a.id = ?");
+		$select->bindParam(1, $hostmacId, PDO::PARAM_STR);
+		$select->execute();
+		$select->bindColumn(1, $hostmacId, PDO::PARAM_STR);
+		$select->bindColumn(2, $hostmac, PDO::PARAM_STR);
+		$select->bindColumn(3, $vendor, PDO::PARAM_STR);
+		if($select->fetch(PDO::FETCH_BOUND) !== false) {
+			$l12n = $this->l12n();
+			$this->beginDetailsSection();
+			$this->beginDetails1();
+			$this->printImgVendor("icon128", $vendor);
+			$this->endDetails1();
+			$this->beginDetails2();
+			$this->beginDetailsTable();
+			$this->beginDetailsTableElement($l12n->t("MAC address"));
+			Html::out($hostmac);
+			$this->endDetailsTableElement();
+			$this->beginDetailsTableElement($l12n->t("Vendor"));
+			Html::out($vendor);
+			$this->endDetailsTableElement();
+			$this->beginDetailsTableElement($l12n->t("Logs"));
+			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, "*", $hostmacId, "*");
+			$this->endDetailsTableElement();
+			$this->endDetailsTable();
+			$this->endDetails2();
+			$this->endDetailsSection();
+		}
 	}
 
 	private function printHostmacEventData() {
@@ -258,6 +295,41 @@ class WebViewEvents extends WebView {
 			$rowNr++;
 		}
 		$this->endEventTable();
+	}
+
+	private function printUserDetails() {
+		$dbh = $this->dbh();
+		$typeId = $this->getSessionType();
+		$loghostId = $this->getSessionLoghost();
+		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
+		$userId = $this->getRequestUser();
+		$select = $dbh->prepare(
+			"SELECT a.id, a.user ".
+			"FROM user a ".
+			"WHERE a.id = ?");
+		$select->bindParam(1, $userId, PDO::PARAM_STR);
+		$select->execute();
+		$select->bindColumn(1, $userId, PDO::PARAM_STR);
+		$select->bindColumn(2, $user, PDO::PARAM_STR);
+		if($select->fetch(PDO::FETCH_BOUND) !== false) {
+			$l12n = $this->l12n();
+			$this->beginDetailsSection();
+			$this->beginDetails1();
+			$this->printImgUser("icon128", $user);
+			$this->endDetails1();
+			$this->beginDetails2();
+			$this->beginDetailsTable();
+			$this->beginDetailsTableElement($l12n->t("User"));
+			Html::out($user);
+			$this->endDetailsTableElement();
+			$this->beginDetailsTableElement($l12n->t("Logs"));
+			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, "*", "*", $userId);
+			$this->endDetailsTableElement();
+			$this->endDetailsTable();
+			$this->endDetails2();
+			$this->endDetailsSection();
+		}
 	}
 
 	private function printUserEventData() {

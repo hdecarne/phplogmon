@@ -88,6 +88,17 @@ class QueryHostip {
 		$record = false;
 		if(function_exists("geoip_record_by_name")) {
 			$record = @geoip_record_by_name($hostip);
+			if($record !== false) {
+				$record["continent_code"] = utf8_encode($record["continent_code"]);
+				$record["country_code"] = utf8_encode($record["country_code"]);
+				$record["country_code3"] = utf8_encode($record["country_code3"]);
+				$record["country_name"] = utf8_encode($record["country_name"]);
+				$record["region"] = utf8_encode($record["region"]);
+				$record["city"] = utf8_encode($record["city"]);
+				$record["postal_code"] = utf8_encode($record["postal_code"]);
+				$record["dma_code"] = utf8_encode($record["dma_code"]);
+				$record["dma_code"] = utf8_encode($record["dma_code"]);
+			}
 		}
 		if($record === false) {
 			$record = array(

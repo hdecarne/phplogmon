@@ -26,7 +26,7 @@ class Processor {
 		$this->tDbh = $dbh;
 	}
 
-	public function process($source, $networkmap, $events) {
+	public function process($monitor, $source) {
 		Log::notice("Evaluating source {$source}...");
 		$processedLineCount = 0;
 		$recordedEventCount = 0;
@@ -35,7 +35,7 @@ class Processor {
 		foreach($source->getFiles() as $file) {
 			$logfiles = self::scanLogFiles($file->getFile());
 			if(count($logfiles) > 0) {
-				$matchstates = ProcessorEventMatchstate::create($this->tDbh, $source, $file, $networkmap, $events);
+				$matchstates = ProcessorEventMatchstate::create($this->tDbh, $monitor, $source, $file);
 				foreach($logfiles as $logfile) {
 					if(isset($sourcestates[$logfile])) {
 						$sourcestate = $sourcestates[$logfile];

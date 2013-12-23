@@ -29,10 +29,12 @@ class MonitorXmlReader {
 	private $tParseHandlerStack;
 	private $tParsedSources;
 	private $tParsedNetworkmaps;
+	private $tParsedUserdbs;
 	private $tParsedEvents;
 	private $tCurrentSource;
 	private $tCurrentSourceService;
 	private $tCurrentNetworkmap;
+	private $tCurrentUserdb;
 	private $tCurrentEventsService;
 	private $tCurrentEventsSources;
 	private $tCurrentEvent;
@@ -59,10 +61,12 @@ class MonitorXmlReader {
 		$this->tParseHandlerStack = array();
 		$this->tParsedSources = array();
 		$this->tParsedNetworkmaps = array();
+		$this->tParsedUserdbs = array();
 		$this->tParsedEvents = array();
 		$this->tCurrentSource = null;
 		$this->tCurrentSourceService = null;
 		$this->tCurrentNetworkmap = null;
+		$this->tCurrentUserdb = null;
 		$this->tCurrentEventsService = null;
 		$this->tCurrentEventsSources = array();
 		$this->tCurrentEvent = null;
@@ -98,12 +102,16 @@ class MonitorXmlReader {
 		return $this->tParsedSources;
 	}
 
-	public function getEvents() {
-		return $this->tParsedEvents;
-	}
-
 	public function getNetworkmaps() {
 		return $this->tParsedNetworkmaps;
+	}
+
+	public function getUserdbs() {
+		return $this->tParsedUserdbs;
+	}
+
+	public function getEvents() {
+		return $this->tParsedEvents;
 	}
 
 	private function beginElement($parser, $name, $attribs) {
@@ -140,7 +148,19 @@ class MonitorXmlReader {
 			break;
 		case "logmon/networkmap/network":
 			$this->validateAttribs($attribs, array("name", "type"), array());
-			$handlers = array(null, "dataNetwork", null);
+			$handlers = array(null, "dataNetworkmapNetwork", null);
+			break;
+		case "logmon/userdb":
+			$this->validateAttribs($attribs, array("type"), array());
+			$handlers = array("beginUserdb", null, "endUserdb");
+			break;
+		case "logmon/userdb/source":
+			$this->validateAttribs($attribs, array("refname"), array());
+			$handlers = array("beginUserdbSource", null, null);
+			break;
+		case "logmon/userdb/property":
+			$this->validateAttribs($attribs, array("name"), array());
+			$handlers = array(null, "dataUserdbProperty", null);
 			break;
 		case "logmon/events":
 			$this->validateAttribs($attribs, array(), array("service"));
@@ -374,7 +394,7 @@ class MonitorXmlReader {
 		}
 	}
 
-	private function dataNetwork($data) {
+	private function dataNetworkmapNetwork($data) {
 		$name = trim($data["name"]);
 		$nameValid = $this->validateAttributeValue("name", $name);
 		$type = trim($data["type"]);
@@ -383,6 +403,40 @@ class MonitorXmlReader {
 		$networkValid = $this->validateElementValue("network", $network);
 		if($nameValid && $typeValid && $networkValid) {
 			$this->tCurrentNetworkmap->addNetwork($name, $type, $network);
+		}
+	}
+
+	private function beginUserdb($data) {
+		$type = trim($data["type"]);
+		$typeValid = $this->validateAttributeValue("type", $type, Userdb::validTypes());
+		if($typeValid) {
+			$this->tCurrentUserdb = new MonitorUserdb($type);
+		}
+	}
+
+	private function endUserdb($data) {
+		$sourcesValid = $this->validateElementExists("source", count($this->tCurrentUserdb->getSourceNames()) > 0);
+		if($sourcesValid) {
+			$this->tParsedUserdbs[] = $this->tCurrentUserdb;
+		}
+		$this->tCurrentUserdb = null;
+	}
+
+	private function beginUserdbSource($data) {
+		$refname = trim($data["refname"]);
+		$refnameValid = $this->validateAttributeValue("refname", $refname);
+		if($refnameValid) {
+			$this->tCurrentUserdb->addSource($refname);
+		}
+	}
+
+	private function dataUserdbProperty($data) {
+		$name = trim($data["name"]);
+		$nameValid = $this->validateAttributeValue("name", $name);
+		$value = trim($data["value"]);
+		$valueValid = $this->validateElementValue("value", $network);
+		if($nameValid && $valueValid) {
+			$this->tCurrentUserdb->addProperty($name, $value);
 		}
 	}
 

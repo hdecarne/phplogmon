@@ -332,7 +332,8 @@ abstract class WebView extends WebAccess {
 	protected function printEventHostmac($hostmacId, $hostmac, $vendor) {
 		if($hostmac != "") {
 			print("<td><a href=\"?cmd=viewevents&amp;hostmac={$hostmacId}\">");
-			Html::out($hostmac);
+			$this->printImgVendor("icon16", $vendor);
+			Html::out(" {$hostmac}");
 			if($vendor != "") {
 				Html::out(" ({$vendor})");
 			}
@@ -347,7 +348,8 @@ abstract class WebView extends WebAccess {
 	protected function printEventUser($userId, $user) {
 		if($user != "") {
 			print("<td><a href=\"?cmd=viewevents&amp;user={$userId}\">");
-			Html::out($user);
+			$this->printImgUser("icon16", $user);
+			Html::out(" {$user}");
 			print("</a></td>");
 		} else {
 			print("<td class=\"center\">");
@@ -424,13 +426,27 @@ abstract class WebView extends WebAccess {
 		$imgFile = dirname(__FILE__)."/../".$imgSrc;
 		if(preg_match("/[A-Z]{2}/", $countrycode) == 1 && is_file($imgFile)) {
 			$src = $imgSrc;
-			$alt = Html::format($countrycode);
-			$title = Html::format($countryname);
 		} else {
-			$src = "img/country_unknown.png";
-			$alt = Html::format($l12n->t("Unknown"));
-			$title = $alt;
+			$src = "img/country_generic.png";
 		}
+		$alt = Html::format($countrycode);
+		$title = Html::format($countryname);
+		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+	}
+
+	protected function printImgVendor($imgClass, $vendor) {
+		$l12n = $this->l12n();
+		$src = "img/vendor_generic.png";
+		$alt = Html::format($l12n->t("Vendor"));
+		$title = Html::format("$vendor");
+		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+	}
+
+	protected function printImgUser($imgClass, $user) {
+		$l12n = $this->l12n();
+		$src = "img/user_generic.png";
+		$alt = Html::format($l12n->t("User"));
+		$title = Html::format($user);
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
 
