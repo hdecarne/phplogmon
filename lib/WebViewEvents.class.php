@@ -175,7 +175,7 @@ class WebViewEvents extends WebView {
 			$this->printEventNetwork($network);
 			$this->printEventService($service);
 			$this->printEventUser($userId, $user, $statusId);
-			$this->printEventHostmac($hostmacId, $vendor);
+			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
 			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
