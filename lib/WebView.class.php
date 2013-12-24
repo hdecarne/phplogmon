@@ -288,7 +288,7 @@ abstract class WebView extends WebAccess {
 
 	protected function printEventType($typeId) {
 		print("<td class=\"center\">");
-		$this->printImgType("icon16", $typeId);
+		$this->printImgEventType("icon16", $typeId);
 		print("</td>");
 	}
 
@@ -332,7 +332,7 @@ abstract class WebView extends WebAccess {
 	protected function printEventHostmac($hostmacId, $hostmac, $vendor) {
 		if($hostmac != "") {
 			print("<td><a href=\"?cmd=viewevents&amp;hostmac={$hostmacId}\">");
-			$this->printImgVendor("icon16", $vendor);
+			$this->printImgVendor("icon16", $hostmac, $vendor);
 			Html::out(" {$hostmac}");
 			if($vendor != "") {
 				Html::out(" ({$vendor})");
@@ -345,10 +345,10 @@ abstract class WebView extends WebAccess {
 		}
 	}
 
-	protected function printEventUser($userId, $user) {
+	protected function printEventUser($userId, $user, $statusId) {
 		if($user != "") {
 			print("<td><a href=\"?cmd=viewevents&amp;user={$userId}\">");
-			$this->printImgUser("icon16", $user);
+			$this->printImgUserStatus("icon16", $statusId);
 			Html::out(" {$user}");
 			print("</a></td>");
 		} else {
@@ -397,24 +397,25 @@ abstract class WebView extends WebAccess {
 		print("</a></td>");
 	}
 
-	protected function printImgType($imgClass, $typeId) {
+	protected function printImgEventType($imgClass, $typeId) {
 		$l12n = $this->l12n();
-		if($typeId == MonitorEvent::TYPEID_GRANTED) {
-			$src = "img/type_granted.png";
-			$alt = Html::format($l12n->t("Granted"));
-			$title = $alt;
-		} elseif($typeId == MonitorEvent::TYPEID_DENIED) {
-			$src = "img/type_denied.png";
-			$alt = Html::format($l12n->t("Denied"));
-			$title = $alt;
-		} elseif($typeId == MonitorEvent::TYPEID_ERROR) {
-			$src = "img/type_error.png";
-			$alt = Html::format($l12n->t("Error"));
-			$title = $alt;
-		} else {
-			$src = "img/type_unknown.png";
-			$alt = Html::format($l12n->t("Unknown"));
-			$title = $alt;
+		$alt = Html::format($l12n->t("Status"));
+		switch($typeId) {
+			case MonitorEvent::TYPEID_GRANTED:
+				$src = "img/type_granted.png";
+				$title = Html::format($l12n->t("Granted"));
+				break;
+			case MonitorEvent::TYPEID_DENIED:
+				$src = "img/type_denied.png";
+				$title = Html::format($l12n->t("Denied"));
+				break;
+			case MonitorEvent::TYPEID_ERROR:
+				$src = "img/type_error.png";
+				$title = Html::format($l12n->t("Error"));
+				break;
+			default:
+				$src = "img/type_unknown.png";
+				$title = Html::format($l12n->t("Unknown"));
 		}
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
@@ -434,7 +435,7 @@ abstract class WebView extends WebAccess {
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
 
-	protected function printImgVendor($imgClass, $vendor) {
+	protected function printImgVendor($imgClass, $hostmac, $vendor) {
 		$l12n = $this->l12n();
 		$src = "img/vendor_generic.png";
 		$alt = Html::format($l12n->t("Vendor"));
@@ -442,11 +443,22 @@ abstract class WebView extends WebAccess {
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
 
-	protected function printImgUser($imgClass, $user) {
+	protected function printImgUserStatus($imgClass, $statusId) {
 		$l12n = $this->l12n();
-		$src = "img/user_generic.png";
 		$alt = Html::format($l12n->t("User"));
-		$title = Html::format($user);
+		switch($statusId) {
+			case Userdb::STATUS_INVALID:
+				$src = "img/user_invalid.png";
+				$title = Html::format($l12n->t("Invalid"));
+				break;
+			case Userdb::STATUS_VALID:
+				$src = "img/user_valid.png";
+				$title = Html::format($l12n->t("Valid"));
+				break;
+			default:
+				$src = "img/user_generic.png";
+				$title = Html::format($l12n->t("Unknown"));
+		}
 		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
 	}
 

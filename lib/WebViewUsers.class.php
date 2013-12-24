@@ -44,7 +44,7 @@ class WebViewUsers extends WebView {
 		$loghostId = $this->getSessionLoghost();
 		$networkId = $this->getSessionNetwork();
 		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.user, ".
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.user, d.statusid, ".
 				"SUM(a.count), MIN(a.first), MAX(a.last) ".
 			"FROM event a, loghost b, network c, user d ".
 			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.userid = d.id AND d.user <> '' ".
@@ -65,9 +65,10 @@ class WebViewUsers extends WebView {
 		$select->bindColumn(5, $network, PDO::PARAM_STR);
 		$select->bindColumn(6, $userId, PDO::PARAM_STR);
 		$select->bindColumn(7, $user, PDO::PARAM_STR);
-		$select->bindColumn(8, $count, PDO::PARAM_INT);
-		$select->bindColumn(9, $first, PDO::PARAM_INT);
-		$select->bindColumn(10, $last, PDO::PARAM_INT);
+		$select->bindColumn(8, $statusId, PDO::PARAM_STR);
+		$select->bindColumn(9, $count, PDO::PARAM_INT);
+		$select->bindColumn(10, $first, PDO::PARAM_INT);
+		$select->bindColumn(11, $last, PDO::PARAM_INT);
 		$l12n = $this->l12n();
 		$this->beginEventTable(array(
 			$l12n->t("Nr"),
@@ -87,7 +88,7 @@ class WebViewUsers extends WebView {
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
 			$this->printEventNetwork($network);
-			$this->printEventUser($userId, $user);
+			$this->printEventUser($userId, $user, $statusId);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);
 			$this->printEventLogLinks($typeId, $loghostId, $serviceId, $networkId, "*", "*", $userId);
