@@ -44,8 +44,8 @@ class MonitorSourceFile {
 		return $this->tDefaultService;
 	}
 
-	public function getDecoder() {
-		return $this->tDecoder;
+	public function getDecoder($logfile) {
+		return FileDecoder::create($logfile, $this->tDecoder);
 	}
 
 }

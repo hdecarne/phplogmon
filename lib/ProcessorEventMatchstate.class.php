@@ -185,8 +185,8 @@ class ProcessorEventMatchstate {
 
 	private function applyEvaluator($evaluator) {
 		$result = false;
-		$matchesDecoder = MatchesDecoder::create($evaluator->getDecoder());
-		$result = $matchesDecoder->apply($this->tDbh, $this->tMatches, $evaluator->getTerm());
+		$decoder = $evaluator->getDecoder();
+		$result = $decoder->apply($this->tDbh, $this->tMatches, $evaluator->getTerm());
 		return $result;
 	}
 

@@ -209,7 +209,7 @@ class Monitor {
 		}
 		$userdbCount = count($userdbs);
 		if($userdbCount == 0) {
-			$userdbs[] = new MonitorUserdb(MonitorUserdb::TYPE_NONE);
+			$userdbs[] = new MonitorUserdb(Userdb::TYPE_NONE);
 		} elseif($userdbCount > 1) {
 			throw new Exception(Log::err("Unexpected number ({$userdbCount}) of user db references to {$source}"));
 		}

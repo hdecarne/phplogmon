@@ -44,7 +44,7 @@ class Processor {
 					}
 					if($sourcestate->touch()) {
 						Log::notice("Processing modified file '{$logfile}'");
-						$decoder = FileDecoder::create($logfile, $file->getDecoder());
+						$decoder = $file->getDecoder($logfile);
 						while(($line = $this->fetchLine($decoder, $source)) !== false) {
 							$lineTimestamp = $this->parseLineTimestamp($line, $source);
 							if($lineTimestamp !== false && $sourcestate->updateLast($lineTimestamp)) {

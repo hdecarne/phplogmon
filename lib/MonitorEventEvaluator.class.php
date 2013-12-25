@@ -39,7 +39,7 @@ class MonitorEventEvaluator {
 	}
 
 	public function getDecoder() {
-		return $this->tDecoder;
+		return MatchesDecoder::create($this->tDecoder);
 	}
 
 }
