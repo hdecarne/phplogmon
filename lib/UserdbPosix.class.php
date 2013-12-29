@@ -25,12 +25,15 @@ class UserdbPosix extends Userdb {
 	}
 
 	public function getStatus($user) {
+		$splitUser = $this->splitUserDomains($user);
 		if($user === "") {
 			$status = self::STATUS_INVALID;
-		} elseif(posix_getpwnam($user) === false) {
-			$status = self::STATUS_INVALID;
-		} else {
+		} elseif(posix_getpwnam($user) !== false) {
 			$status = self::STATUS_VALID;
+		} elseif($user != $splitUser[1] && posix_getpwnam($splitUser[1]) !== false) {
+			$status = self::STATUS_VALID;
+		} else {
+			$status = self::STATUS_INVALID;
 		}
 		return $status;
 	}

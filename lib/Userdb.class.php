@@ -47,6 +47,37 @@ abstract class Userdb {
 		return new $userdbClass($properties);
 	}
 
+	function splitUserDomains($user) {
+		$domainPos = strpos($user, "\\", 0);
+		$emailPos = strpos($user, "@", 0);
+		if($domainPos === false || $emailPos === false || $domainPos < $emailPos) {
+			if($domainPos !== false && 0 < $domainPos && $domainPos + 1 < strlen($user)) {
+				$loginDomain = substr($user, 0, $domainPos);
+				$domainUser = substr($user, $domainPos + 1);
+			} else {
+				$loginDomain = "";
+				$domainUser = $user;
+			}
+			if($domainPos === false || $loginDomain != "") {
+				if($emailPos !== false && 0 < $emailPos && $emailPos + 1 < strlen($user)) {
+					$emailUser = substr($user, 0, $emailPos);
+					$emailDomain = substr($user, $emailPos + 1);
+				} else {
+					$emailUser = $domainUser;
+					$emailDomain = "";
+				}
+			} else {
+				$emailUser = $domainUser;
+				$emailDomain = "";
+			}
+		} else {
+			$loginDomain = "";
+			$emailUser = $user;
+			$emailDomain = "";
+		}
+		return array($loginDomain, $emailUser, $emailDomain);
+	}
+
 	abstract public function getStatus($user);
 
 }
