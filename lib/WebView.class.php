@@ -97,7 +97,7 @@ abstract class WebView extends WebAccess {
 		print("</form>");
 	}
 
-	protected function endBody() {
+	protected function endBody($attribution = true) {
 		$l12n = $this->l12n();
 		print("<address>");
 		Html::out(Version::signature());
@@ -106,13 +106,16 @@ abstract class WebView extends WebAccess {
 			Html::out(sprintf($l12n->t(" - %f s"), $elapsed));
 		}
 		print("</address>");
-		print("<address class=\"attribution\">");
-		print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2013 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
-		print("The accompanied image resources are subject to different copyrights:<br/>");
-		print("Navigation icons are made by <a href=\"http://www.flaticon.com/packs/batch/\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a><br/>");
-		print("Flags icons are made by <a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com/\">vathanx.deviantart.com</a><br/>");
-		print("See <a href=\"license.html\">license.html</a> for full license details.");
-		print("</address>");
+		if($attribution) {
+			print("<address class=\"attribution\">");
+			print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2013 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
+			print("The accompanied image resources are subject to different copyrights:<br/>");
+			print("Most of the navigation icons are made by <a href=\"http://www.flaticon.com/packs/batch\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a><br/>");
+			print("Flags icons are made by <a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com\">vathanx.deviantart.com</a><br/>");
+			print("Additional icons are are part of the <a href=\"http://www.oxygen-icons.org\">Oxygen</a> icon set made by the <a href=\"http://www.oxygen-icons.org\">Oxygen Team</a><br/>");
+			print("See <a href=\"?cmd=viewabout\">License</a> for full details.");
+			print("</address>");
+		}
 		print("</body>");
 	}
 
@@ -129,6 +132,10 @@ abstract class WebView extends WebAccess {
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewusers\">");
 		Html::out($l12n->t("User access"));
+		print("</a>");
+		print(" | ");
+		print("<a class=\"navbar\" href=\"?cmd=viewabout\">");
+		Html::out($l12n->t("About"));
 		print("</a>");
 		print("</div>");
 	}

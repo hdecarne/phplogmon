@@ -14,5 +14,12 @@
 			<hostmac decoder="macfromip">0</hostmac>
 			<user>1</user>
 		</event>
+		<event type="denied">
+			<pattern>/.* postfix\/smtpd\[.*\]: connect from .*\[(.*)\]/U</pattern>
+			<pattern>/.* saslauthd\[.*\]:.* auth failure: \[user=(.*)\] \[service=smtp\] \[realm=.*\] \[mech=.*\] \[reason=.*\]/U</pattern>
+			<hostip>0</hostip>
+			<hostmac decoder="macfromip">0</hostmac>
+			<user>1</user>
+		</event>
 	</events>
 </logmon>

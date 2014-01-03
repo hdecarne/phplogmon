@@ -29,6 +29,9 @@ try {
 		case "viewevents":
 			$access = new WebViewEvents($dbh);
 			break;
+		case "viewabout":
+			$access = new WebViewAbout($dbh);
+			break;
 		case "streamlogs":
 			$access = new WebStreamLogs($dbh);
 			break;
