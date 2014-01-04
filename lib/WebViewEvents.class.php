@@ -42,6 +42,8 @@ class WebViewEvents extends WebView {
 		} elseif($this->getRequestUser() != "*") {
 			$this->printUserDetails();
 			$this->printUserEventData();
+		} elseif($this->getRequestService() != "*") {
+			$this->printEventData();
 		}
 		$this->endBody();
 		$this->endHtml();
@@ -173,7 +175,7 @@ class WebViewEvents extends WebView {
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
 			$this->printEventNetwork($network);
-			$this->printEventService($service);
+			$this->printEventService($serviceId, $service);
 			$this->printEventUser($userId, $user, $statusId);
 			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 			$this->printEventCount($count);
@@ -287,7 +289,7 @@ class WebViewEvents extends WebView {
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
 			$this->printEventNetwork($network);
-			$this->printEventService($service);
+			$this->printEventService($serviceId, $service);
 			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
 			$this->printEventUser($userId, $user, $statusId);
 			$this->printEventCount($count);
@@ -398,8 +400,86 @@ class WebViewEvents extends WebView {
 			$this->printEventType($typeId);
 			$this->printEventLoghost($loghost);
 			$this->printEventNetwork($network);
-			$this->printEventService($service);
+			$this->printEventService($serviceId, $service);
 			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+			$this->printEventCount($count);
+			$this->printEventTimerange($now, $first, $last);
+			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
+			$this->endEventRow();
+			$rowNr++;
+		}
+		$this->endEventTable();
+	}
+
+	private function printEventData() {
+		$dbh = $this->dbh();
+		$typeId = $this->getSessionType();
+		$loghostId = $this->getSessionLoghost();
+		$networkId = $this->getSessionNetwork();
+		$serviceId = $this->getSessionService();
+		$select = $dbh->prepare(
+			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.user, f.statusid, ".
+				"g.id, g.hostmac, g.vendor, a.count, a.first, a.last ".
+			"FROM event a, loghost b, network c, service d, hostip e, user f, hostmac g ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND a.hostipid = e.id AND a.userid = f.id AND a.hostmacid = g.id AND ".
+				"('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) AND ('*' = ? OR d.id = ?)".
+			"ORDER BY a.last DESC");
+		$select->bindParam(1, $typeId, PDO::PARAM_STR);
+		$select->bindParam(2, $typeId, PDO::PARAM_STR);
+		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
+		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
+		$select->bindParam(5, $networkId, PDO::PARAM_STR);
+		$select->bindParam(6, $networkId, PDO::PARAM_STR);
+		$select->bindParam(7, $serviceId, PDO::PARAM_STR);
+		$select->bindParam(8, $serviceId, PDO::PARAM_STR);
+		$select->execute();
+		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
+		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
+		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
+		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
+		$select->bindColumn(5, $network, PDO::PARAM_STR);
+		$select->bindColumn(6, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(7, $service, PDO::PARAM_STR);
+		$select->bindColumn(8, $hostipId, PDO::PARAM_STR);
+		$select->bindColumn(9, $hostip, PDO::PARAM_STR);
+		$select->bindColumn(10, $host, PDO::PARAM_STR);
+		$select->bindColumn(11, $countrycode, PDO::PARAM_STR);
+		$select->bindColumn(12, $countryname, PDO::PARAM_STR);
+		$select->bindColumn(13, $userId, PDO::PARAM_STR);
+		$select->bindColumn(14, $user, PDO::PARAM_STR);
+		$select->bindColumn(15, $statusId, PDO::PARAM_STR);
+		$select->bindColumn(16, $hostmacId, PDO::PARAM_STR);
+		$select->bindColumn(17, $hostmac, PDO::PARAM_STR);
+		$select->bindColumn(18, $vendor, PDO::PARAM_STR);
+		$select->bindColumn(19, $count, PDO::PARAM_INT);
+		$select->bindColumn(20, $first, PDO::PARAM_INT);
+		$select->bindColumn(21, $last, PDO::PARAM_INT);
+		$l12n = $this->l12n();
+        $this->beginEventTable(array(
+			$l12n->t("Nr"),
+			$l12n->t("Status"),
+			$l12n->t("Log"),
+			$l12n->t("Network"),
+			$l12n->t("Service"),
+			$l12n->t("Host"),
+			$l12n->t("User"),
+			$l12n->t("MAC"),
+			$l12n->t("Count"),
+			$l12n->t("When"),
+			$l12n->t("Logs")
+		));
+		$rowNr = 1;
+		$now = time();
+		while($select->fetch(PDO::FETCH_BOUND) !== false) {
+			$this->beginEventRow();
+			$this->printEventRowNr($rowNr);
+			$this->printEventType($typeId);
+			$this->printEventLoghost($loghost);
+			$this->printEventNetwork($network);
+			$this->printEventService($serviceId, $service);
+			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+			$this->printEventUser($userId, $user, $statusId);
 			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 			$this->printEventCount($count);
 			$this->printEventTimerange($now, $first, $last);

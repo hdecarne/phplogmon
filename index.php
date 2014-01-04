@@ -17,6 +17,9 @@ try {
 	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 	$cmd = WebAccess::getRequest("cmd", false);
 	switch($cmd) {
+		case "viewservices":
+			$access = new WebViewServices($dbh);
+			break;
 		case "viewhostips":
 			$access = new WebViewHostips($dbh);
 			break;

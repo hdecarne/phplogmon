@@ -122,6 +122,10 @@ abstract class WebView extends WebAccess {
 	protected function printNavBar() {
 		$l12n = $this->l12n();
 		print("<div class=\"navbar\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewservices\">");
+		Html::out($l12n->t("Service access"));
+		print("</a>");
+		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewhostips\">");
 		Html::out($l12n->t("IP access"));
 		print("</a>");
@@ -311,10 +315,10 @@ abstract class WebView extends WebAccess {
 		print("</td>");
 	}
 
-	protected function printEventService($service) {
-		print("<td>");
+	protected function printEventService($serviceId, $service) {
+		print("<td><a href=\"?cmd=viewevents&amp;service={$serviceId}\">");
 		Html::out($service);
-		print("</td>");
+		print("</a></td>");
 	}
 
 	protected function printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname) {
