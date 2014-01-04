@@ -2,7 +2,7 @@
 /**
  * phplogmon
  *
- * Copyright (c) 2012-2013 Holger de Carne and contributors, All Rights Reserved.
+ * Copyright (c) 2012-2014 Holger de Carne and contributors, All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ class Log {
 	public static function notice($message) {
 		if(is_array($message)) {
 			foreach($message as $message0) {
-				self::debug($message0);
+				self::notice($message0);
 			}
 		} else {
 			if(self::$sConsole) {
@@ -84,7 +84,7 @@ class Log {
 	public static function warning($message) {
 		if(is_array($message)) {
 			foreach($message as $message0) {
-				self::debug($message0);
+				self::warning($message0);
 			}
 		} else {
 			if(self::$sConsole) {
@@ -103,7 +103,7 @@ class Log {
 	public static function err($message) {
 		if(is_array($message)) {
 			foreach($message as $message0) {
-				self::debug($message0);
+				self::err($message0);
 			}
 		} else {
 			if(self::$sConsole) {

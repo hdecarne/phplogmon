@@ -2,7 +2,7 @@
 /**
  * phplogmon
  *
- * Copyright (c) 2012-2013 Holger de Carne and contributors, All Rights Reserved.
+ * Copyright (c) 2012-2014 Holger de Carne and contributors, All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ class WebViewAbout extends WebView {
 	private function printLicense() {
 		Html::out("phplogmon");
 		print("<pre>");
-		Html::out("Copyright (c) 2012-2013 Holger de Carne and contributors, All Rights Reserved.\n");
+		Html::out("Copyright (c) 2012-2014 Holger de Carne and contributors, All Rights Reserved.\n");
 		Html::out("This program is free software: you can redistribute it and/or modify\n");
 		Html::out("it under the terms of the GNU General Public License as published by\n");
 		Html::out("the Free Software Foundation, either version 3 of the License, or\n");

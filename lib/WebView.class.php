@@ -2,7 +2,7 @@
 /**
  * phplogmon
  *
- * Copyright (c) 2012-2013 Holger de Carne and contributors, All Rights Reserved.
+ * Copyright (c) 2012-2014 Holger de Carne and contributors, All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ abstract class WebView extends WebAccess {
 		print("</address>");
 		if($attribution) {
 			print("<address class=\"attribution\">");
-			print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2013 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
+			print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2014 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
 			print("The accompanied image resources are subject to different copyrights:<br/>");
 			print("Most of the navigation icons are made by <a href=\"http://www.flaticon.com/packs/batch\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a><br/>");
 			print("Flags icons are made by <a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com\">vathanx.deviantart.com</a><br/>");
