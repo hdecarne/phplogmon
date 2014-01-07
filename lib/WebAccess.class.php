@@ -27,12 +27,23 @@ abstract class WebAccess {
 	const SESSION_LANG = "lang";
 	const SESSION_MOBILE = "mobile";
 
-	const SESSION_TYPE = "type";
-	const SESSION_LOGHOST = "loghost";
-	const SESSION_NETWORK = "network";
-	const SESSION_SERVICE = "service";
+	const DEFAULT_LANG = "en";
+	const DEFAULT_MOBILE = "0";
+
+	const SESSION_TYPEFILTER = "typefilter";
+	const SESSION_LOGHOSTFILTER = "loghostfilter";
+	const SESSION_NETWORKFILTER = "networkfilter";
+	const SESSION_SERVICEFILTER = "servicefilter";
+	const SESSION_COUNTFILTER = "countfilter";
+	const SESSION_LIMITFILTER = "limitfilter";
 
 	const REQUEST_CMD = "cmd";
+	const REQUEST_TYPEFILTER = "typefilter";
+	const REQUEST_LOGHOSTFILTER = "loghostfilter";
+	const REQUEST_NETWORKFILTER = "networkfilter";
+	const REQUEST_SERVICEFILTER = "servicefilter";
+	const REQUEST_COUNTFILTER = "countfilter";
+	const REQUEST_LIMITFILTER = "limitfilter";
 	const REQUEST_TYPE = "type";
 	const REQUEST_LOGHOST = "loghost";
 	const REQUEST_NETWORK = "network";
@@ -41,6 +52,22 @@ abstract class WebAccess {
 	const REQUEST_HOSTMAC = "hostmac";
 	const REQUEST_USER = "user";
 	const REQUEST_DOWNLOAD = "download";
+
+	const DEFAULT_CMD = "*";
+	const DEFAULT_TYPEFILTER = "*";
+	const DEFAULT_LOGHOSTFILTER = "*";
+	const DEFAULT_NETWORKFILTER = "*";
+	const DEFAULT_SERVICEFILTER = "*";
+	const DEFAULT_COUNTFILTER = 1;
+	const DEFAULT_LIMITFILTER = 100;
+	const DEFAULT_TYPE = "*";
+	const DEFAULT_LOGHOST = "*";
+	const DEFAULT_NETWORK = "*";
+	const DEFAULT_SERVICE = "*";
+	const DEFAULT_HOSTIP = "*";
+	const DEFAULT_HOSTMAC = "*";
+	const DEFAULT_USER = "*";
+	const DEFAULT_DOWNLOAD = "0";
 
 	private $tDbh;
 	private $tL12n;
@@ -131,27 +158,35 @@ abstract class WebAccess {
 	}
 
 	protected function getSessionLang() {
-		return self::getSession(self::SESSION_LANG, "en");
+		return self::getSession(self::SESSION_LANG, self::DEFAULT_LANG);
 	}
 
 	protected function getSessionMobile() {
-		return self::getSession(self::SESSION_MOBILE, false);
+		return self::getSession(self::SESSION_MOBILE, self::DEFAULT_MOBILE);
 	}
 
-	protected function getSessionType() {
-		return self::getSession(self::SESSION_TYPE, "*");
+	protected function getSessionTypeFilter() {
+		return self::getSession(self::SESSION_TYPEFILTER, self::DEFAULT_TYPEFILTER);
 	}
 
-	protected function getSessionLoghost() {
-		return self::getSession(self::SESSION_LOGHOST, "*");
+	protected function getSessionLoghostFilter() {
+		return self::getSession(self::SESSION_LOGHOSTFILTER, self::DEFAULT_LOGHOSTFILTER);
 	}
 
-	protected function getSessionNetwork() {
-		return self::getSession(self::SESSION_NETWORK, "*");
+	protected function getSessionNetworkFilter() {
+		return self::getSession(self::SESSION_NETWORKFILTER, self::DEFAULT_NETWORKFILTER);
 	}
 
-	protected function getSessionService() {
-		return self::getSession(self::SESSION_SERVICE, "*");
+	protected function getSessionServiceFilter() {
+		return self::getSession(self::SESSION_SERVICEFILTER, self::DEFAULT_SERVICEFILTER);
+	}
+
+	protected function getSessionCountFilter() {
+		return self::getSession(self::SESSION_COUNTFILTER, self::DEFAULT_COUNTFILTER);
+	}
+
+	protected function getSessionLimitFilter() {
+		return self::getSession(self::SESSION_LIMITFILTER, self::DEFAULT_LIMITFILTER);
 	}
 
 	public static function getRequest($key, $defaultValue) {
@@ -159,39 +194,63 @@ abstract class WebAccess {
 	}
 
 	protected function getRequestCmd() {
-		return self::getRequest(self::REQUEST_CMD, "*");
+		return self::getRequest(self::REQUEST_CMD, self::DEFAULT_CMD);
+	}
+
+	protected function getRequestTypeFilter() {
+		return self::getRequest(self::REQUEST_TYPEFILTER, self::DEFAULT_TYPEFILTER);
+	}
+
+	protected function getRequestLoghostFilter() {
+		return self::getRequest(self::REQUEST_LOGHOSTFILTER, self::DEFAULT_LOGHOSTFILTER);
+	}
+
+	protected function getRequestNetworkFilter() {
+		return self::getRequest(self::REQUEST_NETWORKFILTER, self::DEFAULT_NETWORKFILTER);
+	}
+
+	protected function getRequestServiceFilter() {
+		return self::getRequest(self::REQUEST_SERVICEFILTER, self::DEFAULT_SERVICEFILTER);
+	}
+
+	protected function getRequestCountFilter() {
+		return self::getRequest(self::REQUEST_COUNTFILTER, self::DEFAULT_COUNTFILTER);
+	}
+
+	protected function getRequestLimitFilter() {
+		return self::getRequest(self::REQUEST_LIMITFILTER, self::DEFAULT_LIMITFILTER);
 	}
 
 	protected function getRequestType() {
-		return self::getRequest(self::REQUEST_TYPE, "*");
+		return self::getRequest(self::REQUEST_TYPE, self::DEFAULT_TYPE);
 	}
 
 	protected function getRequestLoghost() {
-		return self::getRequest(self::REQUEST_LOGHOST, "*");
+		return self::getRequest(self::REQUEST_LOGHOST, self::DEFAULT_LOGHOST);
 	}
 
 	protected function getRequestNetwork() {
-		return self::getRequest(self::REQUEST_NETWORK, "*");
+		return self::getRequest(self::REQUEST_NETWORK, self::DEFAULT_NETWORK);
 	}
 
 	protected function getRequestService() {
-		return self::getRequest(self::REQUEST_SERVICE, "*");
+		return self::getRequest(self::REQUEST_SERVICE, self::DEFAULT_SERVICE);
 	}
 
 	protected function getRequestHostip() {
-		return self::getRequest(self::REQUEST_HOSTIP, "*");
+		return self::getRequest(self::REQUEST_HOSTIP, self::DEFAULT_HOSTIP);
 	}
 
 	protected function getRequestHostmac() {
-		return self::getRequest(self::REQUEST_HOSTMAC, "*");
+		return self::getRequest(self::REQUEST_HOSTMAC, self::DEFAULT_HOSTMAC);
 	}
 
 	protected function getRequestUser() {
-		return self::getRequest(self::REQUEST_USER, "*");
+		return self::getRequest(self::REQUEST_USER, self::DEFAULT_USER);
 	}
 
 	protected function getRequestDownload() {
-		return self::getRequest(self::REQUEST_DOWNLOAD, "0");
+		return self::getRequest(self::REQUEST_DOWNLOAD, self::DEFAULT_DOWNLOAD);
 	}
 
 }

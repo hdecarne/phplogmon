@@ -21,7 +21,7 @@
 class WebViewEvents extends WebView {
 
 	public function __construct($dbh) {
-		parent::__construct($dbh, true, true, true, true);
+		parent::__construct($dbh, true, true, true, true, true, true);
 	}
 
 	public function sendHtml() {
@@ -51,10 +51,10 @@ class WebViewEvents extends WebView {
 
 	private function printHostipDetails() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$hostipId = $this->getRequestHostip();
 		$select = $dbh->prepare(
 			"SELECT a.id, a.hostip, a.host, a.continentcode, a.countrycode, a.countryname, a.region, a.city, a.postalcode, a.latitude, a.longitude ".
@@ -116,10 +116,10 @@ class WebViewEvents extends WebView {
 
 	private function printHostipEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$hostipId = $this->getRequestHostip();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.user, e.statusid, f.id, f.hostmac, f.vendor, ".
@@ -169,19 +169,23 @@ class WebViewEvents extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventService($serviceId, $service);
-			$this->printEventUser($userId, $user, $statusId);
-			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventService($serviceId, $service);
+				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();
@@ -189,10 +193,10 @@ class WebViewEvents extends WebView {
 
 	private function printHostmacDetails() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$hostmacId = $this->getRequestHostmac();
 		$select = $dbh->prepare(
 			"SELECT a.id, a.hostmac, a.vendor ".
@@ -228,10 +232,10 @@ class WebViewEvents extends WebView {
 
 	private function printHostmacEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$hostmacId = $this->getRequestHostmac();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.user, f.statusid, ".
@@ -283,19 +287,23 @@ class WebViewEvents extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventService($serviceId, $service);
-			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-			$this->printEventUser($userId, $user, $statusId);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventService($serviceId, $service);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();
@@ -303,10 +311,10 @@ class WebViewEvents extends WebView {
 
 	private function printUserDetails() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$userId = $this->getRequestUser();
 		$select = $dbh->prepare(
 			"SELECT a.id, a.user, a.statusid ".
@@ -339,10 +347,10 @@ class WebViewEvents extends WebView {
 
 	private function printUserEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getSessionServiceFilter();
 		$userId = $this->getRequestUser();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.hostmac, f.vendor, ".
@@ -394,19 +402,23 @@ class WebViewEvents extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventService($serviceId, $service);
-			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventService($serviceId, $service);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();
@@ -414,10 +426,13 @@ class WebViewEvents extends WebView {
 
 	private function printEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getRequestService();
+		if($serviceId == "*") {
+			$serviceId = $this->getSessionServiceFilter();
+		}
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, f.id, f.user, f.statusid, ".
 				"g.id, g.hostmac, g.vendor, a.count, a.first, a.last ".
@@ -471,20 +486,24 @@ class WebViewEvents extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventService($serviceId, $service);
-			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-			$this->printEventUser($userId, $user, $statusId);
-			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventService($serviceId, $service);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();

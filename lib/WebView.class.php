@@ -20,25 +20,31 @@
 
 abstract class WebView extends WebAccess {
 
-	private $tTypeFilter;
-	private $tLoghostFilter;
-	private $tNetworkFilter;
-	private $tServiceFilter;
+	private $tTypeFilterEnabled;
+	private $tLoghostFilterEnabled;
+	private $tNetworkFilterEnabled;
+	private $tServiceFilterEnabled;
+	private $tCountFilterEnabled;
+	private $tLimitFilterEnabled;
 
-	protected function __construct($dbh, $typeFilter, $loghostFilter, $networkFilter, $serviceFilter) {
+	protected function __construct($dbh, $typeFilter, $loghostFilter, $networkFilter, $serviceFilter, $countFilter, $limitFilter) {
 		parent::__construct($dbh);
-		$this->tTypeFilter = $typeFilter;
-		$this->tLoghostFilter = $loghostFilter;
-		$this->tNetworkFilter = $networkFilter;
-		$this->tServiceFilter = $serviceFilter;
-		self::initSession(self::SESSION_TYPE, $this->tTypeFilter);
-		self::initSession(self::SESSION_LOGHOST, $this->tLoghostFilter);
-		self::initSession(self::SESSION_NETWORK, $this->tNetworkFilter);
-		self::initSession(self::SESSION_SERVICE, $this->tServiceFilter);
+		$this->tTypeFilterEnabled = $typeFilter;
+		$this->tLoghostFilterEnabled = $loghostFilter;
+		$this->tNetworkFilterEnabled = $networkFilter;
+		$this->tServiceFilterEnabled = $serviceFilter;
+		$this->tCountFilterEnabled = $countFilter;
+		$this->tLimitFilterEnabled = $limitFilter;
+		self::initSession(self::SESSION_TYPEFILTER, $this->tTypeFilterEnabled);
+		self::initSession(self::SESSION_LOGHOSTFILTER, $this->tLoghostFilterEnabled);
+		self::initSession(self::SESSION_NETWORKFILTER, $this->tNetworkFilterEnabled);
+		self::initSession(self::SESSION_SERVICEFILTER, $this->tServiceFilterEnabled);
+		self::initSession(self::SESSION_COUNTFILTER, $this->tCountFilterEnabled);
+		self::initSession(self::SESSION_LIMITFILTER, $this->tLimitFilterEnabled);
 	}
 
-	private static function initSession($key, $filter) {
-		if($filter) {
+	private static function initSession($key, $enabled) {
+		if($enabled) {
 			self::mergeSession($key);
 		} else {
 			self::clearSession($key);
@@ -80,13 +86,19 @@ abstract class WebView extends WebAccess {
 		print("<form name=\"request\" action=\".\" method=\"get\">");
 		$cmd = $this->getRequestCmd();
 		print("<input name=\"cmd\" type=\"hidden\" value=\"{$cmd}\" />");
-		$type = $this->getSessionType();
-		print("<input name=\"type\" type=\"hidden\" value=\"{$type}\" />");
-		$loghost = $this->getSessionLoghost();
-		print("<input name=\"loghost\" type=\"hidden\" value=\"{$loghost}\" />");
-		$network = $this->getSessionNetwork();
-		print("<input name=\"network\" type=\"hidden\" value=\"{$network}\" />");
-		$service = $this->getSessionService();
+		$typefilter = $this->getSessionTypeFilter();
+		print("<input name=\"typefilter\" type=\"hidden\" value=\"{$typefilter}\" />");
+		$loghostfilter = $this->getSessionLoghostFilter();
+		print("<input name=\"loghostfilter\" type=\"hidden\" value=\"{$loghostfilter}\" />");
+		$networkfilter = $this->getSessionNetworkFilter();
+		print("<input name=\"networkfilter\" type=\"hidden\" value=\"{$networkfilter}\" />");
+		$servicefilter = $this->getSessionServiceFilter();
+		print("<input name=\"servicefilter\" type=\"hidden\" value=\"{$servicefilter}\" />");
+		$countfilter = $this->getSessionCountFilter();
+		print("<input name=\"countfilter\" type=\"hidden\" value=\"{$countfilter}\" />");
+		$limitfilter = $this->getSessionLimitFilter();
+		print("<input name=\"limitfilter\" type=\"hidden\" value=\"{$limitfilter}\" />");
+		$service = $this->getRequestService();
 		print("<input name=\"service\" type=\"hidden\" value=\"{$service}\" />");
 		$hostip = $this->getRequestHostip();
 		print("<input name=\"hostip\" type=\"hidden\" value=\"{$hostip}\" />");
@@ -146,28 +158,34 @@ abstract class WebView extends WebAccess {
 
 	protected function printFilter() {
 		print("<div class=\"filter\">");
-		if($this->tTypeFilter) {
-			$this->printSelectType();
+		if($this->tTypeFilterEnabled) {
+			$this->printSelectTypeFilter();
 		}
-		if($this->tLoghostFilter) {
-			$this->printSelectLoghost();
+		if($this->tLoghostFilterEnabled) {
+			$this->printSelectLoghostFilter();
 		}
-		if($this->tNetworkFilter) {
-			$this->printSelectNetwork();
+		if($this->tNetworkFilterEnabled) {
+			$this->printSelectNetworkFilter();
 		}
-		if($this->tServiceFilter) {
-			$this->printSelectService();
+		if($this->tServiceFilterEnabled) {
+			$this->printSelectServiceFilter();
+		}
+		if($this->tCountFilterEnabled) {
+			$this->printSelectCountFilter();
+		}
+		if($this->tLimitFilterEnabled) {
+			$this->printSelectLimitFilter();
 		}
 		print("</div>");
 	}
 
-	protected function printSelectType() {
+	protected function printSelectTypeFilter() {
 		$l12n = $this->l12n();
-		$value = $this->getSessionType();
+		$value = $this->getSessionTypeFilter();
 		print("<label for=\"typefilter\"> ");
 		Html::out($l12n->t("Status:"));
 		print("</label>");
-		print("<select id=\"typefilter\" size=\"1\" onchange=\"applyOption('*', 'type', this.value)\">");
+		print("<select id=\"typefilter\" size=\"1\" onchange=\"applyOption('*', 'typefilter', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
@@ -187,9 +205,9 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printSelectLoghost() {
+	protected function printSelectLoghostFilter() {
 		$l12n = $this->l12n();
-		$value = $this->getSessionLoghost();
+		$value = $this->getSessionLoghostFilter();
 		print("<label for=\"loghostfilter\"> ");
 		Html::out($l12n->t("Log:"));
 		print("</label>");
@@ -198,7 +216,7 @@ abstract class WebView extends WebAccess {
 		$select->execute();
 		$select->bindColumn(1, $loghostId, PDO::PARAM_STR);
 		$select->bindColumn(2, $loghost, PDO::PARAM_STR);
-		print("<select id=\"loghostfilter\" size=\"1\" onchange=\"applyOption('*', 'loghost', this.value)\">");
+		print("<select id=\"loghostfilter\" size=\"1\" onchange=\"applyOption('*', 'loghostfilter', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
@@ -212,9 +230,9 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printSelectNetwork() {
+	protected function printSelectNetworkFilter() {
 		$l12n = $this->l12n();
-		$value = $this->getSessionNetwork();
+		$value = $this->getSessionNetworkFilter();
 		print("<label for=\"networkfilter\"> ");
 		Html::out($l12n->t("Network:"));
 		print("</label>");
@@ -223,7 +241,7 @@ abstract class WebView extends WebAccess {
 		$select->execute();
 		$select->bindColumn(1, $networkId, PDO::PARAM_STR);
 		$select->bindColumn(2, $network, PDO::PARAM_STR);
-		print("<select id=\"networkfilter\" size=\"1\" onchange=\"applyOption('*', 'network', this.value)\">");
+		print("<select id=\"networkfilter\" size=\"1\" onchange=\"applyOption('*', 'networkfilter', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
@@ -237,9 +255,9 @@ abstract class WebView extends WebAccess {
 		print("</select>");
 	}
 
-	protected function printSelectService() {
+	protected function printSelectServiceFilter() {
 		$l12n = $this->l12n();
-		$value = $this->getSessionService();
+		$value = $this->getSessionServiceFilter();
 		print("<label for=\"servicefilter\"> ");
 		Html::out($l12n->t("Service:"));
 		print("</label>");
@@ -248,7 +266,7 @@ abstract class WebView extends WebAccess {
 		$select->execute();
 		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
 		$select->bindColumn(2, $service, PDO::PARAM_STR);
-		print("<select id=\"servicefilter\" size=\"1\" onchange=\"applyOption('*', 'service', this.value)\">");
+		print("<select id=\"servicefilter\" size=\"1\" onchange=\"applyOption('*', 'servicefilter', this.value)\">");
 		print("<option value=\"*\"");
 		print($value == "*" ? " selected>" : ">");
 		Html::out("*");
@@ -257,6 +275,48 @@ abstract class WebView extends WebAccess {
 			print("<option value=\"{$serviceId}\"");
 			print($value == $serviceId ? " selected>" : ">");
 			Html::out($service);
+			print("</option>");
+		}
+		print("</select>");
+	}
+
+	protected function printSelectCountFilter() {
+		$l12n = $this->l12n();
+		$value = $this->getSessionCountFilter();
+		print("<label for=\"countfilter\"> ");
+		Html::out($l12n->t("Min count:"));
+		print("</label>");
+		print("<select id=\"countfilter\" size=\"1\" onchange=\"applyOption('*', 'countfilter', this.value)\">");
+		for($option = 1; $option <= 1000; $option *= 10) {
+			print("<option value=\"{$option}\"");
+			print($value == $option ? " selected>" : ">");
+			Html::out($option);
+			print("</option>");
+		}
+		print("</select>");
+	}
+
+	protected function printSelectLimitFilter() {
+		$l12n = $this->l12n();
+		$value = $this->getSessionLimitFilter();
+		print("<label for=\"limitfilter\"> ");
+		Html::out($l12n->t("Max lines:"));
+		print("</label>");
+		print("<select id=\"limitfilter\" size=\"1\" onchange=\"applyOption('*', 'limitfilter', this.value)\">");
+		print("<option value=\"0\"");
+		print($value == 0 ? " selected>" : ">");
+		Html::out("*");
+		print("</option>");
+		for($option = 10; $option < 100; $option += 10) {
+			print("<option value=\"{$option}\"");
+			print($value == $option ? " selected>" : ">");
+			Html::out($option);
+			print("</option>");
+		}
+		for($option = 100; $option <= 1000; $option += 100) {
+			print("<option value=\"{$option}\"");
+			print($value == $option ? " selected>" : ">");
+			Html::out($option);
 			print("</option>");
 		}
 		print("</select>");

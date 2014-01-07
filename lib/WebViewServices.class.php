@@ -21,7 +21,7 @@
 class WebViewServices extends WebView {
 
 	public function __construct($dbh) {
-		parent::__construct($dbh, true, true, true, true);
+		parent::__construct($dbh, true, true, true, false, true, true);
 	}
 
 	public function sendHtml() {
@@ -40,10 +40,10 @@ class WebViewServices extends WebView {
 
 	private function printEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$serviceId = $this->getSessionService();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
+		$serviceId = $this->getRequestService();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, ".
 				"SUM(a.count), MIN(a.first), MAX(a.last) ".
@@ -84,17 +84,21 @@ class WebViewServices extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventService($serviceId, $service);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", "*", "*", "*");
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventService($serviceId, $service);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, "*", "*", "*");
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();

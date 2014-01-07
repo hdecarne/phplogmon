@@ -69,7 +69,7 @@ class WebViewAbout extends WebView {
 	);
 
 	public function __construct($dbh) {
-		parent::__construct($dbh, false, false, false, false);
+		parent::__construct($dbh, false, false, false, false, false, false);
 	}
 
 	public function sendHtml() {

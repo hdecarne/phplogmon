@@ -21,7 +21,7 @@
 class WebViewHostmacs extends WebView {
 
 	public function __construct($dbh) {
-		parent::__construct($dbh, true, true, true, false);
+		parent::__construct($dbh, true, true, true, false, true, true);
 	}
 
 	public function sendHtml() {
@@ -40,9 +40,9 @@ class WebViewHostmacs extends WebView {
 
 	private function printEventData() {
 		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
+		$typeId = $this->getSessionTypeFilter();
+		$loghostId = $this->getSessionLoghostFilter();
+		$networkId = $this->getSessionNetworkFilter();
 		$select = $dbh->prepare(
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.hostmac, d.vendor, ".
 				"SUM(a.count), MIN(a.first), MAX(a.last) ".
@@ -82,17 +82,21 @@ class WebViewHostmacs extends WebView {
 		));
 		$rowNr = 1;
 		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventHostmac($hostmacId, $hostmac, $vendor);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", "*", $hostmacId, "*");
-			$this->endEventRow();
+		$minCount = $this->getSessionCountFilter();
+		$rowLimit = $this->getSessionLimitFilter();
+		while($select->fetch(PDO::FETCH_BOUND) !== false && ($rowLimit == 0 || $rowNr <= $rowLimit)) {
+			if($count >= $minCount) {
+				$this->beginEventRow();
+				$this->printEventRowNr($rowNr);
+				$this->printEventType($typeId);
+				$this->printEventLoghost($loghost);
+				$this->printEventNetwork($network);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventCount($count);
+				$this->printEventTimerange($now, $first, $last);
+				$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", "*", $hostmacId, "*");
+				$this->endEventRow();
+			}
 			$rowNr++;
 		}
 		$this->endEventTable();
