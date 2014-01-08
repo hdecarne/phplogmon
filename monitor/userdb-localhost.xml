@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<logmon version="1">
-	<userdb type="posix">
-		<source refname="syslog" />
-		<source refname="apachelog" />
-	</userdb>
-</logmon>
