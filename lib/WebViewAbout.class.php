@@ -61,11 +61,11 @@ class WebViewAbout extends WebView {
 	);
 
 	private static $sOxygenIcons = array(
-		"user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png"
+		"country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png"
 	);
 
-	private static $sMiscIcons = array(
-		"country_generic.png", "type_denied.png", "type_error.png", "type_granted.png"
+	private static $sMouserunnerIcons = array(
+		"type_denied.png", "type_error.png", "type_granted.png"
 	);
 
 	public function __construct($dbh) {
@@ -105,13 +105,13 @@ class WebViewAbout extends WebView {
 	}
 
 	private function printAttribution() {
-		$this->printImages(self::$sFlatIcons);
-		print("<br/>");
 		$this->printImages(self::$sFlagIcons);
 		print("<br/>");
 		$this->printImages(self::$sOxygenIcons);
 		print("<br/>");
-		$this->printImages(self::$sMiscIcons);
+		$this->printImages(self::$sFlatIcons);
+		print("<br/>");
+		$this->printImages(self::$sMouserunnerIcons);
 	}
 
 	private function printImages($images) {

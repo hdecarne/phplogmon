@@ -121,10 +121,11 @@ abstract class WebView extends WebAccess {
 		if($attribution) {
 			print("<address class=\"attribution\">");
 			print("<a href=\"http://phplogmon.carne.de\">phpLogMon</a> sources are Copyright (c) 2012-2014 Holger de Carne and contributors und subject to the GPL version 3 or later.<br/>");
-			print("The accompanied image resources are subject to different copyrights:<br/>");
-			print("Most of the navigation icons are made by <a href=\"http://www.flaticon.com/packs/batch\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a><br/>");
-			print("Flags icons are made by <a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com\">vathanx.deviantart.com</a><br/>");
-			print("Additional icons are are part of the <a href=\"http://www.oxygen-icons.org\">Oxygen</a> icon set made by the <a href=\"http://www.oxygen-icons.org\">Oxygen Team</a><br/>");
+			print("The accompanied image resources are subject to different copyrights by: ");
+			print("<a href=\"http://vathanx.deviantart.com/art/World-Flag-Icons-PNG-108083900\">Vathanx</a> from <a href=\"http://vathanx.deviantart.com\">vathanx.deviantart.com</a> | ");
+			print("<a href=\"http://www.oxygen-icons.org\">Oxygen Team</a> from <a href=\"http://www.oxygen-icons.org\">www.oxygen-icons.org</a> | ");
+			print("<a href=\"http://www.flaticon.com/packs/batch\">Adam Whitcroft</a> from <a href=\"http://www.flaticon.com\">www.flaticon.com</a> | ");
+			print("<a href=\"http://www.mouserunner.com/Spheres_ColoCons1_Free_Icons.html\">Ken Saunders</a> from <a href=\"http://www.mouserunner.com\">www.mouserunner.com</a></br>");
 			print("See <a href=\"?cmd=viewabout\">License</a> for full details.");
 			print("</address>");
 		}
