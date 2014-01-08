@@ -20,11 +20,7 @@
 
 class WebViewAbout extends WebView {
 
-	private static $sFlatIcons = array(
-		"log_download.png", "log_view.png", "map_link.png", "whois_link.png"
-	);
-
-	private static $sFlagIcons = array(
+	private static $sIcons1 = array(
 		"country/AD.png", "country/BM.png", "country/CU.png", "country/FR.png", "country/ID.png", "country/KZ.png", "country/MP.png",
 		"country/PE.png", "country/SG.png", "country/TT.png", "country/AE.png", "country/BN.png", "country/CV.png", "country/GA.png",
 		"country/IE.png", "country/LA.png", "country/MR.png", "country/PF.png", "country/SH.png", "country/TV.png", "country/AF.png",
@@ -60,11 +56,15 @@ class WebViewAbout extends WebView {
 		"country/KY.png", "country/MO.png", "country/PA.png", "country/SE.png", "country/TR.png", "country/ZW.png"
 	);
 
-	private static $sOxygenIcons = array(
+	private static $sIcons2 = array(
 		"country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png"
 	);
 
-	private static $sMouserunnerIcons = array(
+	private static $sIcons3 = array(
+		"log_download.png", "log_view.png", "map_link.png", "whois_link.png"
+	);
+
+	private static $sIcons4 = array(
 		"type_denied.png", "type_error.png", "type_granted.png"
 	);
 
@@ -87,7 +87,9 @@ class WebViewAbout extends WebView {
 	}
 
 	private function printLicense() {
+		print("<h1>");
 		Html::out("phplogmon");
+		print("</h1>");
 		print("<pre>");
 		Html::out("Copyright (c) 2012-2014 Holger de Carne and contributors, All Rights Reserved.\n");
 		Html::out("This program is free software: you can redistribute it and/or modify\n");
@@ -105,13 +107,67 @@ class WebViewAbout extends WebView {
 	}
 
 	private function printAttribution() {
-		$this->printImages(self::$sFlagIcons);
-		print("<br/>");
-		$this->printImages(self::$sOxygenIcons);
-		print("<br/>");
-		$this->printImages(self::$sFlatIcons);
-		print("<br/>");
-		$this->printImages(self::$sMouserunnerIcons);
+		print("<h2>");
+		Html::out("Flag icons ");
+		$this->printImages(self::$sIcons1);
+		print("</h2>");
+		print("<pre>");
+		Html::out("This flag icons are copyright (c) Radosław Rokita (");
+		print("<a href=\"http://vathanx.deviantart.com\">");
+		Html::out("vathanx.deviantart.com");
+		print("</a>");
+		Html::out(") and are subject to the ");
+		print("<a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0\">");
+		Html::out("Creative Commons Attribution-Noncommercial-No Derivative Works 3.0 License");
+		print("</a>");
+		Html::out(".");
+		print("</pre>");
+		print("<h2>");
+		Html::out("Oxygen icons ");
+		$this->printImages(self::$sIcons2);
+		print("</h2>");
+		print("<pre>");
+		Html::out("The Oxygen Icons are copyright (c) Oxygen Team (");
+		print("<a href=\"http://www.oxygen-icons.org\">");
+		Html::out("www.oxygen-icons.org");
+		print("</a>");
+		Html::out(") and are subject to the ");
+		print("<a href=\"http://en.wikipedia.org/wiki/GNU_Lesser_General_Public_License\">");
+		Html::out("GNU Lesser General Public License");
+		print("</a>");
+		Html::out(".");
+		print("</pre>");
+		print("<h2>");
+		Html::out("Flat icons ");
+		$this->printImages(self::$sIcons3);
+		print("</h2>");
+		print("<pre>");
+		Html::out("The Flat icons are copyright (c) Adam Whitcroft (");
+		print("<a href=\"http://www.flaticon.com/authors/adam-whitcroft\">");
+		Html::out("www.flaticon.com");
+		print("</a>");
+		Html::out(") and are subject to the ");
+		print("<a href=\"http://creativecommons.org/licenses/by/3.0\">");
+		Html::out("Creative Commons Attribution 3.0 Unported License");
+		print("</a>");
+		Html::out(".");
+		print("</pre>");
+		print("<h2>");
+		Html::out("Mouserunner icons ");
+		$this->printImages(self::$sIcons4);
+		print("</h2>");
+		print("<pre>");
+		Html::out("The Mouserunner icons are copyright (c) Ken Saunders (");
+		print("<a href=\"http://www.mouserunner.com\">");
+		Html::out("www.mouserunner.com");
+		print("</a>");
+		Html::out(") and are subject to the ");
+		print("<a href=\"http://creativecommons.org/licenses/by-nc-sa/2.5/legalcode\">");
+		Html::out("Creative Commons Attribution-ShareAlike 2.5 License");
+		print("</a>");
+		Html::out(".");
+		print("</pre>");
+		print("<hr/>");
 	}
 
 	private function printImages($images) {
@@ -119,68 +175,6 @@ class WebViewAbout extends WebView {
 			$src = "img/{$image}";
 			print("<img class=\"icon16\" src=\"${src}\" alt=\"icon\" title=\"{$src}\" /> ");
 		}
-	}
-
-	private function printEventData() {
-		$dbh = $this->dbh();
-		$typeId = $this->getSessionType();
-		$loghostId = $this->getSessionLoghost();
-		$networkId = $this->getSessionNetwork();
-		$select = $dbh->prepare(
-			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.hostip, d.host, d.countrycode, d.countryname, ".
-				"SUM(a.count), MIN(a.first), MAX(a.last) ".
-			"FROM event a, loghost b, network c, hostip d ".
-			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.hostipid = d.id AND d.hostip <> '' ".
-				"AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?) ".
-			"GROUP BY a.typeid, b.id, c.id, d.id ".
-			"ORDER BY MAX(a.last) DESC");
-		$select->bindParam(1, $typeId, PDO::PARAM_STR);
-		$select->bindParam(2, $typeId, PDO::PARAM_STR);
-		$select->bindParam(3, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(4, $loghostId, PDO::PARAM_STR);
-		$select->bindParam(5, $networkId, PDO::PARAM_STR);
-		$select->bindParam(6, $networkId, PDO::PARAM_STR);
-		$select->execute();
-		$select->bindColumn(1, $typeId, PDO::PARAM_STR);
-		$select->bindColumn(2, $loghostId, PDO::PARAM_STR);
-		$select->bindColumn(3, $loghost, PDO::PARAM_STR);
-		$select->bindColumn(4, $networkId, PDO::PARAM_STR);
-		$select->bindColumn(5, $network, PDO::PARAM_STR);
-		$select->bindColumn(6, $hostipId, PDO::PARAM_STR);
-		$select->bindColumn(7, $hostip, PDO::PARAM_STR);
-		$select->bindColumn(8, $host, PDO::PARAM_STR);
-		$select->bindColumn(9, $countrycode, PDO::PARAM_STR);
-		$select->bindColumn(10, $countryname, PDO::PARAM_STR);
-		$select->bindColumn(11, $count, PDO::PARAM_INT);
-		$select->bindColumn(12, $first, PDO::PARAM_INT);
-		$select->bindColumn(13, $last, PDO::PARAM_INT);
-		$l12n = $this->l12n();
-		$this->beginEventTable(array(
-			$l12n->t("Nr"),
-			$l12n->t("Status"),
-			$l12n->t("Log"),
-			$l12n->t("Network"),
-			$l12n->t("Host"),
-			$l12n->t("Count"),
-			$l12n->t("When"),
-			$l12n->t("Logs")
-		));
-		$rowNr = 1;
-		$now = time();
-		while($select->fetch(PDO::FETCH_BOUND) !== false) {
-			$this->beginEventRow();
-			$this->printEventRowNr($rowNr);
-			$this->printEventType($typeId);
-			$this->printEventLoghost($loghost);
-			$this->printEventNetwork($network);
-			$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-			$this->printEventCount($count);
-			$this->printEventTimerange($now, $first, $last);
-			$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", $hostipId, "*", "*");
-			$this->endEventRow();
-			$rowNr++;
-		}
-		$this->endEventTable();
 	}
 
 }

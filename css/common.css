@@ -8,11 +8,11 @@ body {
 div.navbar {
 	padding: 10px 8px;
 	color: #ffffff;
-	background-color: #a0a0a0;
+	background-color: #404040;
 }
 div.filter {
 	padding: 6px 8px;
-	background-color: #e0e0e0;
+	background-color: #d0d0d0;
 }
 section.details {
 	margin: 8px;
@@ -89,5 +89,5 @@ td.bold {
 }
 
 address.attribution {
-	font-size: 80%;
+	font-size: 90%;
 }
