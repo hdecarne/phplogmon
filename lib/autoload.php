@@ -19,7 +19,29 @@
  */
 
 function __autoload($name) {
-	include("{$name}.class.php");
+	if(substr_compare($name, "GeoIp2\\", 0, strlen("GeoIp2\\")) == 0) {
+		$includeFile = dirname(__FILE__);
+		$includeFile .= DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."ext-lib".DIRECTORY_SEPARATOR;
+		if("\\" != DIRECTORY_SEPARATOR) {
+			$includeFile .= str_replace("\\", DIRECTORY_SEPARATOR, $name);
+		} else {
+			$includeFile .= $name;
+		}
+		$includeFile .= ".php";
+	} elseif(substr_compare($name, "MaxMind\\", 0, strlen("MaxMind\\")) == 0) {
+		$includeFile = dirname(__FILE__);
+		$includeFile .= DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."ext-lib".DIRECTORY_SEPARATOR;
+		if("\\" != DIRECTORY_SEPARATOR) {
+			$includeFile .= str_replace("\\", DIRECTORY_SEPARATOR, $name);
+		} else {
+			$includeFile .= $name;
+		}
+		$includeFile .= ".php";
+	} else {
+		$includeFile = $name;
+		$includeFile .= ".class.php";
+	}
+	include($includeFile);
 }
 
 ?>

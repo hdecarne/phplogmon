@@ -20,6 +20,8 @@
 
 class QueryHostip {
 
+	private static $geoip2Reader = null;
+
 	private function __construct() {
 	}
 
@@ -49,7 +51,7 @@ class QueryHostip {
 		$select->execute();
 		$select->bindColumn(1, $id, PDO::PARAM_STR);
 		if($select->fetch(PDO::FETCH_BOUND) === false) {
-			$geoipRecord = self::safeGeoiprecordbyname($hostip);
+			$geoipRecord = self::safeGetGeoipRecord($hostip);
 			if(!Options::pretend()) {
 				$insert = $dbh->prepare("INSERT INTO hostip (hostip, host, continentcode, countrycode, countryname, region, city, postalcode, latitude, longitude) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 				$insert->bindValue(1, $hostip, PDO::PARAM_STR);
@@ -84,35 +86,51 @@ class QueryHostip {
 		return ($host !== false ? $host : $hostip);
 	}
 
-	private static function safeGeoiprecordbyname($hostip) {
+	private static function safeGetGeoipRecord($hostip) {
 		$record = false;
-		if(function_exists("geoip_record_by_name")) {
-			$record = @geoip_record_by_name($hostip);
-			if($record !== false) {
-				$record["continent_code"] = utf8_encode($record["continent_code"]);
-				$record["country_code"] = utf8_encode($record["country_code"]);
-				$record["country_code3"] = utf8_encode($record["country_code3"]);
-				$record["country_name"] = utf8_encode($record["country_name"]);
-				$record["region"] = utf8_encode($record["region"]);
-				$record["city"] = utf8_encode($record["city"]);
-				$record["postal_code"] = utf8_encode($record["postal_code"]);
-				$record["dma_code"] = utf8_encode($record["dma_code"]);
-				$record["dma_code"] = utf8_encode($record["dma_code"]);
+		if(GEOIP2_CITY_DATABASE_FILE != false) {
+			if(is_null(self::$geoip2Reader)) {
+				self::$geoip2Reader = new GeoIp2\Database\Reader(GEOIP2_CITY_DATABASE_FILE);
+			}
+			try {
+				$found = self::$geoip2Reader->city($hostip);
+				$record = array(
+					"continent_code" => utf8_encode($found->continent->code),
+					"country_code" => utf8_encode($found->country->isoCode),
+					"country_name" => utf8_encode($found->country->name),
+					"region" => utf8_encode($found->mostSpecificSubdivision->isoCode),
+					"city" => utf8_encode($found->city->name),
+					"postal_code" => utf8_encode($found->postal->code),
+					"latitude" => $found->location->latitude,
+					"longitude" => $found->location->longitude
+				);
+			} catch(GeoIp2\Exception\AddressNotFoundException $e) {
+			}
+		} elseif(function_exists("geoip_record_by_name")) {
+			$found = @geoip_record_by_name($hostip);
+			if($found !== false) {
+				$record = array(
+					"continent_code" => utf8_encode($found["continent_code"]),
+					"country_code" => utf8_encode($found["country_code"]),
+					"country_name" => utf8_encode($found["country_name"]),
+					"region" => utf8_encode($found["region"]),
+					"city" => utf8_encode($found["city"]),
+					"postal_code" => utf8_encode($found["postal_code"]),
+					"latitude" => $found["latitude"],
+					"longitude" => $found["longitude"]
+				);
 			}
 		}
 		if($record === false) {
 			$record = array(
 				"continent_code" => "",
 				"country_code" => "",
-				"country_code3" => "",
 				"country_name" => "",
 				"region" => "",
 				"city" => "",
 				"postal_code" => "",
 				"latitude" => 0.0,
-				"longitude" => 0.0,
-				"dma_code" => "",
-				"area_code" => ""
+				"longitude" => 0.0
 			);
 		}
 		return $record;

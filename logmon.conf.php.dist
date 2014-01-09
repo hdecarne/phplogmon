@@ -24,6 +24,13 @@ define('DBPASS', 'secret');
 define('EVENT_DISCARD_THRESHOLD', 14);
 
 /*
+ * Name of the MaxMind (http://www.maxmind.com) GeoIP2 City database to use.
+ * If none is defined (false) the GeoIP2 API is not used.
+ * See ext-lib/README for how to provide the GeoIP2 API.
+ */
+define('GEOIP2_CITY_DATABASE_FILE', false);
+
+/*
  * URI pattern to use for map link generation.
  * This format string is passed to php's sprintf function with the following parameters:
  *  %1$s: Host's name
