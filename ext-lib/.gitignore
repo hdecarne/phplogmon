@@ -1,0 +1,5 @@
+#Ignore any files (3rd pary libraries) in this directory
+*
+#with exception of these files
+!README
+!.gitignore
