@@ -90,6 +90,9 @@ class QueryHostip {
 		$record = false;
 		if(GEOIP2_CITY_DATABASE_FILE != false) {
 			if(is_null(self::$geoip2Reader)) {
+				if(!extension_loaded("bcmath")) {
+					Log::warning("Missing required extension 'bcmath' for GeoIP2");
+				}
 				self::$geoip2Reader = new GeoIp2\Database\Reader(GEOIP2_CITY_DATABASE_FILE);
 			}
 			try {
