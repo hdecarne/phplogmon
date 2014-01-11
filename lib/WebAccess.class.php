@@ -20,6 +20,7 @@
 
 abstract class WebAccess {
 
+	const STATUS_FORBIDDEN = 403;
 	const STATUS_SERVICE_UNAVAILABLE = 503;
 
 	const SESSION_NAME = "Logmon";

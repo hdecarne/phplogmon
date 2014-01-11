@@ -31,6 +31,16 @@ define('EVENT_DISCARD_THRESHOLD', 14);
 define('GEOIP2_CITY_DATABASE_FILE', false);
 
 /*
+ * Whether to allow anonymous access to the log lines via the web frontend.
+ * If set to true any user allowed to access the web frontend will be able to read/download the
+ * collected log lines. If set to false, the web frontend checks if the user hat authenticated
+ * itself to the web server by checking the REMOTE_USER variable.
+ * Please note: The web frontend does not perform any kind of authentication by itself. If such
+ * security measures are required, they have to be enforced externally (e.g. by the web server).
+ */
+define('ENABLE_ANONYMOUS_LOGACCESS', false);
+
+/*
  * URI pattern to use for map link generation.
  * This format string is passed to php's sprintf function with the following parameters:
  *  %1$s: Host's name
