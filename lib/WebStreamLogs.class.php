@@ -25,15 +25,16 @@ class WebStreamLogs extends WebStream {
 	}
 
 	public function sendData() {
-		if(ENABLE_ANONYMOUS_LOGACCESS || !isset($_SERVER["REMOTE_USER"]) || $_SERVER["REMOTE_USER"] == "") {
+		if(ENABLE_ANONYMOUS_LOGACCESS || (isset($_SERVER["REMOTE_USER"]) && $_SERVER["REMOTE_USER"] != "")) {
+			$this->sendContentType(self::CONTENT_TYPE_TEXT_PLAIN);
+			$download = $this->getRequestDownload() != 0;
+			if($download) {
+				$this->sendContentDisposition("logs.txt");
+			}
+			$this->sendLogs();
+		} else {
 			$this->sendStatusAndExit(self::STATUS_FORBIDDEN);
 		}
-		$this->sendContentType(self::CONTENT_TYPE_TEXT_PLAIN);
-		$download = $this->getRequestDownload() != 0;
-		if($download) {
-			$this->sendContentDisposition("logs.txt");
-		}
-		$this->sendLogs();
 	}
 
 	private function sendLogs() {
