@@ -102,6 +102,17 @@ abstract class WebAccess {
 
 	public static function sendStatusAndExit($status) {
 		http_response_code($status);
+		switch($status) {
+		case self::STATUS_FORBIDDEN:
+			$message = "HTTP 403 Forbidden";
+			break;
+		case self::STATUS_SERVICE_UNAVAILABLE:
+			$message = "HTTP 503 Service Unavailable";
+			break;
+		default:
+			$message = "HTTP {$status}";
+		}
+		print($message);
 		flush();
 		exit;
 	}
