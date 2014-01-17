@@ -48,12 +48,12 @@ abstract class Userdb {
 	}
 
 	function splitUserDomains($user) {
-		$domainPos = strpos($user, "\\", 0);
+		$domainPos = strpos($user, "\\\\", 0);
 		$emailPos = strpos($user, "@", 0);
 		if($domainPos === false || $emailPos === false || $domainPos < $emailPos) {
-			if($domainPos !== false && 0 < $domainPos && $domainPos + 1 < strlen($user)) {
+			if($domainPos !== false && 0 < $domainPos && $domainPos + 2 < strlen($user)) {
 				$loginDomain = substr($user, 0, $domainPos);
-				$domainUser = substr($user, $domainPos + 1);
+				$domainUser = substr($user, $domainPos + 2);
 			} else {
 				$loginDomain = "";
 				$domainUser = $user;
