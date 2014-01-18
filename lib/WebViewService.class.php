@@ -34,41 +34,40 @@ class WebViewService extends WebView {
 		$this->printNavBar();
 		$this->printFilter();
 		if($this->getRequestService() != "*") {
+			$this->printServiceDetails();
 			$this->printServiceEventData();
 		}
 		$this->endBody();
 		$this->endHtml();
 	}
 
-	private function printUserDetails() {
+	private function printServiceDetails() {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionTypeFilter();
 		$loghostId = $this->getSessionLoghostFilter();
 		$networkId = $this->getSessionNetworkFilter();
-		$serviceId = $this->getSessionServiceFilter();
-		$userId = $this->getRequestUser();
+		$serviceId = $this->getRequestService();
 		$select = $dbh->prepare(
-			"SELECT a.id, a.user, a.statusid ".
-			"FROM user a ".
+			"SELECT a.id, a.service ".
+			"FROM service a ".
 			"WHERE a.id = ?");
-		$select->bindParam(1, $userId, PDO::PARAM_STR);
+		$select->bindParam(1, $serviceId, PDO::PARAM_STR);
 		$select->execute();
-		$select->bindColumn(1, $userId, PDO::PARAM_STR);
-		$select->bindColumn(2, $user, PDO::PARAM_STR);
-		$select->bindColumn(3, $statusId, PDO::PARAM_STR);
+		$select->bindColumn(1, $serviceId, PDO::PARAM_STR);
+		$select->bindColumn(2, $service, PDO::PARAM_STR);
 		if($select->fetch(PDO::FETCH_BOUND) !== false) {
 			$l12n = $this->l12n();
 			$this->beginDetailsSection();
 			$this->beginDetails1();
-			$this->printImgUserStatus("icon128", $statusId);
+			$this->printImgService("icon128", $service);
 			$this->endDetails1();
 			$this->beginDetails2();
 			$this->beginDetailsTable();
-			$this->beginDetailsTableElement($l12n->t("User"));
-			Html::out($user);
+			$this->beginDetailsTableElement($l12n->t("Service"));
+			Html::out($service);
 			$this->endDetailsTableElement();
 			$this->beginDetailsTableElement($l12n->t("Logs"));
-			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, "*", "*", $userId);
+			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, "*", "*", "*");
 			$this->endDetailsTableElement();
 			$this->endDetailsTable();
 			$this->endDetails2();

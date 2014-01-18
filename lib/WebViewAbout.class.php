@@ -57,7 +57,7 @@ class WebViewAbout extends WebView {
 	);
 
 	private static $sIcons2 = array(
-		"country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png"
+		"country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png", "service_generic.png"
 	);
 
 	private static $sIcons3 = array(

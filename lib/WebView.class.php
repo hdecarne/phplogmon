@@ -473,6 +473,14 @@ abstract class WebView extends WebAccess {
 		print("</a></td>");
 	}
 
+	protected function printImgService($imgClass, $service) {
+		$l12n = $this->l12n();
+		$src = "img/service_generic.png";
+		$alt = Html::format($l12n->t("Service"));
+		$title = Html::format("$service");
+		print("<img class=\"{$imgClass}\" src=\"{$src}\" alt=\"{$alt}\" title=\"{$title}\" />");
+	}
+
 	protected function printImgEventType($imgClass, $typeId) {
 		$l12n = $this->l12n();
 		$alt = Html::format($l12n->t("Status"));
