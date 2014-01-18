@@ -135,20 +135,24 @@ abstract class WebView extends WebAccess {
 	protected function printNavBar() {
 		$l12n = $this->l12n();
 		print("<div class=\"navbar\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewevents\">");
+		Html::out($l12n->t("Browse all"));
+		print("</a>");
+		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewservices\">");
 		Html::out($l12n->t("Service access"));
 		print("</a>");
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewhostips\">");
-		Html::out($l12n->t("IP access"));
-		print("</a>");
-		print(" | ");
-		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs\">");
-		Html::out($l12n->t("MAC access"));
+		Html::out($l12n->t("Host access"));
 		print("</a>");
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewusers\">");
 		Html::out($l12n->t("User access"));
+		print("</a>");
+		print(" | ");
+		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs\">");
+		Html::out($l12n->t("MAC access"));
 		print("</a>");
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewabout\">");
@@ -377,14 +381,14 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function printEventService($serviceId, $service) {
-		print("<td><a href=\"?cmd=viewevents&amp;service={$serviceId}\">");
+		print("<td><a href=\"?cmd=viewservice&amp;service={$serviceId}\">");
 		Html::out($service);
 		print("</a></td>");
 	}
 
 	protected function printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname) {
 		if($hostip != "") {
-			print("<td><a href=\"?cmd=viewevents&amp;hostip={$hostipId}\">");
+			print("<td><a href=\"?cmd=viewhostip&amp;hostip={$hostipId}\">");
 			$this->printImgCountry("icon16", $countrycode, $countryname);
 			if($host != $hostip) {
 				print("<span title=\"{$hostip}\">");
@@ -403,7 +407,7 @@ abstract class WebView extends WebAccess {
 
 	protected function printEventHostmac($hostmacId, $hostmac, $vendor) {
 		if($hostmac != "") {
-			print("<td><a href=\"?cmd=viewevents&amp;hostmac={$hostmacId}\">");
+			print("<td><a href=\"?cmd=viewhostmac&amp;hostmac={$hostmacId}\">");
 			$this->printImgVendor("icon16", $hostmac, $vendor);
 			Html::out(" {$hostmac}");
 			if($vendor != "") {
@@ -419,7 +423,7 @@ abstract class WebView extends WebAccess {
 
 	protected function printEventUser($userId, $user, $statusId) {
 		if($user != "") {
-			print("<td><a href=\"?cmd=viewevents&amp;user={$userId}\">");
+			print("<td><a href=\"?cmd=viewuser&amp;user={$userId}\">");
 			$this->printImgUserStatus("icon16", $statusId);
 			Html::out(" {$user}");
 			print("</a></td>");

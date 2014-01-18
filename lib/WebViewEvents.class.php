@@ -43,6 +43,8 @@ class WebViewEvents extends WebView {
 			$this->printUserDetails();
 			$this->printUserEventData();
 		} elseif($this->getRequestService() != "*") {
+			$this->printServiceEventData();
+		} else {
 			$this->printEventData();
 		}
 		$this->endBody();

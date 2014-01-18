@@ -20,14 +20,26 @@ try {
 		case "viewservices":
 			$access = new WebViewServices($dbh);
 			break;
+		case "viewservice":
+			$access = new WebViewService($dbh);
+			break;
 		case "viewhostips":
 			$access = new WebViewHostips($dbh);
+			break;
+		case "viewhostip":
+			$access = new WebViewHostip($dbh);
 			break;
 		case "viewhostmacs":
 			$access = new WebViewHostmacs($dbh);
 			break;
+		case "viewhostmac":
+			$access = new WebViewHostmac($dbh);
+			break;
 		case "viewusers":
 			$access = new WebViewUsers($dbh);
+			break;
+		case "viewuser":
+			$access = new WebViewUser($dbh);
 			break;
 		case "viewevents":
 			$access = new WebViewEvents($dbh);
