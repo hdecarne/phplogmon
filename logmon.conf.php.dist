@@ -31,14 +31,17 @@ define('EVENT_DISCARD_THRESHOLD', 14);
 define('GEOIP2_CITY_DATABASE_FILE', false);
 
 /*
- * Whether to allow anonymous access to the log lines via the web frontend.
- * If set to true any user allowed to access the web frontend will be able to read/download the
- * collected log lines. If set to false, the web frontend checks if the user hat authenticated
- * itself to the web server by checking the REMOTE_USER variable.
+ * Whether to allow anonymous access to senstive data like user names and log lines via the web frontend.
+ * If set to false any user allowed to access the web frontend will be able to read/download all available
+ * information. If set to false, the web frontend checks if the user hat authenticated
+ * itself to the web server by checking the REMOTE_USER variable. If this is not the case the following
+ * restrictions apply:
+ *  - All user names are masked
+ *  - Access to log lines is forbidden
  * Please note: The web frontend does not perform any kind of authentication by itself. If such
  * security measures are required, they have to be enforced externally (e.g. by the web server).
  */
-define('ENABLE_ANONYMOUS_LOGACCESS', false);
+define('ENABLE_ANONYMOUS_KIOSKMODE', true);
 
 /*
  * URI pattern to use for map link generation.

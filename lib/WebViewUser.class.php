@@ -66,7 +66,11 @@ class WebViewUser extends WebView {
 			$this->beginDetails2();
 			$this->beginDetailsTable();
 			$this->beginDetailsTableElement($l12n->t("User"));
-			Html::out($user);
+			if(!Options::kioskMode()) {
+				Html::out($user);
+			} else {
+				Html::out("********");
+			}
 			$this->endDetailsTableElement();
 			$this->beginDetailsTableElement($l12n->t("Logs"));
 			$this->printLogLinks("icon16", $typeId, $loghostId, $networkId, $serviceId, "*", "*", $userId);

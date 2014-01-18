@@ -14,6 +14,7 @@ try {
 
 	mb_internal_encoding("UTF-8");
 	Log::open(__FILE__, Options::debug(), false, Options::debug());
+	Options::setKioskMode(ENABLE_ANONYMOUS_KIOSKMODE && (!isset($_SERVER["REMOTE_USER"]) || $_SERVER["REMOTE_USER"] == ""));
 	$dbh = new DBH(DBDSN, DBUSER, DBPASS);
 	$cmd = WebAccess::getRequest("cmd", false);
 	switch($cmd) {

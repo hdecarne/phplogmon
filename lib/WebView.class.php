@@ -425,7 +425,11 @@ abstract class WebView extends WebAccess {
 		if($user != "") {
 			print("<td><a href=\"?cmd=viewuser&amp;user={$userId}\">");
 			$this->printImgUserStatus("icon16", $statusId);
-			Html::out(" {$user}");
+			if(!Options::kioskMode()) {
+				Html::out(" {$user}");
+			} else {
+				Html::out(" ********");
+			}
 			print("</a></td>");
 		} else {
 			print("<td class=\"center\">");

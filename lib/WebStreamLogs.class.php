@@ -25,7 +25,7 @@ class WebStreamLogs extends WebStream {
 	}
 
 	public function sendData() {
-		if(ENABLE_ANONYMOUS_KIOSKMODE || (isset($_SERVER["REMOTE_USER"]) && $_SERVER["REMOTE_USER"] != "")) {
+		if(!Options::kioskMode()) {
 			$this->sendContentType(self::CONTENT_TYPE_TEXT_PLAIN);
 			$download = $this->getRequestDownload() != 0;
 			if($download) {

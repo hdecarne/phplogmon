@@ -23,6 +23,7 @@ class Options {
 	private static $sOptionDebug = false;
 	private static $sOptionVerbose = false;
 	private static $sOptionPretend = false;
+	private static $sOptionKioskMode = false;
 
 	private function __construct() {
 	}
@@ -49,6 +50,14 @@ class Options {
 
 	public static function pretend() {
 		return self::$sOptionPretend;
+	}
+
+	public static function setKioskMode($optionKioskMode) {
+		self::$sOptionKioskMode = $optionKioskMode;
+	}
+
+	public static function kioskMode() {
+		return self::$sOptionKioskMode;
 	}
 
 }
