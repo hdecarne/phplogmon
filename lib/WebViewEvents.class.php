@@ -27,7 +27,7 @@ class WebViewEvents extends WebView {
 	public function sendHtml() {
 		$l12n = $this->l12n();
 		$this->beginHtml();
-		$title = $l12n->t("LogMon - Events");
+		$title = $l12n->t("LogMon - Browse all");
 		$this->beginHeader($title);
 		$this->endHeader();
 		$this->beginBody();

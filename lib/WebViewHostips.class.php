@@ -27,7 +27,7 @@ class WebViewHostips extends WebView {
 	public function sendHtml() {
 		$l12n = $this->l12n();
 		$this->beginHtml();
-		$title = $l12n->t("LogMon - IP access");
+		$title = $l12n->t("LogMon - Host access");
 		$this->beginHeader($title);
 		$this->endHeader();
 		$this->beginBody();
