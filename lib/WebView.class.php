@@ -135,23 +135,23 @@ abstract class WebView extends WebAccess {
 	protected function printNavBar() {
 		$l12n = $this->l12n();
 		print("<div class=\"navbar\">");
-		print("<a class=\"navbar\" href=\"?cmd=viewevents\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewevents&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("Browse all"));
 		print("</a>");
 		print(" | ");
-		print("<a class=\"navbar\" href=\"?cmd=viewservices\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewservices&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("Service access"));
 		print("</a>");
 		print(" | ");
-		print("<a class=\"navbar\" href=\"?cmd=viewhostips\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewhostips&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("Host access"));
 		print("</a>");
 		print(" | ");
-		print("<a class=\"navbar\" href=\"?cmd=viewusers\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewusers&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("User access"));
 		print("</a>");
 		print(" | ");
-		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs\">");
+		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("MAC access"));
 		print("</a>");
 		print(" | ");
