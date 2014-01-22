@@ -162,7 +162,14 @@ abstract class WebView extends WebAccess {
 	}
 
 	protected function printFilter() {
+		$l12n = $this->l12n();
 		print("<div class=\"filter\">");
+		if($this->tCountFilterEnabled) {
+			$this->printSelectCountFilter();
+		}
+		if($this->tLimitFilterEnabled) {
+			$this->printSelectLimitFilter();
+		}
 		if($this->tTypeFilterEnabled) {
 			$this->printSelectTypeFilter();
 		}
@@ -175,11 +182,11 @@ abstract class WebView extends WebAccess {
 		if($this->tServiceFilterEnabled) {
 			$this->printSelectServiceFilter();
 		}
-		if($this->tCountFilterEnabled) {
-			$this->printSelectCountFilter();
-		}
-		if($this->tLimitFilterEnabled) {
-			$this->printSelectLimitFilter();
+		if($this->getSessionTypeFilter() != "*" || $this->getSessionLoghostFilter() != "*" ||
+			$this->getSessionNetworkFilter() != "*" || $this->getSessionServiceFilter() != "*") {
+			print(" <input type=\"button\" value=\"");
+			Html::out($l12n->t("Clear"));
+			print("\" onclick=\"clearOptions()\" />");
 		}
 		print("</div>");
 	}
@@ -380,15 +387,15 @@ abstract class WebView extends WebAccess {
 		print("</td>");
 	}
 
-	protected function printEventService($serviceId, $service) {
-		print("<td><a href=\"?cmd=viewservice&amp;service={$serviceId}\">");
+	protected function printEventService($serviceId, $service, $typeId, $loghostId, $networkId) {
+		print("<td><a href=\"?cmd=viewservice&amp;service={$serviceId}&amp;typefilter={$typeId}&amp;loghostfilter={$loghostId}&amp;networkfilter={$networkId}\">");
 		Html::out($service);
 		print("</a></td>");
 	}
 
-	protected function printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname) {
+	protected function printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId) {
 		if($hostip != "") {
-			print("<td><a href=\"?cmd=viewhostip&amp;hostip={$hostipId}\">");
+			print("<td><a href=\"?cmd=viewhostip&amp;hostip={$hostipId}&amp;typefilter={$typeId}&amp;loghostfilter={$loghostId}&amp;networkfilter={$networkId}&amp;servicefilter={$serviceId}\">");
 			$this->printImgCountry("icon16", $countrycode, $countryname);
 			if($host != $hostip) {
 				print("<span title=\"{$hostip}\">");
@@ -405,9 +412,9 @@ abstract class WebView extends WebAccess {
 		}
 	}
 
-	protected function printEventHostmac($hostmacId, $hostmac, $vendor) {
+	protected function printEventHostmac($hostmacId, $hostmac, $vendor, $typeId, $loghostId, $networkId, $serviceId) {
 		if($hostmac != "") {
-			print("<td><a href=\"?cmd=viewhostmac&amp;hostmac={$hostmacId}\">");
+			print("<td><a href=\"?cmd=viewhostmac&amp;hostmac={$hostmacId}&amp;typefilter={$typeId}&amp;loghostfilter={$loghostId}&amp;networkfilter={$networkId}&amp;servicefilter={$serviceId}\">");
 			$this->printImgVendor("icon16", $hostmac, $vendor);
 			Html::out(" {$hostmac}");
 			if($vendor != "") {
@@ -421,9 +428,9 @@ abstract class WebView extends WebAccess {
 		}
 	}
 
-	protected function printEventUser($userId, $user, $statusId) {
+	protected function printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, $serviceId) {
 		if($user != "") {
-			print("<td><a href=\"?cmd=viewuser&amp;user={$userId}\">");
+			print("<td><a href=\"?cmd=viewuser&amp;user={$userId}&amp;typefilter={$typeId}&amp;loghostfilter={$loghostId}&amp;networkfilter={$networkId}&amp;servicefilter={$serviceId}\">");
 			$this->printImgUserStatus("icon16", $statusId);
 			if(!Options::kioskMode()) {
 				Html::out(" {$user}");

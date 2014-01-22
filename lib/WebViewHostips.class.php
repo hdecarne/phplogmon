@@ -93,7 +93,7 @@ class WebViewHostips extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, "*");
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", $hostipId, "*", "*");

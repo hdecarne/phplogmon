@@ -170,9 +170,9 @@ class WebViewHostip extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventUser($userId, $user, $statusId);
-				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);

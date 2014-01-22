@@ -147,9 +147,9 @@ class WebViewUser extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);

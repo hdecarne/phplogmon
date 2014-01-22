@@ -91,7 +91,7 @@ class WebViewUsers extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, "*");
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, "*", "*", "*", $userId);

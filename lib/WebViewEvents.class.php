@@ -119,7 +119,7 @@ class WebViewEvents extends WebView {
 	private function printHostipEventData() {
 		$dbh = $this->dbh();
 		$typeId = $this->getSessionTypeFilter();
-		$loghostId = $this->getSessionLoghostFilter();
+		$loghosId = $this->getSessionLoghostFilter();
 		$networkId = $this->getSessionNetworkFilter();
 		$serviceId = $this->getSessionServiceFilter();
 		$hostipId = $this->getRequestHostip();
@@ -180,7 +180,7 @@ class WebViewEvents extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
 				$this->printEventUser($userId, $user, $statusId);
 				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
 				$this->printEventCount($count);
@@ -298,9 +298,9 @@ class WebViewEvents extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
@@ -413,9 +413,9 @@ class WebViewEvents extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
@@ -497,10 +497,10 @@ class WebViewEvents extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-				$this->printEventUser($userId, $user, $statusId);
-				$this->printEventHostmac($hostmacId, $hostmac, $vendor);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventHostmac($hostmacId, $hostmac, $vendor, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);

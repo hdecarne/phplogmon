@@ -146,9 +146,9 @@ class WebViewHostmac extends WebView {
 				$this->printEventType($typeId);
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
-				$this->printEventService($serviceId, $service);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname);
-				$this->printEventUser($userId, $user, $statusId);
+				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
+				$this->printEventUser($userId, $user, $statusId, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, $hostmacId, $userId);
