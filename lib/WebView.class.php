@@ -164,12 +164,6 @@ abstract class WebView extends WebAccess {
 	protected function printFilter() {
 		$l12n = $this->l12n();
 		print("<div class=\"filter\">");
-		if($this->tCountFilterEnabled) {
-			$this->printSelectCountFilter();
-		}
-		if($this->tLimitFilterEnabled) {
-			$this->printSelectLimitFilter();
-		}
 		if($this->tTypeFilterEnabled) {
 			$this->printSelectTypeFilter();
 		}
@@ -181,6 +175,12 @@ abstract class WebView extends WebAccess {
 		}
 		if($this->tServiceFilterEnabled) {
 			$this->printSelectServiceFilter();
+		}
+		if($this->tCountFilterEnabled) {
+			$this->printSelectCountFilter();
+		}
+		if($this->tLimitFilterEnabled) {
+			$this->printSelectLimitFilter();
 		}
 		if($this->getSessionTypeFilter() != "*" || $this->getSessionLoghostFilter() != "*" ||
 			$this->getSessionNetworkFilter() != "*" || $this->getSessionServiceFilter() != "*") {

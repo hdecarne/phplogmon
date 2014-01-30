@@ -57,7 +57,7 @@ class ProcessorEventMatchstate {
 	}
 
 	public function __toString() {
-		return "user='service='{$this->tMatchedService}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';user='{$this->tMatchedUser}';{$this->tEvent}";
+		return "service='{$this->tMatchedService}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';user='{$this->tMatchedUser}';{$this->tEvent}";
 	}
 
 	private function isEmpty() {
