@@ -100,7 +100,7 @@ abstract class WebAccess {
 		return $this->tL12n;
 	}
 
-	public static function sendStatusAndExit($status) {
+	public static function sendStatusAndExit($status, $reason = "") {
 		http_response_code($status);
 		switch($status) {
 		case self::STATUS_FORBIDDEN:
@@ -111,6 +111,9 @@ abstract class WebAccess {
 			break;
 		default:
 			$message = "HTTP {$status}";
+		}
+		if($reason != "") {
+			$message .= " - {$reason}";
 		}
 		print($message);
 		flush();

@@ -33,7 +33,7 @@ class WebStreamLogs extends WebStream {
 			}
 			$this->sendLogs();
 		} else {
-			$this->sendStatusAndExit(self::STATUS_FORBIDDEN);
+			$this->sendStatusAndExit(self::STATUS_FORBIDDEN, "Kiosk mode enabled");
 		}
 	}
 

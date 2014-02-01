@@ -22,7 +22,7 @@ class Version {
 
 	private static $sShortName = "LogMon";
 	private static $sLongName = "Log Monitor";
-	private static $sBuild = "v1.0.0-20140118";
+	private static $sBuild = "v2.0.0-20140202";
 
 	public static function shortName() {
 		return self::$sShortName;

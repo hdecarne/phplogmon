@@ -93,7 +93,12 @@ class WebViewHostip extends WebView {
 				if($region != "") {
 					$location .= "{$region}, ";
 				}
-				$location .= "{$countryname} ({$countrycode}), {$continentcode}";
+				if($countryname != "") {
+					$location .= "{$countryname} ({$countrycode}), ";
+				}
+				if($continentcode) {
+					$location .= "{$continentcode}";
+				}
 				$this->printMapLink("icon16", $host, $latitude, $longitude, $location);
 				$this->endDetailsTableElement();
 			}
