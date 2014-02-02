@@ -135,10 +135,6 @@ abstract class WebView extends WebAccess {
 	protected function printNavBar() {
 		$l12n = $this->l12n();
 		print("<div class=\"navbar\">");
-		print("<a class=\"navbar\" href=\"?cmd=viewevents&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
-		Html::out($l12n->t("Browse all"));
-		print("</a>");
-		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewservices&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("Service access"));
 		print("</a>");
@@ -153,6 +149,10 @@ abstract class WebView extends WebAccess {
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewhostmacs&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
 		Html::out($l12n->t("MAC access"));
+		print("</a>");
+		print(" | ");
+		print("<a class=\"navbar\" href=\"?cmd=viewevents&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
+		Html::out($l12n->t("Browse all"));
 		print("</a>");
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewabout\">");
