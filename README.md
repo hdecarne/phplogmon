@@ -33,5 +33,5 @@ interface or other scripts.
 See INSTALL file for how to install, configure and use  phplogmon.
 
 History
-=======
+-------
 * 2014-02-02 Initial release of phplogmon v1.0.0

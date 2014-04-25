@@ -52,7 +52,7 @@ try {
 			$access = new WebStreamLogs($dbh);
 			break;
 		default:
-			$access = new WebViewHostips($dbh);
+			$access = new WebViewServices($dbh);
 	}
 } catch(Exception $e) {
 	Log::err($e);

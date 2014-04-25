@@ -136,7 +136,7 @@ abstract class WebView extends WebAccess {
 		$l12n = $this->l12n();
 		print("<div class=\"navbar\">");
 		print("<a class=\"navbar\" href=\"?cmd=viewservices&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
-		Html::out($l12n->t("Service access"));
+		Html::out($l12n->t("Service/Host access"));
 		print("</a>");
 		print(" | ");
 		print("<a class=\"navbar\" href=\"?cmd=viewhostips&amp;typefilter=*&amp;loghostfilter=*&amp;networkfilter=*&amp;servicefilter=*\">");
