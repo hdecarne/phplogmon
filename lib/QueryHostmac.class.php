@@ -44,12 +44,13 @@ class QueryHostmac {
 		if($hostmac != "") {
 			Log::debug("Retrieving info for mac '{$hostmac}'...");
 		}
-		$select = $dbh->prepare("SELECT a.id FROM hostmac a WHERE hostmac = ?");
+		$vendor = self::getVendor($hostmac);
+		$select = $dbh->prepare("SELECT a.id FROM hostmac a WHERE hostmac = ? AND vendor = ?");
 		$select->bindValue(1, $hostmac, PDO::PARAM_STR);
+		$select->bindValue(2, $vendor, PDO::PARAM_STR);
 		$select->execute();
 		$select->bindColumn(1, $id, PDO::PARAM_STR);
 		if($select->fetch(PDO::FETCH_BOUND) === false) {
-			$vendor = self::getVendor($hostmac);
 			if(!Options::pretend()) {
 				$insert = $dbh->prepare("INSERT INTO hostmac (hostmac, vendor) VALUES(?, ?)");
 				$insert->bindValue(1, $hostmac, PDO::PARAM_STR);
