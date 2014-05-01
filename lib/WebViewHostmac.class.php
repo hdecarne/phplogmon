@@ -132,7 +132,7 @@ class WebViewHostmac extends WebView {
 			$l12n->t("Host"),
 			$l12n->t("User"),
 			$l12n->t("Count"),
-			$l12n->t("When"),
+			$l12n->t("Last"),
 			$l12n->t("Logs")
 		));
 		$rowNr = 1;
