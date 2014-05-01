@@ -100,7 +100,7 @@ class WebViewServices extends WebView {
 				$this->printEventLoghost($loghost);
 				$this->printEventNetwork($network);
 				$this->printEventService($serviceId, $service, $typeId, $loghostId, $networkId);
-				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, "*");
+				$this->printEventHostip($hostipId, $hostip, $host, $countrycode, $countryname, $typeId, $loghostId, $networkId, $serviceId);
 				$this->printEventCount($count);
 				$this->printEventTimerange($now, $first, $last);
 				$this->printEventLogLinks($typeId, $loghostId, $networkId, $serviceId, $hostipId, "*", "*");
