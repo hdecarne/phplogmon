@@ -57,7 +57,7 @@ class WebViewAbout extends WebView {
 	);
 
 	private static $sIcons2 = array(
-		"country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png", "service_generic.png"
+		"logo.png", "country_generic.png", "user_generic.png", "user_invalid.png", "user_valid.png", "vendor_generic.png", "service_generic.png"
 	);
 
 	private static $sIcons3 = array(
@@ -88,6 +88,7 @@ class WebViewAbout extends WebView {
 
 	private function printLicense() {
 		print("<h1>");
+		print("<img src=\"img/logo.png\" alt=\"Logo\" title=\"phplogmon\" />");
 		Html::out("phplogmon");
 		print("</h1>");
 		print("<pre>");
