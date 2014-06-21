@@ -30,6 +30,7 @@ class ProcessorEventMatchstate {
 	private $tMatches;
 	private $tMatchedTimestamp;
 	private $tMatchedLines;
+	private $tMatchedLoghost;
 	private $tMatchedService;
 	private $tMatchedHostip;
 	private $tMatchedHostmac;
@@ -50,6 +51,7 @@ class ProcessorEventMatchstate {
 		$this->tMatches = array();
 		$this->tMatchedTimestamp = 0;
 		$this->tMatchedLines = array();
+		$this->tMatchedLoghost = "";
 		$this->tMatchedService = "";
 		$this->tMatchedHostip = "";
 		$this->tMatchedHostmac = "";
@@ -57,15 +59,15 @@ class ProcessorEventMatchstate {
 	}
 
 	public function __toString() {
-		return "service='{$this->tMatchedService}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';user='{$this->tMatchedUser}';{$this->tEvent}";
+		return "loghost='{$this->tMatchedLoghost}';service='{$this->tMatchedService}';hostip='{$this->tMatchedHostip}';hostmac='{$this->tMatchedHostmac}';user='{$this->tMatchedUser}';{$this->tEvent}";
 	}
 
 	private function isEmpty() {
-		return $this->tMatchedService === "" && $this->tMatchedHostip === "" && $this->tMatchedHostmac === "" && $this->tMatchedUser === "";
+		return $this->tMatchedLoghost === "" && $this->tMatchedService === "" && $this->tMatchedHostip === "" && $this->tMatchedHostmac === "" && $this->tMatchedUser === "";
 	}
 
 	private function isErroneous() {
-		return $this->tMatchedService === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedUser === false;
+		return $this->tMatchedLoghost === false || $this->tMatchedService === false || $this->tMatchedHostip === false || $this->tMatchedHostmac === false || $this->tMatchedUser === false;
 	}
 
 	public static function create($dbh, $monitor, $source, $file) {
@@ -124,6 +126,7 @@ class ProcessorEventMatchstate {
 				$this->tMatchedTimestamp = $lineTimestamp;
 			}
 			if($this->tNextPatternIndex == count($patterns)) {
+				$this->tMatchedLoghost = $this->applyLoghostEvaluator();
 				$this->tMatchedService = $this->applyServiceEvaluator();
 				$this->tMatchedHostip = $this->applyHostipEvaluator();
 				$this->tMatchedHostmac = $this->applyHostmacEvaluator();
@@ -150,6 +153,16 @@ class ProcessorEventMatchstate {
 			}
 		}
 		return $matchCount;
+	}
+
+	private function applyLoghostEvaluator() {
+		$evaluator = $this->tEvent->getLoghostEvaluator();
+		if(!is_null($evaluator)) {
+			$loghost = $this->applyEvaluator($evaluator);
+		} else {
+			$loghost = $this->tSource->getLoghost();
+		}
+		return $loghost;
 	}
 
 	private function applyServiceEvaluator() {
@@ -191,7 +204,7 @@ class ProcessorEventMatchstate {
 	}
 
 	private function update() {
-		$loghostId = QueryLoghost::getLoghostId($this->tDbh, $this->tSource->getLoghost());
+		$loghostId = QueryLoghost::getLoghostId($this->tDbh, $this->tMatchedLoghost);
 		$serviceId = QueryService::getServiceId($this->tDbh, $this->tMatchedService);
 		$networkId = QueryHostipNetwork::getNetworkId($this->tDbh, $this->tNetworkmap, $this->tMatchedHostip);
 		$hostipId = QueryHostip::getHostipId($this->tDbh, $this->tMatchedHostip);

@@ -88,40 +88,42 @@ class QueryHostip {
 
 	private static function safeGetGeoipRecord($hostip) {
 		$record = false;
-		if(GEOIP2_CITY_DATABASE_FILE != false) {
-			if(is_null(self::$geoip2Reader)) {
-				if(!extension_loaded("bcmath")) {
-					Log::warning("Missing required extension 'bcmath' for GeoIP2");
+		if($hostip != "") {
+			if(GEOIP2_CITY_DATABASE_FILE != false) {
+				if(is_null(self::$geoip2Reader)) {
+					if(!extension_loaded("bcmath")) {
+						Log::warning("Missing required extension 'bcmath' for GeoIP2");
+					}
+					self::$geoip2Reader = new GeoIp2\Database\Reader(GEOIP2_CITY_DATABASE_FILE);
 				}
-				self::$geoip2Reader = new GeoIp2\Database\Reader(GEOIP2_CITY_DATABASE_FILE);
-			}
-			try {
-				$found = self::$geoip2Reader->city($hostip);
-				$record = array(
-					"continent_code" => utf8_encode($found->continent->code),
-					"country_code" => utf8_encode($found->country->isoCode),
-					"country_name" => utf8_encode($found->country->name),
-					"region" => utf8_encode($found->mostSpecificSubdivision->isoCode),
-					"city" => utf8_encode($found->city->name),
-					"postal_code" => utf8_encode($found->postal->code),
-					"latitude" => $found->location->latitude,
-					"longitude" => $found->location->longitude
-				);
-			} catch(GeoIp2\Exception\AddressNotFoundException $e) {
-			}
-		} elseif(function_exists("geoip_record_by_name")) {
-			$found = @geoip_record_by_name($hostip);
-			if($found !== false) {
-				$record = array(
-					"continent_code" => utf8_encode($found["continent_code"]),
-					"country_code" => utf8_encode($found["country_code"]),
-					"country_name" => utf8_encode($found["country_name"]),
-					"region" => utf8_encode($found["region"]),
-					"city" => utf8_encode($found["city"]),
-					"postal_code" => utf8_encode($found["postal_code"]),
-					"latitude" => $found["latitude"],
-					"longitude" => $found["longitude"]
-				);
+				try {
+					$found = self::$geoip2Reader->city($hostip);
+					$record = array(
+						"continent_code" => utf8_encode($found->continent->code),
+						"country_code" => utf8_encode($found->country->isoCode),
+						"country_name" => utf8_encode($found->country->name),
+						"region" => utf8_encode($found->mostSpecificSubdivision->isoCode),
+						"city" => utf8_encode($found->city->name),
+						"postal_code" => utf8_encode($found->postal->code),
+						"latitude" => $found->location->latitude,
+						"longitude" => $found->location->longitude
+					);
+				} catch(GeoIp2\Exception\AddressNotFoundException $e) {
+				}
+			} elseif(function_exists("geoip_record_by_name")) {
+				$found = @geoip_record_by_name($hostip);
+				if($found !== false) {
+					$record = array(
+						"continent_code" => utf8_encode($found["continent_code"]),
+						"country_code" => utf8_encode($found["country_code"]),
+						"country_name" => utf8_encode($found["country_name"]),
+						"region" => utf8_encode($found["region"]),
+						"city" => utf8_encode($found["city"]),
+						"postal_code" => utf8_encode($found["postal_code"]),
+						"latitude" => $found["latitude"],
+						"longitude" => $found["longitude"]
+					);
+				}
 			}
 		}
 		if($record === false) {

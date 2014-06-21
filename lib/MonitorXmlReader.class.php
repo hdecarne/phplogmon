@@ -182,6 +182,10 @@ class MonitorXmlReader {
 			$this->validateAttribs($attribs, array(), array());
 			$handlers = array(null, "dataEventPattern", null);
 			break;
+		case "logmon/events/event/loghost":
+			$this->validateAttribs($attribs, array(), array("decoder"));
+			$handlers = array(null, "dataEventLoghost", null);
+			break;
 		case "logmon/events/event/service":
 			$this->validateAttribs($attribs, array(), array("decoder"));
 			$handlers = array(null, "dataEventService", null);
@@ -505,6 +509,10 @@ class MonitorXmlReader {
 		if($patternValid) {
 			$this->tCurrentEvent->addPattern($pattern);
 		}
+	}
+
+	private function dataEventLoghost($data) {
+		$this->dataEventEvaluator("loghost", "setLoghostEvaluator", $data);
 	}
 
 	private function dataEventService($data) {

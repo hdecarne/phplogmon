@@ -48,7 +48,7 @@ class WebViewServices extends WebView {
 			"SELECT a.typeid, b.id, b.loghost, c.id, c.network, d.id, d.service, e.id, e.hostip, e.host, e.countrycode, e.countryname, ".
 				"SUM(a.count), MIN(a.first), MAX(a.last) ".
 			"FROM event a, loghost b, network c, service d, hostip e ".
-			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND d.service <> '' AND a.hostipid = e.id ".
+			"WHERE a.loghostid = b.id AND a.networkid = c.id AND a.serviceid = d.id AND d.service <> '' AND a.hostipid = e.id AND e.hostip <> ''".
 				"AND ('*' = ? OR a.typeid = ?) AND ('*' = ? OR b.id = ?) AND ('*' = ? OR c.id = ?)  AND ('*' = ? OR d.id = ?) ".
 			"GROUP BY a.typeid, b.id, c.id, d.id, e.id ".
 			"ORDER BY MAX(a.last) DESC");

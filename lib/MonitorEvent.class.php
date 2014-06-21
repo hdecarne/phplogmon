@@ -44,6 +44,7 @@ class MonitorEvent {
 	private $tHostipEvaluator = null;
 	private $tHostmacEvaluator = null;
 	private $tServiceEvaluator = null;
+	private $tLoghostEvaluator = null;
 
 	public function __construct($type, $defaultService) {
 		$this->tType = $type;
@@ -134,6 +135,14 @@ class MonitorEvent {
 
 	public function getServiceEvaluator() {
 		return $this->tServiceEvaluator;
+	}
+
+	public function setLoghostEvaluator($evaluator, $decoder) {
+		$this->tLoghostEvaluator = new MonitorEventEvaluator($evaluator, $decoder);
+	}
+
+	public function getLoghostEvaluator() {
+		return $this->tLoghostEvaluator;
 	}
 
 }
