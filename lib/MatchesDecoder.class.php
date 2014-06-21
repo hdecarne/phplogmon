@@ -23,11 +23,13 @@ abstract class MatchesDecoder {
 	const DECODER_MATCH = "match";
 	const DECODER_SRVBYPORT = "srvbyport";
 	const DECODER_MACFROMIP = "macfromip";
+	const DECODER_IPFROMMAC = "ipfrommac";
 
 	private static $sDecoders = array(
 		self::DECODER_MATCH => "MatchesDecoderMatch",
 		self::DECODER_SRVBYPORT => "MatchesDecoderSrvbyport",
-		self::DECODER_MACFROMIP => "MatchesDecoderMacfromip"
+		self::DECODER_MACFROMIP => "MatchesDecoderMacfromip",
+		self::DECODER_IPFROMMAC => "MatchesDecoderIpfrommac"
 	);
 
 	public static function validDecoders() {
