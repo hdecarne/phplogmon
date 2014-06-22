@@ -116,11 +116,13 @@ class QueryHostipNetwork {
 		$hostipValue = ($hostip !== "" ? inet_pton($hostip) : false);
 		$network = null;
 		if($hostipValue !== false) {
-			foreach(self::$sNetworkmapIndex[$sourceKey] as $prefix => $prefixIndex) {
-				$hostipKey = self::address2Key($hostipValue, $prefix);
-				if(isset($prefixIndex[$hostipKey])) {
-					$network = $prefixIndex[$hostipKey];
-					break;
+			if(isset(self::$sNetworkmapIndex[$sourceKey])) {
+				foreach(self::$sNetworkmapIndex[$sourceKey] as $prefix => $prefixIndex) {
+					$hostipKey = self::address2Key($hostipValue, $prefix);
+					if(isset($prefixIndex[$hostipKey])) {
+						$network = $prefixIndex[$hostipKey];
+						break;
+					}
 				}
 			}
 		}
