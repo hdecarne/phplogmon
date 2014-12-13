@@ -43,7 +43,7 @@ class Processor {
 						$sourcestate = ProcessorSourcestate::add($sourcestates, $this->tDbh, $source, $logfile);
 					}
 					if($sourcestate->touch()) {
-						Log::notice("Processing modified file '{$logfile}'");
+						Log::info("Processing modified file '{$logfile}'");
 						$decoder = $file->getDecoder($logfile);
 						while(($line = $this->fetchLine($decoder, $source)) !== false) {
 							$lineTimestamp = $this->parseLineTimestamp($line, $source);
@@ -53,7 +53,7 @@ class Processor {
 							}
 						}
 					} else {
-						Log::notice("Ignoring unmodified file '{$logfile}'");
+						Log::info("Ignoring unmodified file '{$logfile}'");
 					}
 				}
 			} else {
